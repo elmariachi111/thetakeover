@@ -1,0 +1,7 @@
+POST http://localhost:3000/api/links/create
+Content-Type: application/json 
+
+{
+  "uri": "https://private.youtube.link",
+  "price": "9.99"
+}
