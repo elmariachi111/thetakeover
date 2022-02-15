@@ -28,7 +28,6 @@ const CreateLink: NextPage = () => {
       <Spacer />
       <NewLink onChange={setNewLink}/>
       <Spacer />
-      <Text>Foo {newLink?.url}</Text>
       <Button w="full" onClick={submit}>go ahead</Button>
     </Flex>
   );
