@@ -14,6 +14,8 @@ model Link {
     hash       String  @id
     origin_uri String
     price      Decimal
+    creatorId  String
+    creator    User    @relation(fields: [creatorId], references: [id])
 
     @@index([hash, origin_uri])
 }
@@ -55,6 +57,7 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
+    links         Link[]
 }
 
 model VerificationToken {

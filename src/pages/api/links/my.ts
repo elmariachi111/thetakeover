@@ -8,21 +8,16 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { uri, price }: { uri: string; price: string } = req.body;
   const session = await getSession({ req });
 
-  const hash = await nanoid();
   if (!session?.user) {
     return res.status(401).send("Unauthorized");
   }
-
-  const newLink = await prisma.link.create({
-    data: {
-      hash,
-      origin_uri: uri,
-      price,
+  const links = await prisma.link.findMany({
+    where: {
       creatorId: session.user.id,
     },
   });
 
-  res.status(200).json({ link: uri, newLink, user: session?.user });
+  res.json(links);
 };
 
 export default handler;
