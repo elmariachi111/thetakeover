@@ -11,13 +11,29 @@ datasource db {
 }
 
 model Link {
-    hash       String  @id
+    hash       String    @id
     origin_uri String
     price      Decimal
     creatorId  String
-    creator    User    @relation(fields: [creatorId], references: [id])
+    creator    User      @relation(fields: [creatorId], references: [id])
+    payments   Payment[]
 
     @@index([hash, origin_uri])
+}
+
+model Payment {
+    id         String @id @default(uuid())
+    link_hash  String
+    userId     String
+    paymentRef String
+
+    initiatedAt DateTime  @default(now())
+    paidAt      DateTime?
+
+    user User @relation(fields: [userId], references: [id])
+    link Link @relation(fields: [link_hash], references: [hash])
+
+    @@index([link_hash, userId])
 }
 
 model Account {
@@ -58,6 +74,7 @@ model User {
     accounts      Account[]
     sessions      Session[]
     links         Link[]
+    payments      Payment[]
 }
 
 model VerificationToken {

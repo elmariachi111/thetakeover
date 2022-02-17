@@ -5,3 +5,12 @@ Content-Type: application/json
   "uri": "https://private.youtube.link",
   "price": "9.99"
 }
+
+### 
+
+GET  http://localhost:3000/api/links/MZAP3AZS8427pm4LBzJDG
+
+###
+
+GET  http://localhost:3000/api/to/MZAP3AZS8427pm4LBzJDG
+

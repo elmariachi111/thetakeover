@@ -10,8 +10,13 @@ const Navbar = (params) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   
   return <Container as={Flex} direction="row" justify="space-between" align="center">
-    <Image src={logo} alt="logo" height={60} width={60}></Image>
+    <NextLink href="/" passHref>
+      <Link href="/">
+        <Image src={logo} alt="logo" height={60} width={60}></Image>
+      </Link>
+    </NextLink>
     <Spacer />
+
     <IconButton onClick={onOpen} aria-label="foo" icon={<MdMenu />} >
         
     </IconButton>

@@ -5,18 +5,27 @@ import { getSession } from "next-auth/react";
 
 const prisma = new PrismaClient();
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const session = await getSession({ req });
-
-  if (!session?.user) {
-    return res.status(401).send("Unauthorized");
-  }
-  const links = await prisma.link.findMany({
+  const link = await prisma.link.findUnique({
     where: {
-      creatorId: session.user.id,
+      hash: req.query.hash as string,
+    },
+    select: {
+      hash: true,
+      price: true,
+      creator: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
     },
   });
 
-  res.json(links);
+  if (!link) return res.status(404).send("link not found");
+
+  return res.json({
+    link,
+  });
 };
 
 export default handler;

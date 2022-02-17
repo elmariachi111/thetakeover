@@ -11,7 +11,6 @@ const CreateLink: NextPage = () => {
   const submit = async (e) => {
     e.preventDefault();
 
-    console.log(newLink);
     const res = await axios.post("/api/links/create", {
       uri: newLink?.url,
       price: newLink?.price
