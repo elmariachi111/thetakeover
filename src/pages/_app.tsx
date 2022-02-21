@@ -4,6 +4,7 @@ import type { AppProps } from "next/app";
 import Layout from "../components/Layout";
 import "@fontsource/space-mono/400.css";
 import "@fontsource/space-mono/700.css";
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 
 const theme = extendTheme({
   config: {
@@ -50,9 +51,11 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   return (
     <ChakraProvider theme={theme}>
       <SessionProvider session={session}>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
+        <PayPalScriptProvider options={{ "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID as string, currency: "EUR" }}>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </PayPalScriptProvider>
       </SessionProvider>
     </ChakraProvider>
   );
