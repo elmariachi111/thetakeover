@@ -1,4 +1,4 @@
-import { Button, Flex, Heading, Link as ChakraLink, Skeleton, Spacer, Text } from "@chakra-ui/react";
+import { Button, Flex, Heading, Link as ChakraLink, Skeleton, SkeletonCircle, SkeletonText, Spacer, Text } from "@chakra-ui/react";
 import { Link, Payment } from "@prisma/client";
 import axios from "axios";
 import type { NextPage } from "next";
@@ -59,20 +59,31 @@ const ToPay: NextPage = () => {
     setPayment(await res.data);
   }
 
+
   return (
     <Flex direction="column" align="center" >
       <Flex direction="row" justifyContent="space-between" align="center" w="full">
+
         <Flex direction="column" my={5}>
           <Heading textTransform="uppercase" >Pay</Heading>
-          <Text fontSize="md">
-            <b>{data.link.hash}</b>{' '}
-            by {data.link.creator.name}
-          </Text>
+          <SkeletonText isLoaded={data?.link}>
+            <Text fontSize="md">
+              <b>{data?.link.hash}</b>{' '}
+              by {data?.link.creator.name}
+            </Text>
+          </SkeletonText>
+
         </Flex>
+
         <Flex>
-          <Text fontSize="4xl" fontWeight="bold">€{data.link.price}</Text>
+          {data?.link.price
+            ? <Text fontSize="4xl" fontWeight="bold">€{data?.link.price}</Text>
+            : <SkeletonCircle />
+          }
         </Flex>
+
       </Flex>
+
       {
         data && !payment && <Flex direction="column" w="full">
           <PayPalButtons

@@ -21,7 +21,7 @@ const CreateLink: NextPage = () => {
       <Spacer />
       {status === "authenticated" ?
         <Flex direction="column" align="center" >
-          <Text my={3}>gm, {session?.user?.name ? session.user.id : session?.user?.id}</Text>
+          <Text my={3}>gm, {session?.user?.name ? session.user.name : session?.user?.id}</Text>
           <Link href="/create" passHref>
             <Button as={ChakraLink} to="/create">Create a Takeover</Button>
           </Link>
