@@ -6,7 +6,7 @@ export default function LoginComponent() {
   console.log(session);
   if (session) {
     return (
-      <Flex direction="column" align="center" >
+      <Flex direction="column" align="center">
         <Flex p={6}>{session?.user?.email}</Flex>
         <Button onClick={() => signOut()}>Sign out</Button>
         <Spacer />

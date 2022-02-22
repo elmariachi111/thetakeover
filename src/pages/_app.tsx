@@ -12,8 +12,8 @@ const theme = extendTheme({
     useSystemColorMode: false,
   },
   fonts: {
-    heading: 'Space Mono',
-    body: 'Space Mono',
+    heading: "Space Mono",
+    body: "Space Mono",
   },
   colors: {
     brand: {
@@ -31,31 +31,35 @@ const theme = extendTheme({
   components: {
     Button: {
       baseStyle: {
-        textTransform: 'uppercase',
+        textTransform: "uppercase",
         borderRadius: 0,
       },
       defaultProps: {
         colorScheme: "brand",
-
       },
       variants: {
         solid: {
           color: "white",
           p: 8,
           _hover: {
-            backgroundColor: "brand.100"
+            backgroundColor: "brand.100",
           },
-        }
-      }
-    }
-  }
+        },
+      },
+    },
+  },
 });
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   return (
     <ChakraProvider theme={theme}>
       <SessionProvider session={session}>
-        <PayPalScriptProvider options={{ "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID as string, currency: "EUR" }}>
+        <PayPalScriptProvider
+          options={{
+            "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID as string,
+            currency: "EUR",
+          }}
+        >
           <Layout>
             <Component {...pageProps} />
           </Layout>

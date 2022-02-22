@@ -7,9 +7,8 @@ import NewLink from "../components/organisms/NewLink";
 import { LinkPayload } from "../types/LinkPayload";
 
 const CreateLink: NextPage = () => {
-
   const [newLink, setNewLink] = useState<LinkPayload>();
-  const router = useRouter()
+  const router = useRouter();
 
   const submit = async (e) => {
     e.preventDefault();
@@ -17,19 +16,20 @@ const CreateLink: NextPage = () => {
     //... connect paypal
     const res = await axios.post("/api/links/create", {
       uri: newLink?.url,
-      price: newLink?.price
-    })
+      price: newLink?.price,
+    });
 
-    router.push('/my', {})
-
-  }
+    router.push("/my", {});
+  };
 
   return (
     <Flex direction="column" h="full" align="center">
       <Spacer />
       <NewLink onChange={setNewLink} />
       <Spacer />
-      <Button w="full" onClick={submit} disabled={!newLink}>go ahead</Button>
+      <Button w="full" onClick={submit} disabled={!newLink}>
+        go ahead
+      </Button>
     </Flex>
   );
 };

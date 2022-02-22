@@ -17,7 +17,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       _count: {
         select: { payments: true },
       },
-    }
+    },
   });
 
   res.json(links);

@@ -1,25 +1,38 @@
-import { Flex, Heading, Text, Link as ChakraLink, Table, Tr, Td, Thead, Th } from "@chakra-ui/react";
+import {
+  Flex,
+  Heading,
+  Text,
+  Link as ChakraLink,
+  Table,
+  Tr,
+  Td,
+  Thead,
+  Th,
+} from "@chakra-ui/react";
 import { Link } from "@prisma/client";
 import axios from "axios";
 import type { NextPage } from "next";
 import { useSession } from "next-auth/react";
 
-
 import useSWR, { Fetcher } from "swr";
 
+type XLink = Link & { _count: { payments: number } };
+
 const MyTakeOvers: NextPage = () => {
+  const fetcher: Fetcher<XLink[]> = (url) =>
+    axios.get<XLink[]>(url).then((res) => res.data);
+  const { data: links } = useSWR("/api/links/my", fetcher);
 
-  const fetcher: Fetcher<Link[]> = (url) => axios.get<Link[]>(url).then((res) => res.data)
-  const { data: links } = useSWR('/api/links/my', fetcher)
-
-  console.log(links)
+  console.log(links);
   const { data: session } = useSession({
-    required: true
+    required: true,
   });
 
   return (
     <Flex direction="column" h="full" align="flex-start">
-      <Heading fontSize="xl" textTransform="uppercase" my={5}>Your Takeovers</Heading>
+      <Heading fontSize="xl" textTransform="uppercase" my={5}>
+        Your Takeovers
+      </Heading>
       <Table>
         <Thead>
           <Tr>
@@ -28,24 +41,20 @@ const MyTakeOvers: NextPage = () => {
             <Th isNumeric>Downloads</Th>
           </Tr>
         </Thead>
-        {links?.map(link => (
+        {links?.map((link) => (
           <Tr key={link.hash}>
             <Td>
               <Flex direction="column">
                 <ChakraLink isExternal href={`/api/to/${link.hash}`}>
                   {link.hash}
                 </ChakraLink>
-                <Text fontSize="xs">
-                  {link.origin_uri}
-                </Text>
+                <Text fontSize="xs">{link.origin_uri}</Text>
               </Flex>
             </Td>
             <Td isNumeric>
               <Text>€{link.price}</Text>
             </Td>
-            <Td isNumeric>
-              {link._count.payments}
-            </Td>
+            <Td isNumeric>{link._count.payments}</Td>
           </Tr>
         ))}
       </Table>
