@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { PrismaClient } from "@prisma/client";
+import { PaymentStatus, PrismaClient } from "@prisma/client";
 import { nanoid } from "nanoid/async";
 import { getSession } from "next-auth/react";
 
@@ -28,13 +28,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     },
   });
 
-  if (!payment || !payment.paidAt) {
+  if (!payment || payment.paymentStatus !== PaymentStatus.COMPLETED) {
     return res.redirect(307, `/to/pay/${link?.hash}`);
   }
 
-  if (payment.paidAt < new Date()) {
-    return res.redirect(307, link.origin_uri);
-  }
+  return res.redirect(307, link.origin_uri);
 };
 
 export default handler;

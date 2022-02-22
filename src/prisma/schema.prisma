@@ -21,18 +21,35 @@ model Link {
     @@index([hash, origin_uri])
 }
 
+enum PaymentIntent {
+    CAPTURE
+    AUTHORIZE
+}
+
+enum PaymentStatus {
+    CREATED
+    COMPLETED
+}
+
+enum PaymentProvider {
+    PAYPAL
+}
+
 model Payment {
     id         String @id @default(uuid())
     link_hash  String
     userId     String
-    paymentRef String
-
+    provider   PaymentProvider @default(PAYPAL)
+    paymentRef String @unique
+    paymentIntent PaymentIntent @default(CAPTURE)
+    paymentStatus PaymentStatus? 
     initiatedAt DateTime  @default(now())
     paidAt      DateTime?
 
     user User @relation(fields: [userId], references: [id])
     link Link @relation(fields: [link_hash], references: [hash])
 
+    @@index([paymentRef])
     @@index([link_hash, userId])
 }
 

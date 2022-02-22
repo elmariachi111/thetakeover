@@ -21,28 +21,42 @@ const ToPay: NextPage = () => {
   const fetcher: Fetcher<any> = (url) => axios.get(url).then((res) => res.data)
   const { data } = useSWR(`/api/links/${linkid}`, fetcher)
 
-  const pay = async(linkId: string) => {
-    const res = await axios.post(`/api/to/pay/${data.link.hash}`)
-    setPayment(await res.data);
-  }
-
-  const createOrder = (_data: Record<string, unknown>, actions: CreateOrderActions) => {
-    return actions.order.create({
+  const createOrder = async (_data: Record<string, unknown>, actions: CreateOrderActions) => {
+    const orderId = await actions.order.create({
       purchase_units: [
         {
+          reference_id: linkid as string,
+          description: `TO ${linkid}`,
           amount: {
+            currency_code: "EUR",
             value: data.link.price,
           },
+          // payment_instruction: {
+          //   disbursement_mode: "INSTANT",
+          //   platform_fees: [
+          //     {
+          //       amount: {
+          //         currency_code: "EUR",
+          //         value: (0.1 * data.link.price).toFixed(2)
+          //       }
+          //     }
+          //   ]
+          // }
         },
       ],
     });
+    const res = await axios.post(`/api/to/pay/${orderId}`)
+
+    console.log(orderId);
+    return orderId
   }
 
   const onApprove = async (data: OnApproveData, actions: OnApproveActions) => {
     if (!actions.order) return;
     const details = await actions.order.capture();
-    const name = details.payer.name.given_name;
-    alert(`Transaction completed by ${name}`);
+    console.log(actions, details);
+    const res = await axios.post(`/api/to/pay/${details.id}`)
+    setPayment(await res.data);
   }
 
   return (
@@ -57,7 +71,7 @@ const ToPay: NextPage = () => {
             onApprove={onApprove}
           />
 
-          <Button onClick={() => pay(data.link.hash)} disabled={!session?.user}>pay €{data.link.price}</Button>
+          {/*<Button onClick={() => pay(data.link.hash)} disabled={!session?.user}>pay €{data.link.price}</Button>*/}
         </>
         }
       </Skeleton>
