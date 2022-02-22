@@ -1,4 +1,4 @@
-import { Button, Flex, Heading, Link as ChakraLink, Skeleton, Text } from "@chakra-ui/react";
+import { Button, Flex, Heading, Link as ChakraLink, Skeleton, Spacer, Text } from "@chakra-ui/react";
 import { Link, Payment } from "@prisma/client";
 import axios from "axios";
 import type { NextPage } from "next";
@@ -60,26 +60,31 @@ const ToPay: NextPage = () => {
   }
 
   return (
-    <Flex direction="column" h="full" align="center">
-      <Heading>Pay
-
-      </Heading>
-
-      <Skeleton isLoaded={!!data}>
-        {data && <>
-          <Text>LID: {data.link.hash}</Text>
-          <Text>by {data.link.creator.name}</Text>
+    <Flex direction="column" align="center" >
+      <Flex direction="row" justifyContent="space-between" align="center" w="full">
+        <Flex direction="column" my={5}>
+          <Heading textTransform="uppercase" >Pay</Heading>
+          <Text fontSize="md">
+            <b>{data.link.hash}</b>{' '}
+            by {data.link.creator.name}
+          </Text>
+        </Flex>
+        <Flex>
+          <Text fontSize="4xl" fontWeight="bold">€{data.link.price}</Text>
+        </Flex>
+      </Flex>
+      {
+        data && !payment && <Flex direction="column" w="full">
           <PayPalButtons
             createOrder={createOrder}
             onApprove={onApprove}
           />
 
-          {/*<Button onClick={() => pay(data.link.hash)} disabled={!session?.user}>pay €{data.link.price}</Button>*/}
-        </>
-        }
-      </Skeleton>
+        </Flex>
+      }
+
       {payment && <Button as={ChakraLink} href={`/api/to/${payment.link_hash}`}>download</Button>}
-    </Flex>
+    </Flex >
   );
 };
 

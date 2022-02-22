@@ -1,4 +1,4 @@
-import { Button, Container, Drawer, DrawerContent, DrawerOverlay, Flex, IconButton, Link, Spacer, Text, useDisclosure } from "@chakra-ui/react"
+import { Button, Container, Drawer, DrawerContent, DrawerOverlay, Flex, IconButton, Link, Spacer, Text, useColorMode, useDisclosure } from "@chakra-ui/react"
 import Image from "next/image";
 import React from "react";
 import logo from '../../img/to_logo.svg';
@@ -6,10 +6,13 @@ import LoginComponent from "../LoginComponent";
 import { MdMenu } from 'react-icons/md';
 import { default as NextLink } from 'next/link'
 import { useSession } from "next-auth/react";
+import { FaSun } from 'react-icons/fa'
 
 const Navbar = (params) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const { status } = useSession();
+
+  const { colorMode, toggleColorMode } = useColorMode()
 
   return <Container as={Flex} direction="row" justify="space-between" align="center">
     <NextLink href="/" passHref>
@@ -19,9 +22,12 @@ const Navbar = (params) => {
     </NextLink>
     <Spacer />
 
-    <IconButton onClick={onOpen} aria-label="menu" icon={<MdMenu />} >
+    <Flex direction="row" align="center" gridGap={4}>
+      <IconButton icon={<FaSun size={16} />} color="brand.200" variant="unstyled" size="xs" aria-label=" toggle color mode" onClick={toggleColorMode} />
+      <IconButton onClick={onOpen} aria-label="menu" icon={<MdMenu />} />
+    </Flex>
 
-    </IconButton>
+
     <Drawer
       isOpen={isOpen}
       placement='right'
@@ -34,7 +40,7 @@ const Navbar = (params) => {
             <LoginComponent />
           </Flex>
           {status === "authenticated" && <Flex>
-            <NextLink href="/mytakeovers" passHref>
+            <NextLink href="/my" passHref>
               <Link onClick={onClose}>
                 My Takeovers
               </Link>
@@ -46,7 +52,7 @@ const Navbar = (params) => {
         </Flex>
       </DrawerContent>
     </Drawer>
-  </Container>
+  </Container >
 }
 
 

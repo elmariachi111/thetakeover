@@ -1,6 +1,5 @@
-import type { NextApiRequest, NextApiResponse } from "next";
 import { PrismaClient } from "@prisma/client";
-import { nanoid } from "nanoid/async";
+import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 
 const prisma = new PrismaClient();
@@ -14,6 +13,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     where: {
       creatorId: session.user.id,
     },
+    include: {
+      _count: {
+        select: { payments: true },
+      },
+    }
   });
 
   res.json(links);
