@@ -17,7 +17,7 @@ const theme = extendTheme({
   },
   colors: {
     brand: {
-      100: "#403CFF",
+      100: "#312eff",
       200: "#403CFF",
       300: "#403CFF",
       400: "#403CFF",
@@ -32,15 +32,19 @@ const theme = extendTheme({
     Button: {
       baseStyle: {
         textTransform: 'uppercase',
-        borderRadius: 0
+        borderRadius: 0,
       },
       defaultProps: {
-        colorScheme: "brand"
+        colorScheme: "brand",
+
       },
       variants: {
         solid: {
           color: "white",
           p: 8,
+          _hover: {
+            backgroundColor: "brand.100"
+          },
         }
       }
     }

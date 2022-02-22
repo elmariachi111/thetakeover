@@ -6,13 +6,13 @@ import { useSession } from "next-auth/react";
 import useSWR, { Fetcher } from "swr";
 import { useRouter } from 'next/router'
 import { useState } from "react";
-import { PayPalButtons} from "@paypal/react-paypal-js";
+import { PayPalButtons } from "@paypal/react-paypal-js";
 import type { CreateOrderActions, OnApproveData, OnApproveActions } from "@paypal/paypal-js";
 
 const ToPay: NextPage = () => {
   const router = useRouter()
   const { linkid } = router.query
-  
+
   const { data: session } = useSession({
     required: true
   });
@@ -60,8 +60,11 @@ const ToPay: NextPage = () => {
   }
 
   return (
-    <Flex  direction="column" h="full" align="center">
-      <Heading>Pay</Heading>
+    <Flex direction="column" h="full" align="center">
+      <Heading>Pay
+
+      </Heading>
+
       <Skeleton isLoaded={!!data}>
         {data && <>
           <Text>LID: {data.link.hash}</Text>

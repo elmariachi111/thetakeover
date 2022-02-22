@@ -1,6 +1,5 @@
-import type { NextApiRequest, NextApiResponse } from "next";
 import { PaymentStatus, PrismaClient } from "@prisma/client";
-import { nanoid } from "nanoid/async";
+import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 
 const prisma = new PrismaClient();
@@ -9,7 +8,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const link = await prisma.link.findUnique({
     where: {
-      hash: req.query.hash as string,
+      hash: req.query.linkid as string,
     },
   });
 

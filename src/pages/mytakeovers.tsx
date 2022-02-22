@@ -17,15 +17,15 @@ const MyTakeOvers: NextPage = () => {
   });
 
   return (
-    <Flex  direction="column" h="full" align="center">
+    <Flex direction="column" h="full" align="center">
       <Heading>My Takeovers</Heading>
       {links?.map(link => (
         <Flex key={link.hash} direction="row">
-          
+
           <ChakraLink isExternal href={`/api/to/${link.hash}`}>
             /api/to/{link.hash}
           </ChakraLink>
-          
+
           <Text>€{link.price}</Text>
         </Flex>
       ))}
