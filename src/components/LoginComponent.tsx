@@ -1,4 +1,4 @@
-import { Button, Flex, Spacer } from "@chakra-ui/react";
+import { Button, Flex, Spacer, Text } from "@chakra-ui/react";
 import { useSession, signIn, signOut } from "next-auth/react";
 
 export default function LoginComponent() {
@@ -6,9 +6,13 @@ export default function LoginComponent() {
   console.log(session);
   if (session) {
     return (
-      <Flex direction="column" align="center">
-        <Flex p={6}>{session?.user?.email}</Flex>
-        <Button onClick={() => signOut()}>Sign out</Button>
+      <Flex direction="row" align="center" p={3} gridGap={3}>
+        <Text fontSize="sm" isTruncated>
+          {session?.user?.email}
+        </Text>
+        <Button size="sm" p={2} onClick={() => signOut()}>
+          Sign out
+        </Button>
         <Spacer />
       </Flex>
     );

@@ -60,9 +60,20 @@ const Navbar = () => {
               <LoginComponent />
             </Flex>
             {status === "authenticated" && (
-              <Flex>
+              <Flex
+                w="full"
+                my={6}
+                p={3}
+                align="flex-start"
+                direction="column"
+                gridGap={2}
+              >
                 <NextLink href="/my" passHref>
                   <Link onClick={onClose}>My Takeovers</Link>
+                </NextLink>
+
+                <NextLink href="/create" passHref>
+                  <Link onClick={onClose}>Create a Takeover</Link>
                 </NextLink>
               </Flex>
             )}
