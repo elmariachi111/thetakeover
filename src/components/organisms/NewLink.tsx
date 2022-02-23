@@ -1,5 +1,6 @@
 import { Flex, FormControl, FormLabel, Input } from "@chakra-ui/react";
 import React, { useEffect, useReducer } from "react";
+import isUrl from "validator/lib/isURL";
 import { LinkPayload } from "../../types/LinkPayload";
 
 type StateAction = {
@@ -28,7 +29,11 @@ const NewLink = (props: {
   });
 
   useEffect(() => {
-    if (state.price && state.url) {
+    if (
+      state.price &&
+      state.url &&
+      isUrl(state.url, { require_protocol: true })
+    ) {
       props.onChange(state);
     } else {
       props.onChange(undefined);
@@ -38,7 +43,7 @@ const NewLink = (props: {
   return (
     <Flex direction="column" gridGap={6}>
       <FormControl>
-        <FormLabel>a URI to protect</FormLabel>
+        <FormLabel>an URI to protect</FormLabel>
         <Input
           type="url"
           placeholder="https://"
@@ -52,7 +57,7 @@ const NewLink = (props: {
 
       <FormControl>
         <Flex direction="row" align="center">
-          <FormLabel>Price</FormLabel>
+          <FormLabel>Price (EUR)</FormLabel>
           <Input
             type="number"
             placeholder="1.99"
