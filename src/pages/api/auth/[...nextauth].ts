@@ -70,6 +70,9 @@ export default NextAuth({
   session: {
     strategy: "jwt",
   },
+  pages: {
+    signIn: "/auth/signin",
+  },
   // callbacks: {
   //   async signIn({ user, account, profile, email, credentials }) {
   //     console.log(user, account, profile, email, credentials);
