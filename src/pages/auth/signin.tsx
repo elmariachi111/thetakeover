@@ -1,4 +1,7 @@
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
   Button,
   Divider,
   Flex,
@@ -7,11 +10,7 @@ import {
   Input,
   Text,
 } from "@chakra-ui/react";
-import {
-  Provider,
-  OAuthProvider,
-  CredentialsProvider,
-} from "next-auth/providers";
+import { Provider } from "next-auth/providers";
 import { getCsrfToken, getProviders, signIn } from "next-auth/react";
 
 export function CredentialSignin({
@@ -72,11 +71,19 @@ export default function SignIn({
         <Divider orientation="horizontal" />
       </Flex>
       {credentialProvider && (
-        <CredentialSignin
-          provider={credentialProvider}
-          csrfToken={csrfToken}
-          callbackUrl={callbackUrl}
-        />
+        <Flex direction="column">
+          <Alert size="sm" status="warning" variant="top-accent" my={2}>
+            <AlertIcon />
+            <AlertDescription>
+              Don't use these for creation, only for payment testing:
+            </AlertDescription>
+          </Alert>
+          <CredentialSignin
+            provider={credentialProvider}
+            csrfToken={csrfToken}
+            callbackUrl={callbackUrl}
+          />
+        </Flex>
       )}
     </Flex>
   );
