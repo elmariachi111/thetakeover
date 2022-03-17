@@ -1,17 +1,23 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { PrismaClient } from "@prisma/client";
+import { Metadata, PrismaClient } from "@prisma/client";
 import { nanoid } from "nanoid/async";
 import { getSession } from "next-auth/react";
 
 const prisma = new PrismaClient();
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { uri, price }: { uri: string; price: string } = req.body;
+  const {
+    uri,
+    price,
+    metadata,
+  }: { uri: string; price: string; metadata: Metadata } = req.body;
   const session = await getSession({ req });
 
   const hash = await nanoid();
   if (!session?.user) {
     return res.status(401).send("Unauthorized");
   }
+
+  console.log(uri, price, metadata);
 
   const newLink = await prisma.link.create({
     data: {
@@ -22,7 +28,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     },
   });
 
-  res.status(200).json({ link: uri, newLink, user: session?.user });
+  const md = await prisma.metadata.create({
+    data: {
+      ...metadata,
+      linkHash: hash,
+    },
+  });
+
+  res.status(200).json({ link: uri, newLink });
 };
 
 export default handler;

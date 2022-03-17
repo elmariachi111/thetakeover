@@ -17,8 +17,16 @@ model Link {
     creatorId  String
     creator    User      @relation(fields: [creatorId], references: [id])
     payments   Payment[]
-
+    metadata   Metadata? 
     @@index([hash, origin_uri])
+}
+
+model Metadata {
+    linkHash        String @id
+    link            Link   @relation(fields: [linkHash], references: [hash])
+    title           String
+    description     String
+    previewImage    String
 }
 
 enum PaymentIntent {
