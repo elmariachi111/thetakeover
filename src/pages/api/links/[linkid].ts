@@ -10,6 +10,13 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     select: {
       hash: true,
       price: true,
+      metadata: {
+        select: {
+          title: true,
+          description: true,
+          previewImage: true,
+        },
+      },
       creator: {
         select: {
           id: true,

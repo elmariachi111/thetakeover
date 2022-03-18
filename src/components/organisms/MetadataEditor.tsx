@@ -2,6 +2,7 @@ import {
   Flex,
   FormControl,
   FormLabel,
+  Image,
   Input,
   Textarea,
 } from "@chakra-ui/react";
@@ -74,9 +75,14 @@ const MetadataEditor = (props: {
       </FormControl>
 
       <FormControl>
-        <Flex direction="row" align="center">
-          <FormLabel>preview</FormLabel>
-          <Input type="text" value={state.previewImage} disabled />
+        <Flex direction="row" gap={2}>
+          <Flex direction="column" flex={3}>
+            <FormLabel>preview</FormLabel>
+            <Input type="text" value={state.previewImage} disabled />
+          </Flex>
+          <Flex flex={1}>
+            <Image src={state.previewImage} />
+          </Flex>
         </Flex>
       </FormControl>
     </Flex>

@@ -21,6 +21,8 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import useSWR, { Fetcher } from "swr";
 
+import { MetadataDisplay } from "../../../components/molecules/MetadataDisplay";
+
 const ToPay: NextPage = () => {
   const router = useRouter();
   const { linkid } = router.query;
@@ -101,9 +103,11 @@ const ToPay: NextPage = () => {
           )}
         </Flex>
       </Flex>
-
+      {data?.link.metadata && (
+        <MetadataDisplay metadata={data?.link.metadata} />
+      )}
       {data && !payment && (
-        <Flex direction="column" w="full">
+        <Flex direction="column" w="full" mt={6}>
           <PayPalButtons createOrder={createOrder} onApprove={onApprove} />
         </Flex>
       )}

@@ -57,6 +57,7 @@ const CreateLink: NextPage = () => {
         linkHash: "",
       });
     } catch (e: any) {
+      console.error(e);
       setMetadata({
         description: "",
         title: "",
