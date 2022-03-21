@@ -1,19 +1,14 @@
-import { Button, Flex, Spacer, Text } from "@chakra-ui/react";
+import { Button, Flex, Spacer } from "@chakra-ui/react";
+import { Metadata } from "@prisma/client";
 import axios from "axios";
 import type { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
+import MetadataEditor from "../components/organisms/MetadataEditor";
 import NewLink from "../components/organisms/NewLink";
 import { LinkPayload } from "../types/LinkPayload";
 
-import { Metadata } from "@prisma/client";
-import { OembedData } from "oembed-parser";
-import MetadataEditor from "../components/organisms/MetadataEditor";
-
-interface XOembedData extends OembedData {
-  description?: string;
-}
 const CreateLink: NextPage = () => {
   const [newLink, setNewLink] = useState<LinkPayload>();
   const [metadata, setMetadata] = useState<Metadata>();
