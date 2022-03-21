@@ -1,16 +1,17 @@
-import { Button, Flex, Spacer } from "@chakra-ui/react";
+import { Box, Button, Flex, Spacer } from "@chakra-ui/react";
 import { Metadata } from "@prisma/client";
 import axios from "axios";
 import type { NextPage } from "next";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import MetadataEditor from "../components/organisms/MetadataEditor";
 import NewLink from "../components/organisms/NewLink";
-import { LinkPayload } from "../types/LinkPayload";
+import { LinkInput } from "../types/LinkInput";
+import { XOembedData } from "../types/Oembed";
 
 const CreateLink: NextPage = () => {
-  const [newLink, setNewLink] = useState<LinkPayload>();
+  const [newLink, setNewLink] = useState<LinkInput>();
   const [metadata, setMetadata] = useState<Metadata>();
 
   const router = useRouter();
@@ -23,49 +24,55 @@ const CreateLink: NextPage = () => {
   const canCreate = status === "authenticated" && !!metadata;
 
   const create = async (e) => {
-    console.log(newLink, metadata);
-
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    //... connect paypal
-    const res = await axios.post("/api/links/create", {
+    const payload = {
       uri: newLink?.url,
       price: newLink?.price,
       metadata,
-    });
+    };
+
+    console.log(payload);
+    return;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    //... connect paypal
+    const res = await axios.post("/api/links/create", payload);
     console.log(res);
     router.push("/my", {});
   };
 
-  const submitLink = async (e) => {
-    e.preventDefault();
-    try {
-      const oembed: XOembedData = await (
-        await axios.post("/api/links/oembed", {
-          uri: newLink?.url,
-        })
-      ).data;
-      console.log(oembed);
-      setMetadata({
-        description: oembed.description || "",
-        title: oembed.title || "",
-        previewImage: oembed.thumbnail_url || "",
-        linkHash: "",
-      });
-    } catch (e: any) {
-      console.error(e);
-      setMetadata({
-        description: "",
-        title: "",
-        previewImage: "",
-        linkHash: "",
-      });
-    }
-  };
+  useEffect(() => {
+    if (!newLink) return;
+    (async () => {
+      try {
+        const oembed: XOembedData = await (
+          await axios.post("/api/links/oembed", {
+            uri: newLink?.url,
+          })
+        ).data;
+        console.log(oembed);
+        setMetadata({
+          description: oembed.description || "",
+          title: oembed.title || "",
+          previewImage: oembed.thumbnail_url || "",
+          linkHash: "",
+        });
+      } catch (e: any) {
+        console.error(e);
+        setMetadata({
+          description: "",
+          title: "",
+          previewImage: "",
+          linkHash: "",
+        });
+      }
+    })();
+  }, [newLink]);
+
+  const buttonRef = useRef<HTMLDivElement | null>(null);
 
   return (
     <Flex direction="column" h="full">
       <Spacer />
-      <NewLink onChange={setNewLink} />
+      <NewLink onLink={setNewLink} buttonRef={buttonRef} />
 
       {metadata && (
         <Flex mt={16} w="100%">
@@ -79,9 +86,7 @@ const CreateLink: NextPage = () => {
           Create Takeover
         </Button>
       ) : (
-        <Button w="full" onClick={submitLink} disabled={!linkValid}>
-          go ahead
-        </Button>
+        <Box ref={buttonRef}></Box>
       )}
     </Flex>
   );

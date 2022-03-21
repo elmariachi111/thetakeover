@@ -1,78 +1,66 @@
-import { Flex, FormControl, FormLabel, Input } from "@chakra-ui/react";
-import React, { useEffect, useReducer } from "react";
+import {
+  Button,
+  Flex,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Input,
+  Portal,
+} from "@chakra-ui/react";
+import { Field, Form, Formik } from "formik";
+import React, { MutableRefObject, ReactElement } from "react";
 import isUrl from "validator/lib/isURL";
-import { LinkPayload } from "../../types/LinkPayload";
-
-type StateAction = {
-  type: string;
-  payload: any;
-};
-
-function reducer(state: LinkPayload, action: StateAction): LinkPayload {
-  const { payload } = action;
-  switch (action.type) {
-    case "setUrl":
-      return { ...state, url: payload.url };
-    case "setPrice":
-      return { ...state, price: payload.price };
-    default:
-      throw new Error("unk action");
-  }
-}
+import { LinkInput } from "../../types/LinkInput";
 
 const NewLink = (props: {
-  onChange: (p: LinkPayload | undefined) => unknown;
+  onLink: (p: LinkInput) => unknown;
+  buttonRef: MutableRefObject<HTMLElement | null>;
 }) => {
-  const [state, dispatch] = useReducer(reducer, {
-    url: "",
-    price: undefined,
-  });
+  const initialValues: LinkInput = { url: "", price: 0 };
 
-  useEffect(() => {
-    if (
-      state.price &&
-      state.url &&
-      isUrl(state.url, { require_protocol: true })
-    ) {
-      props.onChange(state);
-    } else {
-      props.onChange(undefined);
-    }
-  }, [state, props]);
+  const onSubmit = (values) => props.onLink(values);
+  const buttonRef = props.buttonRef;
 
   return (
-    <Flex direction="column" gridGap={6}>
-      <FormControl>
-        <FormLabel>an URI to protect</FormLabel>
-        <Input
-          type="url"
-          placeholder="https://"
-          value={state.url}
-          onChange={(e) => {
-            e.preventDefault();
-            dispatch({ type: "setUrl", payload: { url: e.target.value } });
-          }}
-        />
-      </FormControl>
+    <Formik initialValues={initialValues} onSubmit={onSubmit}>
+      {({ errors, isValid }) => (
+        <Form id="newlink-form">
+          <Flex direction="column" gridGap={6}>
+            <FormControl isInvalid={!!errors.url}>
+              <FormLabel>an URI to protect</FormLabel>
+              <Field
+                name="url"
+                type="text"
+                as={Input}
+                validate={(v) =>
+                  !isUrl(v, { require_protocol: true })
+                    ? "not an url"
+                    : undefined
+                }
+              />
+              <FormErrorMessage>{errors.url}</FormErrorMessage>
+            </FormControl>
 
-      <FormControl>
-        <Flex direction="row" align="center">
-          <FormLabel>Price (EUR)</FormLabel>
-          <Input
-            type="number"
-            placeholder="1.99"
-            value={state.price}
-            onChange={(e) => {
-              e.preventDefault();
-              dispatch({
-                type: "setPrice",
-                payload: { price: e.target.valueAsNumber },
-              });
-            }}
-          />
-        </Flex>
-      </FormControl>
-    </Flex>
+            <FormControl>
+              <Flex direction="row" align="center">
+                <FormLabel>Price (EUR)</FormLabel>
+                <Field name="price" type="number" as={Input} />
+              </Flex>
+            </FormControl>
+          </Flex>
+          <Portal containerRef={buttonRef}>
+            <Button
+              type="submit"
+              w="100%"
+              form="newlink-form"
+              disabled={!isValid}
+            >
+              go ahead
+            </Button>
+          </Portal>
+        </Form>
+      )}
+    </Formik>
   );
 };
 
