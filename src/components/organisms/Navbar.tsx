@@ -16,7 +16,9 @@ import Image from "next/image";
 import { default as NextLink } from "next/link";
 import React from "react";
 import { FaSun } from "react-icons/fa";
-import { MdMenu } from "react-icons/md";
+import { FiPlusSquare } from "react-icons/fi";
+
+import { HiDotsVertical } from "react-icons/hi";
 import logo from "../../img/to_logo.svg";
 import LoginComponent from "../LoginComponent";
 
@@ -34,19 +36,22 @@ const Navbar = () => {
         </Link>
       </NextLink>
       <Spacer />
+      <Flex direction="row">
+        <NextLink href="/create" passHref>
+          <IconButton
+            variant="ghost"
+            aria-label="create"
+            icon={<FiPlusSquare />}
+          />
+        </NextLink>
 
-      <Flex direction="row" align="center" gridGap={4}>
         <IconButton
-          icon={<FaSun size={16} />}
-          color="brand.200"
-          variant="unstyled"
-          size="xs"
-          aria-label=" toggle color mode"
-          onClick={toggleColorMode}
+          onClick={onOpen}
+          variant="ghost"
+          aria-label="menu"
+          icon={<HiDotsVertical />}
         />
-        <IconButton onClick={onOpen} aria-label="menu" icon={<MdMenu />} />
       </Flex>
-
       <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
         <DrawerOverlay />
         <DrawerContent>
@@ -78,9 +83,18 @@ const Navbar = () => {
               </Flex>
             )}
             <Spacer />
-            <Text my={5} textTransform="uppercase">
-              The Takeover
-            </Text>
+            <Flex direction="row" my={5} gridGap={6}>
+              <Text>The Takeover</Text>
+
+              <IconButton
+                icon={<FaSun size={16} />}
+                color="brand.200"
+                variant="unstyled"
+                size="xs"
+                aria-label=" toggle color mode"
+                onClick={toggleColorMode}
+              />
+            </Flex>
           </Flex>
         </DrawerContent>
       </Drawer>

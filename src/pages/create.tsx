@@ -1,4 +1,12 @@
-import { Box, Button, Flex, Spacer } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Input,
+  Spacer,
+  Text,
+} from "@chakra-ui/react";
 import { Metadata } from "@prisma/client";
 import axios from "axios";
 import type { NextPage } from "next";
@@ -71,6 +79,11 @@ const CreateLink: NextPage = () => {
   return (
     <Flex direction="column" h="full">
       <Spacer />
+
+      <Heading size="lg" my={6}>
+        Create a Takeover
+      </Heading>
+
       <NewLink onLink={setNewLink} buttonRef={buttonRef} />
 
       {metadata && (
@@ -80,13 +93,15 @@ const CreateLink: NextPage = () => {
       )}
       <Spacer />
 
-      {metadata ? (
-        <Button w="full" onClick={create} disabled={!canCreate}>
-          Create Takeover
-        </Button>
-      ) : (
-        <Box ref={buttonRef}></Box>
-      )}
+      <Button
+        w="full"
+        onClick={create}
+        disabled={!canCreate}
+        visibility={metadata ? "visible" : "hidden"}
+      >
+        Create Takeover
+      </Button>
+      <Box ref={buttonRef} display={metadata ? "none" : "block"}></Box>
     </Flex>
   );
 };

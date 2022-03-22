@@ -32,6 +32,7 @@ const NewLink = (props: {
                 name="url"
                 type="text"
                 as={Input}
+                placeholder="https://some.link"
                 validate={(v) =>
                   !isUrl(v, { require_protocol: true })
                     ? "not an url"
@@ -43,8 +44,8 @@ const NewLink = (props: {
 
             <FormControl>
               <Flex direction="row" align="center">
-                <FormLabel>Price (EUR)</FormLabel>
-                <Field name="price" type="number" as={Input} />
+                <FormLabel flex={2}>Price (EUR)</FormLabel>
+                <Field name="price" type="text" as={Input} flex={6} />
               </Flex>
             </FormControl>
           </Flex>

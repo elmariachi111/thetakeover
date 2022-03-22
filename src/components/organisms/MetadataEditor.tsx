@@ -49,7 +49,6 @@ const MetadataEditor = (props: {
         <FormLabel>title</FormLabel>
         <Input
           type="text"
-          placeholder="https://"
           value={state.title}
           onChange={(e) => {
             e.preventDefault();
