@@ -3,8 +3,6 @@ import {
   Flex,
   Heading,
   Link as ChakraLink,
-  SkeletonCircle,
-  SkeletonText,
   Text,
 } from "@chakra-ui/react";
 import type {
@@ -13,27 +11,64 @@ import type {
   OnApproveData,
 } from "@paypal/paypal-js";
 import { PayPalButtons } from "@paypal/react-paypal-js";
-import { Payment } from "@prisma/client";
+import { Payment, PaymentStatus, PrismaClient } from "@prisma/client";
 import axios from "axios";
-import type { NextPage } from "next";
-import { useSession } from "next-auth/react";
+import type { InferGetServerSidePropsType } from "next";
+import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useState } from "react";
-import useSWR, { Fetcher } from "swr";
-
+import React, { useState } from "react";
 import { MetadataDisplay } from "../../../components/molecules/MetadataDisplay";
+import { findLink } from "../../../modules/findLink";
 
-const ToPay: NextPage = () => {
-  const router = useRouter();
-  const { linkid } = router.query;
+export async function getServerSideProps(context) {
+  const linkId = context.params.linkid;
+  const prisma = new PrismaClient();
 
+  const link = await findLink(prisma, linkId);
+  if (!link) {
+    return {
+      notFound: true,
+    };
+  }
+  console.log(link);
+
+  const session = await getSession(context);
+  if (session && session.user?.id) {
+    const payment = await prisma.payment.findFirst({
+      where: {
+        link_hash: linkId,
+        userId: session.user.id,
+      },
+    });
+    console.log("payment", session, payment);
+    if (payment && payment.paymentStatus === PaymentStatus.COMPLETED) {
+      return {
+        redirect: {
+          destination: `/to/${linkId}`,
+          permanent: false,
+        },
+      };
+    }
+  }
+
+  return {
+    props: {
+      link: JSON.parse(JSON.stringify(link)),
+    },
+  };
+}
+
+function ToPay({
+  link,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { data: session } = useSession({
     required: true,
   });
+  const router = useRouter();
+  const { linkid } = router.query;
+  console.log(link);
 
   const [payment, setPayment] = useState<Payment>();
-  const fetcher: Fetcher<any> = (url) => axios.get(url).then((res) => res.data);
-  const { data } = useSWR(`/api/links/${linkid}`, fetcher);
 
   const createOrder = async (
     _data: Record<string, unknown>,
@@ -46,7 +81,7 @@ const ToPay: NextPage = () => {
           description: `TO ${linkid}`,
           amount: {
             currency_code: "EUR",
-            value: data.link.price,
+            value: link.price,
           },
           // payment_instruction: {
           //   disbursement_mode: "INSTANT",
@@ -86,39 +121,29 @@ const ToPay: NextPage = () => {
       >
         <Flex direction="column" my={5}>
           <Heading textTransform="uppercase">Pay</Heading>
-          <SkeletonText isLoaded={data?.link}>
-            <Text fontSize="md">
-              <b>{data?.link.hash}</b> by {data?.link.creator.name}
-            </Text>
-          </SkeletonText>
+          <Text fontSize="md">
+            <b>{link.hash}</b> by {link.creator.name}
+          </Text>
         </Flex>
 
         <Flex>
-          {data?.link.price ? (
-            <Text fontSize="4xl" fontWeight="bold">
-              €{data?.link.price}
-            </Text>
-          ) : (
-            <SkeletonCircle />
-          )}
+          <Text fontSize="4xl" fontWeight="bold">
+            €{link.price}
+          </Text>
         </Flex>
       </Flex>
-      {data?.link.metadata && (
-        <MetadataDisplay metadata={data?.link.metadata} image />
-      )}
-      {data && !payment && (
+      {link.metadata && <MetadataDisplay metadata={link.metadata} image />}
+      {payment ? (
+        <Button as={ChakraLink} href={`/to/${payment.link_hash}`}>
+          download
+        </Button>
+      ) : (
         <Flex direction="column" w="full" mt={6}>
           <PayPalButtons createOrder={createOrder} onApprove={onApprove} />
         </Flex>
       )}
-
-      {payment && (
-        <Button as={ChakraLink} href={`/to/${payment.link_hash}`}>
-          download
-        </Button>
-      )}
     </Flex>
   );
-};
+}
 
 export default ToPay;

@@ -10,6 +10,7 @@ import type { InferGetServerSidePropsType } from "next";
 import { getSession, useSession } from "next-auth/react";
 import { MetadataDisplay } from "../../components/molecules/MetadataDisplay";
 import { PaymentDisplay } from "../../components/molecules/PaymentDisplay";
+import { findLink } from "../../modules/findLink";
 
 const redirectToPayment = (linkId: string) => {
   return {
@@ -31,17 +32,7 @@ const viewLink = (link: Link & { metadata: Metadata | null }) => {
 export async function getServerSideProps(context) {
   const linkid = context.params.linkid;
   const prisma = new PrismaClient();
-  const link = await prisma.link.findUnique({
-    where: {
-      hash: linkid as string,
-    },
-    select: {
-      hash: true,
-      creatorId: true,
-      origin_uri: true,
-      metadata: true,
-    },
-  });
+  const link = await findLink(prisma, linkid);
   if (!link) {
     return {
       notFound: true,
@@ -73,7 +64,7 @@ export async function getServerSideProps(context) {
 
   return {
     props: {
-      link,
+      link: JSON.parse(JSON.stringify(link)),
       payment: JSON.parse(JSON.stringify(payment)),
     },
   };

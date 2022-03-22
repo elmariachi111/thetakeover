@@ -1,30 +1,54 @@
 import {
   Flex,
   Heading,
-  Text,
   Link as ChakraLink,
   Table,
-  Tr,
-  Td,
-  Thead,
-  Th,
   Tbody,
+  Td,
+  Text,
+  Th,
+  Thead,
+  Tr,
 } from "@chakra-ui/react";
-import { Link } from "@prisma/client";
-import axios from "axios";
-import type { NextPage } from "next";
-import { useSession } from "next-auth/react";
+import { PrismaClient } from "@prisma/client";
+import type { InferGetServerSidePropsType } from "next";
+import { getSession, useSession } from "next-auth/react";
 
-import useSWR, { Fetcher } from "swr";
+export async function getServerSideProps(context) {
+  const prisma = new PrismaClient();
 
-type XLink = Link & { _count: { payments: number } };
+  const session = await getSession(context);
 
-const MyTakeOvers: NextPage = () => {
-  const fetcher: Fetcher<XLink[]> = (url) =>
-    axios.get<XLink[]>(url).then((res) => res.data);
-  const { data: links } = useSWR("/api/links/my", fetcher);
+  if (!session || !session.user?.id) {
+    return {
+      redirect: {
+        destination: `/api/signin`,
+        permanent: false,
+      },
+    };
+  }
 
-  console.log(links);
+  const links = await prisma.link.findMany({
+    where: {
+      creatorId: session.user.id,
+    },
+    include: {
+      _count: {
+        select: { payments: true },
+      },
+    },
+  });
+
+  return {
+    props: {
+      links: JSON.parse(JSON.stringify(links)),
+    },
+  };
+}
+
+function MyTakeOvers({
+  links,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { data: session } = useSession({
     required: true,
   });
@@ -63,6 +87,6 @@ const MyTakeOvers: NextPage = () => {
       </Table>
     </Flex>
   );
-};
+}
 
 export default MyTakeOvers;
