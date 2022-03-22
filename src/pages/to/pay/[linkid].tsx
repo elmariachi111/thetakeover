@@ -104,7 +104,7 @@ const ToPay: NextPage = () => {
         </Flex>
       </Flex>
       {data?.link.metadata && (
-        <MetadataDisplay metadata={data?.link.metadata} />
+        <MetadataDisplay metadata={data?.link.metadata} image />
       )}
       {data && !payment && (
         <Flex direction="column" w="full" mt={6}>
@@ -113,7 +113,7 @@ const ToPay: NextPage = () => {
       )}
 
       {payment && (
-        <Button as={ChakraLink} href={`/api/to/${payment.link_hash}`}>
+        <Button as={ChakraLink} href={`/to/${payment.link_hash}`}>
           download
         </Button>
       )}

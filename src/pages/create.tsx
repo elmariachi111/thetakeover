@@ -20,7 +20,6 @@ const CreateLink: NextPage = () => {
     required: true,
   });
 
-  const linkValid = status === "authenticated" && !!newLink;
   const canCreate = status === "authenticated" && !!metadata;
 
   const create = async (e) => {
@@ -30,12 +29,10 @@ const CreateLink: NextPage = () => {
       metadata,
     };
 
-    console.log(payload);
-    return;
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     //... connect paypal
     const res = await axios.post("/api/links/create", payload);
-    console.log(res);
+    console.debug("link created", res);
     router.push("/my", {});
   };
 
@@ -54,6 +51,7 @@ const CreateLink: NextPage = () => {
           title: oembed.title || "",
           previewImage: oembed.thumbnail_url || "",
           linkHash: "",
+          embed: oembed.html || null,
         });
       } catch (e: any) {
         console.error(e);
@@ -62,6 +60,7 @@ const CreateLink: NextPage = () => {
           title: "",
           previewImage: "",
           linkHash: "",
+          embed: null,
         });
       }
     })();

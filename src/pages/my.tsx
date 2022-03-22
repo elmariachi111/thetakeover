@@ -8,6 +8,7 @@ import {
   Td,
   Thead,
   Th,
+  Tbody,
 } from "@chakra-ui/react";
 import { Link } from "@prisma/client";
 import axios from "axios";
@@ -41,22 +42,24 @@ const MyTakeOvers: NextPage = () => {
             <Th isNumeric>Downloads</Th>
           </Tr>
         </Thead>
-        {links?.map((link) => (
-          <Tr key={link.hash}>
-            <Td>
-              <Flex direction="column">
-                <ChakraLink isExternal href={`/api/to/${link.hash}`}>
-                  {link.hash}
-                </ChakraLink>
-                <Text fontSize="xs">{link.origin_uri}</Text>
-              </Flex>
-            </Td>
-            <Td isNumeric>
-              <Text>€{link.price}</Text>
-            </Td>
-            <Td isNumeric>{link._count.payments}</Td>
-          </Tr>
-        ))}
+        <Tbody>
+          {links?.map((link) => (
+            <Tr key={link.hash}>
+              <Td>
+                <Flex direction="column">
+                  <ChakraLink isExternal href={`/to/${link.hash}`}>
+                    {link.hash}
+                  </ChakraLink>
+                  <Text fontSize="xs">{link.origin_uri}</Text>
+                </Flex>
+              </Td>
+              <Td isNumeric>
+                <Text>€{link.price}</Text>
+              </Td>
+              <Td isNumeric>{link._count.payments}</Td>
+            </Tr>
+          ))}
+        </Tbody>
       </Table>
     </Flex>
   );

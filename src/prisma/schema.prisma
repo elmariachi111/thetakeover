@@ -27,6 +27,7 @@ model Metadata {
     title           String
     description     String
     previewImage    String
+    embed           String? @db.MediumText      
 }
 
 enum PaymentIntent {
