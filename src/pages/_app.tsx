@@ -5,6 +5,8 @@ import Layout from "../components/Layout";
 import "@fontsource/space-mono/400.css";
 import "@fontsource/space-mono/700.css";
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
+import { ReactElement, ReactNode } from "react";
+import { NextPage } from "next";
 
 const theme = extendTheme({
   config: {
@@ -86,7 +88,19 @@ const theme = extendTheme({
   },
 });
 
-function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
+type NextPageWithLayout = NextPage & {
+  getLayout?: (page: ReactElement) => ReactNode;
+};
+
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout;
+};
+
+function MyApp({
+  Component,
+  pageProps: { session, ...pageProps },
+}: AppPropsWithLayout) {
+  const getLayout = Component.getLayout ?? ((page) => <Layout>{page}</Layout>);
   return (
     <ChakraProvider theme={theme}>
       <SessionProvider session={session}>
@@ -96,9 +110,7 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
             currency: "EUR",
           }}
         >
-          <Layout>
-            <Component {...pageProps} />
-          </Layout>
+          {getLayout(<Component {...pageProps} />)}
         </PayPalScriptProvider>
       </SessionProvider>
     </ChakraProvider>
