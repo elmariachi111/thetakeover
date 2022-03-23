@@ -8,6 +8,15 @@ Content-Type: application/json
 
 ### 
 
+POST http://localhost:3000/api/links/oembed
+Content-Type: application/json
+
+{
+  "uri": "https://vimeo.com/689275417"
+}
+
+###
+
 GET  http://localhost:3000/api/links/MZAP3AZS8427pm4LBzJDG
 
 ###
@@ -31,7 +40,9 @@ Authorization: Basic {{PaypalClientId}}:{{PaypalSecret}}
 grant_type=client_credentials
 
 ###
+#57595573V1292361Y
 
-POST {{Paypal}}/v2/checkout/orders
+GET {{Paypal}}/v2/checkout/orders/19A966449S213464H
+#GET {{Paypal}}/v2/checkout/orders/57595573V1292361Y
 Authorization: Bearer {{PaypalAccessToken}}
 Content-Type: application/json
