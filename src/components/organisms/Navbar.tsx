@@ -12,14 +12,15 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
+
 import { default as NextLink } from "next/link";
 import React from "react";
 import { FaSun } from "react-icons/fa";
 import { FiPlusSquare } from "react-icons/fi";
 
 import { HiDotsVertical } from "react-icons/hi";
-import logo from "../../img/to_logo.svg";
+import { ToLogo } from "../atoms/ToLogo";
+
 import LoginComponent from "../LoginComponent";
 
 const Navbar = () => {
@@ -29,12 +30,15 @@ const Navbar = () => {
   const { toggleColorMode } = useColorMode();
 
   return (
-    <Container as={Flex} direction="row" justify="space-between" align="center">
-      <NextLink href="/" passHref>
-        <Link href="/">
-          <Image src={logo} alt="logo" height={60} width={60}></Image>
-        </Link>
-      </NextLink>
+    <Container
+      as={Flex}
+      direction="row"
+      justify="space-between"
+      align="center"
+      px={0}
+      py={2}
+    >
+      <ToLogo />
       <Spacer />
       <Flex direction="row">
         <NextLink href="/create" passHref>

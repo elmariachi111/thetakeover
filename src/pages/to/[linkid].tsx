@@ -1,16 +1,19 @@
-import { Flex } from "@chakra-ui/react";
+import { Flex, Heading, Link as ChakraLink } from "@chakra-ui/react";
 import {
   Link,
   Metadata,
   Payment,
   PaymentStatus,
   PrismaClient,
+  User,
 } from "@prisma/client";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { getSession, useSession } from "next-auth/react";
-import { MetadataDisplay } from "../../components/molecules/MetadataDisplay";
-import { PaymentDisplay } from "../../components/molecules/PaymentDisplay";
+import { ReactElement, useEffect, useState } from "react";
+import Iframe from "react-iframe";
+import { ToLogo } from "../../components/atoms/ToLogo";
 import { findLink } from "../../modules/findLink";
+import { fixEmbed } from "../../modules/fixEmbed";
 import { XPayment } from "../../types/Payment";
 
 const redirectToPayment = (linkId: string) => {
@@ -31,7 +34,7 @@ const viewLink = (link: Link & { metadata: Metadata | null }) => {
 };
 
 export const getServerSideProps: GetServerSideProps<{
-  link: Link & { metadata: Metadata };
+  link: Link & { metadata: Metadata; creator: User };
   payment: XPayment;
 }> = async (context) => {
   const linkid: string = context.params?.linkid as string;
@@ -83,16 +86,50 @@ function ToView({
   const { data: session } = useSession({
     required: true,
   });
+  const [embed, setEmbed] = useState<string | null>();
+  useEffect(() => {
+    setEmbed(fixEmbed(link.metadata.embed));
+  }, [link.metadata.embed]);
 
   return (
-    <Flex direction="column" align="center">
-      <MetadataDisplay metadata={link.metadata} />
-      <Flex w="full" my={6}>
-        <div dangerouslySetInnerHTML={{ __html: link.metadata.embed! }} />
-      </Flex>
-      {payment && <PaymentDisplay payment={payment} />}
+    <Flex direction="column" w="100%" h="100%">
+      {embed ? (
+        <>
+          <Flex w="100%" h="100%">
+            <Iframe
+              url={embed}
+              allowFullScreen
+              width="100%"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            />
+          </Flex>
+          <Flex position="absolute" left={12} top={12}>
+            <ToLogo />
+          </Flex>
+          <Flex
+            position="absolute"
+            bottom={10}
+            alignSelf="center"
+            alignItems="center"
+            direction="column"
+          >
+            <Heading size="md" color="white">
+              {link.creator.name}
+            </Heading>
+            <Heading size="md" color="white" my={2} textAlign="center">
+              {link.metadata.title}
+            </Heading>
+          </Flex>
+        </>
+      ) : (
+        <ChakraLink href={link.origin_uri}>visit</ChakraLink>
+      )}
     </Flex>
   );
 }
+
+ToView.getLayout = function (page: ReactElement) {
+  return <Flex h="100vh">{page}</Flex>;
+};
 
 export default ToView;
