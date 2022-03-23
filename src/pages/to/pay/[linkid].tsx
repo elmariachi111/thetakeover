@@ -2,6 +2,7 @@ import {
   Button,
   Flex,
   Heading,
+  Image,
   Link as ChakraLink,
   Text,
 } from "@chakra-ui/react";
@@ -24,7 +25,6 @@ import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
-import { MetadataDisplay } from "../../../components/molecules/MetadataDisplay";
 import { findLink } from "../../../modules/findLink";
 
 export const getServerSideProps: GetServerSideProps<{
@@ -123,27 +123,24 @@ function ToPay({
   };
 
   return (
-    <Flex direction="column" align="center">
-      <Flex
-        direction="row"
-        justifyContent="space-between"
-        align="center"
-        w="full"
-      >
-        <Flex direction="column" my={5}>
-          <Heading textTransform="uppercase">Pay</Heading>
-          <Text fontSize="md">
-            <b>{link.hash}</b> by {link.creator.name}
-          </Text>
-        </Flex>
-
-        <Flex>
-          <Text fontSize="4xl" fontWeight="bold">
-            €{link.price}
-          </Text>
-        </Flex>
+    <Flex direction="column">
+      <Flex my={6} direction="column">
+        <Heading size="md" color="brand.300">
+          {link.creator.name}
+        </Heading>
+        <Heading size="md">{link.metadata.title}</Heading>
       </Flex>
-      {link.metadata && <MetadataDisplay metadata={link.metadata} image />}
+      <Image src={link.metadata.previewImage} mt={2} />
+      <Text>{link.metadata.description}</Text>
+      <Flex direction="row" my={6} justify="space-between">
+        <Text fontWeight="bold" fontSize="lg">
+          Total
+        </Text>
+        <Text fontWeight="bold" fontSize="lg">
+          €{link.price}
+        </Text>
+      </Flex>
+
       {payment ? (
         <Button as={ChakraLink} href={`/to/${payment.link_hash}`}>
           download

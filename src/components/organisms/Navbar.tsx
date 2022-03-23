@@ -30,7 +30,14 @@ const Navbar = () => {
   const { toggleColorMode } = useColorMode();
 
   return (
-    <Container as={Flex} direction="row" justify="space-between" align="center">
+    <Container
+      as={Flex}
+      direction="row"
+      justify="space-between"
+      align="center"
+      px={0}
+      py={2}
+    >
       <ToLogo />
       <Spacer />
       <Flex direction="row">
