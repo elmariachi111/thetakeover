@@ -11,20 +11,31 @@ import type {
   OnApproveData,
 } from "@paypal/paypal-js";
 import { PayPalButtons } from "@paypal/react-paypal-js";
-import { Payment, PaymentStatus, PrismaClient } from "@prisma/client";
+import {
+  Link,
+  Metadata,
+  Payment,
+  PaymentStatus,
+  PrismaClient,
+  User,
+} from "@prisma/client";
 import axios from "axios";
-import type { InferGetServerSidePropsType } from "next";
+import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { MetadataDisplay } from "../../../components/molecules/MetadataDisplay";
 import { findLink } from "../../../modules/findLink";
 
-export async function getServerSideProps(context) {
-  const linkId = context.params.linkid;
+export const getServerSideProps: GetServerSideProps<{
+  link: Link & { metadata: Metadata; creator: User };
+}> = async (context) => {
+  const linkid: string = context.params?.linkid as string;
+  if (!linkid) return { notFound: true };
+
   const prisma = new PrismaClient();
 
-  const link = await findLink(prisma, linkId);
+  const link = await findLink(prisma, linkid);
   if (!link) {
     return {
       notFound: true,
@@ -36,7 +47,7 @@ export async function getServerSideProps(context) {
   if (session && session.user?.id) {
     const payment = await prisma.payment.findFirst({
       where: {
-        link_hash: linkId,
+        link_hash: linkid,
         userId: session.user.id,
       },
     });
@@ -44,7 +55,7 @@ export async function getServerSideProps(context) {
     if (payment && payment.paymentStatus === PaymentStatus.COMPLETED) {
       return {
         redirect: {
-          destination: `/to/${linkId}`,
+          destination: `/to/${linkid}`,
           permanent: false,
         },
       };
@@ -56,7 +67,7 @@ export async function getServerSideProps(context) {
       link: JSON.parse(JSON.stringify(link)),
     },
   };
-}
+};
 
 function ToPay({
   link,
@@ -81,7 +92,7 @@ function ToPay({
           description: `TO ${linkid}`,
           amount: {
             currency_code: "EUR",
-            value: link.price,
+            value: `${link.price}`,
           },
           // payment_instruction: {
           //   disbursement_mode: "INSTANT",

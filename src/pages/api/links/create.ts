@@ -35,9 +35,13 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     },
   });
 
-  newLink.metadata = md;
-
-  res.status(200).json({ link: uri, newLink });
+  res.status(200).json({
+    link: uri,
+    newLink: {
+      ...newLink,
+      metadata: md,
+    },
+  });
 };
 
 export default handler;

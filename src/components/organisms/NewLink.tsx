@@ -18,7 +18,11 @@ const NewLink = (props: {
 }) => {
   const initialValues: LinkInput = { url: "", price: 0 };
 
-  const onSubmit = (values) => props.onLink(values);
+  const onSubmit = (values) => {
+    props.onLink(values);
+    return;
+  };
+
   const buttonRef = props.buttonRef;
 
   return (

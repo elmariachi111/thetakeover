@@ -6,11 +6,12 @@ import {
   PaymentStatus,
   PrismaClient,
 } from "@prisma/client";
-import type { InferGetServerSidePropsType } from "next";
+import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { getSession, useSession } from "next-auth/react";
 import { MetadataDisplay } from "../../components/molecules/MetadataDisplay";
 import { PaymentDisplay } from "../../components/molecules/PaymentDisplay";
 import { findLink } from "../../modules/findLink";
+import { XPayment } from "../../types/Payment";
 
 const redirectToPayment = (linkId: string) => {
   return {
@@ -29,8 +30,13 @@ const viewLink = (link: Link & { metadata: Metadata | null }) => {
   }
 };
 
-export async function getServerSideProps(context) {
-  const linkid = context.params.linkid;
+export const getServerSideProps: GetServerSideProps<{
+  link: Link & { metadata: Metadata };
+  payment: XPayment;
+}> = async (context) => {
+  const linkid: string = context.params?.linkid as string;
+  if (!linkid) return { notFound: true };
+
   const prisma = new PrismaClient();
   const link = await findLink(prisma, linkid);
   if (!link) {
@@ -68,7 +74,7 @@ export async function getServerSideProps(context) {
       payment: JSON.parse(JSON.stringify(payment)),
     },
   };
-}
+};
 
 function ToView({
   link,
@@ -78,14 +84,11 @@ function ToView({
     required: true,
   });
 
-  console.log(link, payment);
-  const embed = link.metadata.embed;
-
   return (
     <Flex direction="column" align="center">
       <MetadataDisplay metadata={link.metadata} />
       <Flex w="full" my={6}>
-        <div dangerouslySetInnerHTML={{ __html: link.metadata.embed }} />
+        <div dangerouslySetInnerHTML={{ __html: link.metadata.embed! }} />
       </Flex>
       {payment && <PaymentDisplay payment={payment} />}
     </Flex>

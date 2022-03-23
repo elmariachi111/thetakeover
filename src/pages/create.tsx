@@ -1,12 +1,4 @@
-import {
-  Box,
-  Button,
-  Flex,
-  Heading,
-  Input,
-  Spacer,
-  Text,
-} from "@chakra-ui/react";
+import { Box, Button, Flex, Heading, Spacer } from "@chakra-ui/react";
 import { Metadata } from "@prisma/client";
 import axios from "axios";
 import type { NextPage } from "next";
