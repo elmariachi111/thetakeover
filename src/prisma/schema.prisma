@@ -47,15 +47,15 @@ enum PaymentProvider {
 model Payment {
     id         String @id @default(uuid())
     link_hash  String
-    userId     String
+    userId     String?
     provider   PaymentProvider @default(PAYPAL)
     paymentRef String @unique
     paymentIntent PaymentIntent @default(CAPTURE)
     paymentStatus PaymentStatus? 
     initiatedAt DateTime  @default(now())
     paidAt      DateTime?
-
-    user User @relation(fields: [userId], references: [id])
+    
+    user User? @relation(fields: [userId], references: [id])
     link Link @relation(fields: [link_hash], references: [hash])
 
     @@index([paymentRef])

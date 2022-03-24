@@ -72,9 +72,6 @@ export const getServerSideProps: GetServerSideProps<{
 function ToPay({
   link,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const { data: session } = useSession({
-    required: true,
-  });
   const router = useRouter();
   const { linkid } = router.query;
   console.log(link);

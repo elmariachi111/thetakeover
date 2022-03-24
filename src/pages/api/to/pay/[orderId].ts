@@ -3,6 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import { core as Paypal, orders } from "@paypal/checkout-server-sdk";
 import { Order } from "@paypal/checkout-server-sdk/lib/orders/lib";
+import { Session } from "next-auth";
 
 const prisma = new PrismaClient();
 const paypalEnv = new Paypal.SandboxEnvironment(
@@ -12,12 +13,37 @@ const paypalEnv = new Paypal.SandboxEnvironment(
 
 const paypal = new Paypal.PayPalHttpClient(paypalEnv);
 
+const findOrCreateUser = async (session: Session | null, order: Order) => {
+  if ((!session || !session.user) && order.payer.email_address) {
+    let user = await prisma.user.findUnique({
+      where: { email: order.payer.email_address },
+    });
+    if (user) return user;
+
+    user = await prisma.user.create({
+      data: {
+        email: order.payer.email_address,
+        name: order.payer.name.full_name,
+      },
+    });
+
+    const account = await prisma.account.create({
+      data: {
+        userId: user.id,
+        type: "paypal",
+        provider: "paypal",
+        providerAccountId: order.payer.payer_id,
+      },
+    });
+
+    return user;
+  } else if (session.user) {
+    return session.user;
+  }
+};
+
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const session = await getSession({ req });
-
-  if (!session?.user) {
-    return res.status(401).send("Unauthorized");
-  }
 
   const orderId = req.query.orderId as string;
 
@@ -27,6 +53,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     console.error("Paypal error", res.status, res.statusMessage);
     res.status(500).send("Paypal error");
   }
+
+  console.log("orderResponse", JSON.stringify(orderResponse, null, 2));
 
   const order: Order = await orderResponse.result;
   const purchaseUnit0 = order.purchase_units[0].reference_id;
@@ -39,6 +67,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   if (!link) return res.status(404).send("link not found");
 
+  const user = findOrCreateUser(session, order);
+
   const payment = await prisma.payment.upsert({
     where: {
       paymentRef: order.id,
@@ -49,7 +79,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       paymentIntent: order.intent as PaymentIntent,
       paymentStatus: order.status as PaymentStatus,
       link_hash: link.hash,
-      userId: session.user.id,
+      userId: session?.user?.id,
     },
     update: {
       paymentIntent: order.intent as PaymentIntent,
