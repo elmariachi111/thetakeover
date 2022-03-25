@@ -1,9 +1,15 @@
-import { PaymentIntent, PaymentStatus, PrismaClient } from "@prisma/client";
-import type { NextApiRequest, NextApiResponse } from "next";
-import { getSession } from "next-auth/react";
 import { core as Paypal, orders } from "@paypal/checkout-server-sdk";
 import { Order } from "@paypal/checkout-server-sdk/lib/orders/lib";
-import { Session } from "next-auth";
+import { PaymentIntent, PaymentStatus, PrismaClient } from "@prisma/client";
+import type { NextApiRequest, NextApiResponse } from "next";
+import { default as nextAuth } from "../../auth/[...nextauth]";
+
+import { getSession } from "next-auth/react";
+
+import {
+  findOrCreateAndAttachPaypalAccount,
+  findOrCreateUser,
+} from "../../../../modules/findOrCreateUser";
 
 const prisma = new PrismaClient();
 const paypalEnv = new Paypal.SandboxEnvironment(
@@ -12,35 +18,6 @@ const paypalEnv = new Paypal.SandboxEnvironment(
 );
 
 const paypal = new Paypal.PayPalHttpClient(paypalEnv);
-
-const findOrCreateUser = async (session: Session | null, order: Order) => {
-  if ((!session || !session.user) && order.payer.email_address) {
-    let user = await prisma.user.findUnique({
-      where: { email: order.payer.email_address },
-    });
-    if (user) return user;
-
-    user = await prisma.user.create({
-      data: {
-        email: order.payer.email_address,
-        name: order.payer.name.full_name,
-      },
-    });
-
-    const account = await prisma.account.create({
-      data: {
-        userId: user.id,
-        type: "paypal",
-        provider: "paypal",
-        providerAccountId: order.payer.payer_id,
-      },
-    });
-
-    return user;
-  } else if (session.user) {
-    return session.user;
-  }
-};
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const session = await getSession({ req });
@@ -67,7 +44,21 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   if (!link) return res.status(404).send("link not found");
 
-  const user = findOrCreateUser(session, order);
+  let user;
+  if (order.payer) {
+    user = await findOrCreateUser(
+      prisma,
+      order.payer.email_address,
+      `${order.payer.name.prefix} ${order.payer.name.given_name} ${order.payer.name.middle_name} ${order.payer.name.surname} ${order.payer.name.suffix}`,
+      session?.user
+    );
+
+    await findOrCreateAndAttachPaypalAccount(
+      prisma,
+      user.id,
+      order.payer.payer_id
+    );
+  }
 
   const payment = await prisma.payment.upsert({
     where: {
@@ -79,14 +70,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       paymentIntent: order.intent as PaymentIntent,
       paymentStatus: order.status as PaymentStatus,
       link_hash: link.hash,
-      userId: session?.user?.id,
+      userId: user?.id,
     },
     update: {
       paymentIntent: order.intent as PaymentIntent,
       paymentStatus: order.status as PaymentStatus,
+      userId: user?.id,
     },
   });
-
   return res.json(payment);
 };
 
