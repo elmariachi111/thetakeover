@@ -39,23 +39,45 @@ export async function getServerSideProps(context) {
     },
   });
 
+  const payments = await prisma.payment.findMany({
+    where: {
+      userId: session.user.id,
+    },
+    include: {
+      link: {
+        select: {
+          hash: true,
+          metadata: {
+            select: {
+              title: true,
+              previewImage: true,
+            },
+          },
+        },
+      },
+    },
+  });
   return {
     props: {
       links: JSON.parse(JSON.stringify(links)),
+      payments: JSON.parse(JSON.stringify(payments)),
     },
   };
 }
 
 function MyTakeOvers({
   links,
+  payments,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { data: session } = useSession({
     required: true,
   });
 
+  console.log(payments);
+
   return (
     <Flex direction="column" h="full" align="flex-start">
-      <Heading fontSize="xl" textTransform="uppercase" my={5}>
+      <Heading fontSize="xl" my={5}>
         Your Takeovers
       </Heading>
       <Table>
@@ -81,6 +103,31 @@ function MyTakeOvers({
                 <Text>€{link.price}</Text>
               </Td>
               <Td isNumeric>{link._count.payments}</Td>
+            </Tr>
+          ))}
+        </Tbody>
+      </Table>
+
+      <Heading fontSize="xl" mt={12} mb={6}>
+        Downloaded
+      </Heading>
+
+      <Table>
+        <Thead>
+          <Tr>
+            <Th>Link</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          {payments?.map((payment) => (
+            <Tr key={payment.id}>
+              <Td>
+                <ChakraLink isExternal href={`/to/${payment.link.hash}`}>
+                  {payment.link.metadata
+                    ? payment.link.metadata.title
+                    : payment.link.hash}
+                </ChakraLink>
+              </Td>
             </Tr>
           ))}
         </Tbody>
