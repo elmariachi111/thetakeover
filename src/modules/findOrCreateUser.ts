@@ -7,12 +7,10 @@ export const findOrCreateAndAttachPaypalAccount = async (
   userId: string,
   payerId: string
 ): Promise<DefaultAccount> => {
-  const account = await prisma.account.findUnique({
+  const account = await prisma.account.findFirst({
     where: {
-      userId_provider: {
-        provider: "paypal",
-        userId,
-      },
+      provider: "paypal",
+      userId,
     },
   });
 

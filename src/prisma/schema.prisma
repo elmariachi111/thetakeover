@@ -1,13 +1,13 @@
 // yarn prisma db push --schema=./src/prisma/schema.prisma
 generator client {
-    provider        = "prisma-client-js"
-    previewFeatures = ["referentialIntegrity"]
+    provider = "prisma-client-js"
+    //previewFeatures = ["referentialIntegrity"]
 }
 
 datasource db {
-    provider             = "mysql"
-    url                  = env("DATABASE_URL")
-    referentialIntegrity = "prisma"
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+    //referentialIntegrity = "prisma"
 }
 
 model Link {
@@ -17,17 +17,18 @@ model Link {
     creatorId  String
     creator    User      @relation(fields: [creatorId], references: [id])
     payments   Payment[]
-    metadata   Metadata? 
+    metadata   Metadata?
+
     @@index([hash, origin_uri])
 }
 
 model Metadata {
-    linkHash        String @id
-    link            Link   @relation(fields: [linkHash], references: [hash])
-    title           String
-    description     String
-    previewImage    String
-    embed           String? @db.MediumText      
+    linkHash     String  @id
+    link         Link    @relation(fields: [linkHash], references: [hash])
+    title        String
+    description  String
+    previewImage String
+    embed        String? @db.MediumText
 }
 
 enum PaymentIntent {
@@ -45,18 +46,18 @@ enum PaymentProvider {
 }
 
 model Payment {
-    id         String @id @default(uuid())
-    link_hash  String
-    userId     String?
-    provider   PaymentProvider @default(PAYPAL)
-    paymentRef String @unique
-    paymentIntent PaymentIntent @default(CAPTURE)
-    paymentStatus PaymentStatus? 
-    initiatedAt DateTime  @default(now())
-    paidAt      DateTime?
-    
+    id            String          @id @default(uuid())
+    link_hash     String
+    userId        String?
+    provider      PaymentProvider @default(PAYPAL)
+    paymentRef    String          @unique
+    paymentIntent PaymentIntent   @default(CAPTURE)
+    paymentStatus PaymentStatus?
+    initiatedAt   DateTime        @default(now())
+    paidAt        DateTime?
+
     user User? @relation(fields: [userId], references: [id])
-    link Link @relation(fields: [link_hash], references: [hash])
+    link Link  @relation(fields: [link_hash], references: [hash])
 
     @@index([paymentRef])
     @@index([link_hash, userId])
@@ -81,7 +82,6 @@ model Account {
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([provider, providerAccountId])
-    @@unique([userId, provider])
 }
 
 model Session {

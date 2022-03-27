@@ -2,7 +2,6 @@ import { core as Paypal, orders } from "@paypal/checkout-server-sdk";
 import { Order } from "@paypal/checkout-server-sdk/lib/orders/lib";
 import { PaymentIntent, PaymentStatus, PrismaClient } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { default as nextAuth } from "../../auth/[...nextauth]";
 
 import { getSession } from "next-auth/react";
 
@@ -54,11 +53,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       session?.user
     );
 
-    // await findOrCreateAndAttachPaypalAccount(
-    //   prisma,
-    //   user.id,
-    //   order.payer.payer_id
-    // );
+    await findOrCreateAndAttachPaypalAccount(
+      prisma,
+      user.id,
+      order.payer.payer_id
+    );
   }
 
   const payment = await prisma.payment.upsert({
