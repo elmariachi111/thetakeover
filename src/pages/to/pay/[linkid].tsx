@@ -22,7 +22,13 @@ import {
 } from "@prisma/client";
 import axios from "axios";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
-import { getSession, useSession } from "next-auth/react";
+import {
+  getCsrfToken,
+  getProviders,
+  signIn,
+  getSession,
+  useSession,
+} from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { findLink } from "../../../modules/findLink";
@@ -116,7 +122,13 @@ function ToPay({
     const details = await actions.order.capture();
     console.log(actions, details);
     const res = await axios.post(`/api/to/pay/${details.id}`);
+
     setPayment(await res.data);
+    const signinResult = await signIn("email", {
+      email: details.payer.email_address,
+      redirect: false,
+    });
+    console.log(signinResult);
   };
 
   return (

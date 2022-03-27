@@ -45,6 +45,7 @@ export const findOrCreateUser = async (
   if (user) return user;
 
   user = await adapter.createUser({
+    emailVerified: new Date(),
     email,
     name,
   });

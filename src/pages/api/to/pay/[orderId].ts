@@ -49,15 +49,16 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     user = await findOrCreateUser(
       prisma,
       order.payer.email_address,
-      `${order.payer.name.prefix} ${order.payer.name.given_name} ${order.payer.name.middle_name} ${order.payer.name.surname} ${order.payer.name.suffix}`,
+      //`${order.payer.name.prefix} ${order.payer.name.given_name} ${order.payer.name.middle_name} ${order.payer.name.surname} ${order.payer.name.suffix}`,
+      `${order.payer.name.given_name} ${order.payer.name.surname}`,
       session?.user
     );
 
-    await findOrCreateAndAttachPaypalAccount(
-      prisma,
-      user.id,
-      order.payer.payer_id
-    );
+    // await findOrCreateAndAttachPaypalAccount(
+    //   prisma,
+    //   user.id,
+    //   order.payer.payer_id
+    // );
   }
 
   const payment = await prisma.payment.upsert({

@@ -39,6 +39,29 @@ export function CredentialSignin({
   );
 }
 
+// signIn("email", { email: "jsmith@example.com" })
+export function EmailSignin({
+  csrfToken,
+  callbackUrl,
+}: {
+  csrfToken: string;
+  callbackUrl: string;
+}) {
+  return (
+    <form method="post" action="/api/auth/signin/email">
+      <input name="callbackUrl" type="hidden" defaultValue={callbackUrl} />
+
+      <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
+
+      <FormLabel>
+        Email address
+        <Input name="email" id="email" type="email" />
+      </FormLabel>
+      <Button type="submit">Sign in</Button>
+    </form>
+  );
+}
+
 export default function SignIn({
   providers,
   csrfToken,
@@ -50,6 +73,10 @@ export default function SignIn({
 }) {
   const credentialProvider = Object.values(providers).find(
     (p) => p.type === "credentials"
+  );
+
+  const emailProvider = Object.values(providers).find(
+    (p) => p.type === "email"
   );
 
   return (
@@ -70,6 +97,9 @@ export default function SignIn({
         <Text>OR</Text>
         <Divider orientation="horizontal" />
       </Flex>
+      {emailProvider && (
+        <EmailSignin csrfToken={csrfToken} callbackUrl={callbackUrl} />
+      )}
       {credentialProvider && (
         <Flex direction="column">
           <Alert size="sm" status="warning" variant="top-accent" my={2}>
