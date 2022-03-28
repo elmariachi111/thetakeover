@@ -1,7 +1,8 @@
 version: "3.7"
 services:
   db:
-    image: docker.io/mysql:5.7
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
     restart: always
     environment:
       MYSQL_DATABASE: "db"
