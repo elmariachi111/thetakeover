@@ -4,11 +4,13 @@ import { PaymentIntent, PaymentStatus, PrismaClient } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 import { getSession } from "next-auth/react";
+import { setCookie } from "../../../../lib/cookie";
 
 import {
   findOrCreateAndAttachPaypalAccount,
   findOrCreateUser,
 } from "../../../../modules/findOrCreateUser";
+import { loginPayer } from "../../../../modules/loginPayer";
 
 const prisma = new PrismaClient();
 const paypalEnv = new Paypal.SandboxEnvironment(
@@ -30,7 +32,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     res.status(500).send("Paypal error");
   }
 
-  console.log("orderResponse", JSON.stringify(orderResponse, null, 2));
+  //console.log("orderResponse", JSON.stringify(orderResponse, null, 2));
 
   const order: Order = await orderResponse.result;
   const purchaseUnit0 = order.purchase_units[0].reference_id;
@@ -58,6 +60,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       user.id,
       order.payer.payer_id
     );
+
+    const sessionCookies = await loginPayer(req, user);
+    console.log(sessionCookies);
+    sessionCookies.forEach((cookie) => setCookie(res, cookie));
   }
 
   const payment = await prisma.payment.upsert({

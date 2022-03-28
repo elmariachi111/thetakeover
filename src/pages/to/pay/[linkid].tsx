@@ -47,7 +47,7 @@ export const getServerSideProps: GetServerSideProps<{
       notFound: true,
     };
   }
-  console.log(link);
+  //console.log(link);
 
   const session = await getSession(context);
   if (session && session.user?.id) {
@@ -57,7 +57,7 @@ export const getServerSideProps: GetServerSideProps<{
         userId: session.user.id,
       },
     });
-    console.log("payment", session, payment);
+    //console.log("payment", session, payment);
     if (payment && payment.paymentStatus === PaymentStatus.COMPLETED) {
       return {
         redirect: {
@@ -80,7 +80,7 @@ function ToPay({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
   const { linkid } = router.query;
-  console.log(link);
+  //console.log(link);
 
   const [payment, setPayment] = useState<Payment>();
 
@@ -113,22 +113,21 @@ function ToPay({
     });
     const res = await axios.post(`/api/to/pay/${orderId}`);
 
-    console.log(orderId);
+    //console.log(orderId);
     return orderId;
   };
 
   const onApprove = async (data: OnApproveData, actions: OnApproveActions) => {
     if (!actions.order) return;
     const details = await actions.order.capture();
-    console.log(actions, details);
+    //console.log(actions, details);
     const res = await axios.post(`/api/to/pay/${details.id}`);
 
-    setPayment(await res.data);
     const signinResult = await signIn("email", {
       email: details.payer.email_address,
       redirect: false,
     });
-    console.log(signinResult);
+    setPayment(await res.data);
   };
 
   return (
@@ -152,7 +151,7 @@ function ToPay({
 
       {payment ? (
         <Button as={ChakraLink} href={`/to/${payment.link_hash}`}>
-          download
+          proceed to content
         </Button>
       ) : (
         <Flex direction="column" w="full" mt={6}>
