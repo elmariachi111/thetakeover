@@ -1,6 +1,7 @@
 import {
   Flex,
   Heading,
+  Image,
   Link as ChakraLink,
   Table,
   Tbody,
@@ -22,7 +23,7 @@ export async function getServerSideProps(context) {
   if (!session || !session.user?.id) {
     return {
       redirect: {
-        destination: `/auth/signin?callbackUrl=/my`,
+        destination: `/api/auth/signin?callbackUrl=/my`,
         permanent: false,
       },
     };
@@ -35,6 +36,12 @@ export async function getServerSideProps(context) {
     include: {
       _count: {
         select: { payments: true },
+      },
+      metadata: {
+        select: {
+          title: true,
+          previewImage: true,
+        },
       },
     },
   });
@@ -73,7 +80,7 @@ function MyTakeOvers({
     required: true,
   });
 
-  console.log(payments);
+  console.log(links);
 
   return (
     <Flex direction="column" h="full" align="flex-start">
@@ -83,7 +90,8 @@ function MyTakeOvers({
       <Table>
         <Thead>
           <Tr>
-            <Th>Link</Th>
+            <Th></Th>
+            <Th>Title</Th>
             <Th isNumeric>Price</Th>
             <Th isNumeric>Downloads</Th>
           </Tr>
@@ -92,9 +100,12 @@ function MyTakeOvers({
           {links?.map((link) => (
             <Tr key={link.hash}>
               <Td>
+                <Image src={link.metadata?.previewImage} />
+              </Td>
+              <Td>
                 <Flex direction="column">
                   <ChakraLink isExternal href={`/to/${link.hash}`}>
-                    {link.hash}
+                    {link.metadata ? link.metadata.title : link.hash}
                   </ChakraLink>
                   <Text fontSize="xs">{link.origin_uri}</Text>
                 </Flex>

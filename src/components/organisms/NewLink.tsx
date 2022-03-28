@@ -4,53 +4,161 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
+  Image,
   Input,
   Portal,
+  Textarea,
 } from "@chakra-ui/react";
-import { Field, Form, Formik } from "formik";
-import React, { MutableRefObject, ReactElement } from "react";
-import isUrl from "validator/lib/isURL";
+import axios from "axios";
+import { Field, Form, Formik, useField, useFormikContext } from "formik";
+import React, { MutableRefObject, useEffect } from "react";
+import * as Yup from "yup";
 import { LinkInput } from "../../types/LinkInput";
+import { XOembedData } from "../../types/Oembed";
+
+const NewLinkSchema = Yup.object().shape({
+  url: Yup.string().url("not an url").required("required"),
+  price: Yup.number()
+    .moreThan(0.98, "price too low")
+    .lessThan(100, "price too high")
+    .required("required"),
+  title: Yup.string()
+    .min(3, "too short")
+    .max(120, "too long")
+    .required("required"),
+  description: Yup.string()
+    .min(10, "too short")
+    .max(2000, "too long")
+    .required("required"),
+});
+
+const MetadataEditor = () => {
+  const {
+    values: { url },
+    setFieldValue,
+  } = useFormikContext<LinkInput>();
+  const [fTitle, mTitle] = useField({
+    name: "title",
+  });
+  const [fDescription, mDescription] = useField({
+    name: "description",
+  });
+  const [fPreviewImage, mPreviewImage] = useField({
+    name: "previewImage",
+  });
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const oembed: XOembedData = await (
+          await axios.post("/api/links/oembed", {
+            uri: url,
+          })
+        ).data;
+
+        setFieldValue("description", oembed.description);
+        setFieldValue("title", oembed.title);
+        setFieldValue("previewImage", oembed.thumbnail_url, true);
+        setFieldValue("embed", oembed.html);
+      } catch (e: any) {
+        console.error(e.message);
+      }
+    })();
+  }, [url, setFieldValue]);
+
+  return (
+    <Flex
+      direction="column"
+      gridGap={6}
+      borderLeftWidth={3}
+      borderLeftColor="gray.700"
+      pl={4}
+    >
+      <FormControl isInvalid={!!mTitle.error && !!mTitle.touched}>
+        <FormLabel>title</FormLabel>
+        <Input {...fTitle} />
+        <FormErrorMessage>{mTitle.error}</FormErrorMessage>
+      </FormControl>
+
+      <FormControl isInvalid={!!mDescription.error && !!mDescription.touched}>
+        <Flex direction="column">
+          <FormLabel>description</FormLabel>
+          <Textarea
+            {...fDescription}
+            resize="vertical"
+            variant="filled"
+            size="sm"
+            rows={12}
+          />
+          <FormErrorMessage>{mDescription.error}</FormErrorMessage>
+        </Flex>
+      </FormControl>
+
+      <FormControl isInvalid={!!mPreviewImage.error}>
+        <Flex direction="row" gap={2}>
+          <Flex direction="column" flex={3}>
+            <FormLabel>preview</FormLabel>
+            <Input {...fPreviewImage} />
+          </Flex>
+          {!mPreviewImage.error && (
+            <Flex flex={1}>
+              <Image src={fPreviewImage.value} />
+            </Flex>
+          )}
+        </Flex>
+      </FormControl>
+    </Flex>
+  );
+};
 
 const NewLink = (props: {
-  onLink: (p: LinkInput) => unknown;
+  onSubmit: (p: LinkInput) => unknown;
   buttonRef: MutableRefObject<HTMLElement | null>;
 }) => {
-  const initialValues: LinkInput = { url: "", price: 0 };
-
-  const onSubmit = (values) => {
-    props.onLink(values);
-    return;
+  const initialValues: LinkInput = {
+    url: "",
+    price: 0,
+    title: "",
+    previewImage: "",
+    description: "",
+    embed: "",
   };
 
   const buttonRef = props.buttonRef;
 
   return (
-    <Formik initialValues={initialValues} onSubmit={onSubmit}>
-      {({ errors, isValid }) => (
+    <Formik
+      initialValues={initialValues}
+      validationSchema={NewLinkSchema}
+      onSubmit={(values) => {
+        props.onSubmit(values);
+        return;
+      }}
+    >
+      {({ errors, touched }) => (
         <Form id="newlink-form">
           <Flex direction="column" gridGap={6}>
             <FormControl isInvalid={!!errors.url}>
-              <FormLabel>an URI to protect</FormLabel>
+              <FormLabel>a protected link</FormLabel>
               <Field
                 name="url"
                 type="text"
                 as={Input}
                 placeholder="https://some.link"
-                validate={(v) =>
-                  !isUrl(v, { require_protocol: true })
-                    ? "not an url"
-                    : undefined
-                }
               />
-              <FormErrorMessage>{errors.url}</FormErrorMessage>
+              {errors.url && touched.url && (
+                <FormErrorMessage>{errors.url}</FormErrorMessage>
+              )}
             </FormControl>
 
-            <FormControl>
+            {!!touched.url && !errors.url && <MetadataEditor />}
+
+            <FormControl mb={8} isInvalid={!!errors.price}>
               <Flex direction="row" align="center">
                 <FormLabel flex={2}>Price (EUR)</FormLabel>
                 <Field name="price" type="text" as={Input} flex={6} />
               </Flex>
+              <FormErrorMessage>{errors.price}</FormErrorMessage>
             </FormControl>
           </Flex>
           <Portal containerRef={buttonRef}>
@@ -58,9 +166,12 @@ const NewLink = (props: {
               type="submit"
               w="100%"
               form="newlink-form"
-              disabled={!isValid}
+              disabled={
+                Object.values(touched).length == 0 ||
+                Object.values(errors).length > 0
+              }
             >
-              go ahead
+              create takeover
             </Button>
           </Portal>
         </Form>
