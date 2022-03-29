@@ -43,6 +43,14 @@ const theme = extendTheme({
     },
   },
   components: {
+    Link: {
+      baseStyle: {
+        color: "brand.200",
+        // _hover: {
+        //   color: "brand.300",
+        // },
+      },
+    },
     Input: {
       baseStyle: {
         field: {

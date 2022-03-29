@@ -1,4 +1,4 @@
-import { PrismaClient, SellerAccount } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const prisma = new PrismaClient();
@@ -21,8 +21,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     },
   });
 
-  //todo: redirect to profile.
-  return res.status(200).json({ account });
+  return res.redirect("/my");
 };
 
 export default handler;

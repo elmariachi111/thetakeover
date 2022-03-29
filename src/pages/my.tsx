@@ -11,9 +11,10 @@ import {
   Thead,
   Tr,
 } from "@chakra-ui/react";
-import { PrismaClient, SellerAccount } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import type { InferGetServerSidePropsType } from "next";
 import { getSession, useSession } from "next-auth/react";
+import { SellerAccountDialog } from "../components/molecules/SellerAccountDialog";
 
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
@@ -29,7 +30,7 @@ export async function getServerSideProps(context) {
     };
   }
 
-  const sellerAccount: SellerAccount = await prisma.sellerAccount.findFirst({
+  const sellerAccount = await prisma.sellerAccount.findFirst({
     where: {
       userId: session.user.id,
     },
@@ -90,14 +91,12 @@ function MyTakeOvers({
 
   return (
     <Flex direction="column" h="full" align="flex-start">
+      {links.length > 0 && (
+        <SellerAccountDialog sellerAccount={sellerAccount} />
+      )}
       <Heading fontSize="xl" my={5}>
         Your Takeovers
       </Heading>
-      {sellerAccount && (
-        <Flex>
-          <Text>on Paypal you are: {sellerAccount.merchantIdInPayPal}</Text>
-        </Flex>
-      )}
       <Table>
         <Thead>
           <Tr>
