@@ -63,6 +63,19 @@ model Payment {
     @@index([link_hash, userId])
 }
 
+model SellerAccount {
+    id                  String  @id @default(cuid())
+    userId              String 
+    merchantIdInPayPal  String
+    permissionsGranted  Boolean
+    accountStatus       String?
+    consentStatus       Boolean
+    productIntentId     String
+    isEmailConfirmed    Boolean
+    riskStatus          String?
+    user                User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
 model Account {
     id                 String  @id @default(cuid())
     userId             String
@@ -102,6 +115,7 @@ model User {
     sessions      Session[]
     links         Link[]
     payments      Payment[]
+    sellerAccount SellerAccount?
 }
 
 model VerificationToken {

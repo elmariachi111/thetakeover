@@ -46,3 +46,43 @@ GET {{Paypal}}/v2/checkout/orders/19A966449S213464H
 #GET {{Paypal}}/v2/checkout/orders/57595573V1292361Y
 Authorization: Bearer {{PaypalAccessToken}}
 Content-Type: application/json
+
+### start partner onboarding:
+POST {{Paypal}}/v2/customer/partner-referrals
+Authorization: Bearer {{PaypalAccessToken}}
+Content-Type: application/json
+
+{
+    "tracking_id": "foobar",
+    "operations": [
+      {
+        "operation": "API_INTEGRATION",
+        "api_integration_preference": {
+          "rest_api_integration": {
+            "integration_method": "PAYPAL",
+            "integration_type": "THIRD_PARTY",
+            "third_party_details": {
+              "features": [
+                "PAYMENT",
+                "REFUND"
+             ]
+            }
+          }
+        }
+      }
+    ],
+    "products": [
+      "EXPRESS_CHECKOUT"
+    ],
+   "legal_consents": [
+      {
+        "type": "SHARE_DATA_CONSENT",
+        "granted": true
+      }
+    ]
+}
+
+### get partner merchant details
+GET https://api-m.sandbox.paypal.com/v1/customer/partners/X4LS5MX6Z2MX2/merchant-integrations/9X4J4F77QWQUU 
+Authorization: Bearer {{PaypalAccessToken}}
+Content-Type: application/json
