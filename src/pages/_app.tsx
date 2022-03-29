@@ -112,14 +112,7 @@ function MyApp({
   return (
     <ChakraProvider theme={theme}>
       <SessionProvider session={session}>
-        <PayPalScriptProvider
-          options={{
-            "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID as string,
-            currency: "EUR",
-          }}
-        >
-          {getLayout(<Component {...pageProps} />)}
-        </PayPalScriptProvider>
+        {getLayout(<Component {...pageProps} />)}
       </SessionProvider>
     </ChakraProvider>
   );
