@@ -19,8 +19,7 @@ export default NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
     EmailProvider({
-      from: process.env.GOOGLE_MAIL_CLIENT_USER,
-
+      from: `The Takeover Movement <${process.env.GOOGLE_MAIL_CLIENT_USER}>`,
       server: {
         host: "smtp.gmail.com",
         port: 465,
