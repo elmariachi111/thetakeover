@@ -13,7 +13,8 @@ import {
 } from "@chakra-ui/react";
 import { PrismaClient } from "@prisma/client";
 import type { InferGetServerSidePropsType } from "next";
-import { getSession, useSession } from "next-auth/react";
+import { getSession } from "next-auth/react";
+import { SellerAccountDialog } from "../components/molecules/SellerAccountDialog";
 
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
@@ -28,6 +29,12 @@ export async function getServerSideProps(context) {
       },
     };
   }
+
+  const sellerAccount = await prisma.sellerAccount.findFirst({
+    where: {
+      userId: session.user.id,
+    },
+  });
 
   const links = await prisma.link.findMany({
     where: {
@@ -68,6 +75,7 @@ export async function getServerSideProps(context) {
     props: {
       links: JSON.parse(JSON.stringify(links)),
       payments: JSON.parse(JSON.stringify(payments)),
+      sellerAccount: JSON.parse(JSON.stringify(sellerAccount)),
     },
   };
 }
@@ -75,15 +83,13 @@ export async function getServerSideProps(context) {
 function MyTakeOvers({
   links,
   payments,
+  sellerAccount,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const { data: session } = useSession({
-    required: true,
-  });
-
-  console.log(links);
-
   return (
     <Flex direction="column" h="full" align="flex-start">
+      {links.length > 0 && (
+        <SellerAccountDialog sellerAccount={sellerAccount} />
+      )}
       <Heading fontSize="xl" my={5}>
         Your Takeovers
       </Heading>
@@ -148,3 +154,5 @@ function MyTakeOvers({
 }
 
 export default MyTakeOvers;
+
+MyTakeOvers.auth = true;

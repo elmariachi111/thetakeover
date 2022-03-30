@@ -1,5 +1,5 @@
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
-import { SessionProvider } from "next-auth/react";
+import { SessionProvider, useSession } from "next-auth/react";
 import type { AppProps } from "next/app";
 import Layout from "../components/Layout";
 import "@fontsource/space-mono/400.css";
@@ -43,6 +43,14 @@ const theme = extendTheme({
     },
   },
   components: {
+    Link: {
+      baseStyle: {
+        color: "brand.200",
+        // _hover: {
+        //   color: "brand.300",
+        // },
+      },
+    },
     Input: {
       baseStyle: {
         field: {
@@ -90,11 +98,22 @@ const theme = extendTheme({
 
 type NextPageWithLayout = NextPage & {
   getLayout?: (page: ReactElement) => ReactNode;
+  auth?: boolean;
 };
 
 type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
 };
+
+function Auth({ children }) {
+  const { data: session, status } = useSession({ required: true });
+
+  if (session?.user) {
+    return children;
+  }
+
+  return <div>Loading...</div>;
+}
 
 function MyApp({
   Component,
@@ -104,14 +123,11 @@ function MyApp({
   return (
     <ChakraProvider theme={theme}>
       <SessionProvider session={session}>
-        <PayPalScriptProvider
-          options={{
-            "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID as string,
-            currency: "EUR",
-          }}
-        >
-          {getLayout(<Component {...pageProps} />)}
-        </PayPalScriptProvider>
+        {Component.auth ? (
+          <Auth>{getLayout(<Component {...pageProps} />)}</Auth>
+        ) : (
+          getLayout(<Component {...pageProps} />)
+        )}
       </SessionProvider>
     </ChakraProvider>
   );

@@ -11,30 +11,27 @@ import type {
   OnApproveActions,
   OnApproveData,
 } from "@paypal/paypal-js";
-import { PayPalButtons } from "@paypal/react-paypal-js";
+import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import {
   Link,
   Metadata,
   Payment,
   PaymentStatus,
   PrismaClient,
+  SellerAccount,
   User,
 } from "@prisma/client";
 import axios from "axios";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
-import {
-  getCsrfToken,
-  getProviders,
-  signIn,
-  getSession,
-  useSession,
-} from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
+import { SellerNotConnectedAlert } from "../../../components/molecules/SellerNotConnectedAlert";
 import { findLink } from "../../../modules/findLink";
 
 export const getServerSideProps: GetServerSideProps<{
-  link: Link & { metadata: Metadata; creator: User };
+  link: Link & { metadata: Metadata; creator: User; price: number };
+  seller: SellerAccount;
 }> = async (context) => {
   const linkid: string = context.params?.linkid as string;
   if (!linkid) return { notFound: true };
@@ -47,7 +44,7 @@ export const getServerSideProps: GetServerSideProps<{
       notFound: true,
     };
   }
-  //console.log(link);
+  console.log(link);
 
   const session = await getSession(context);
   if (session && session.user?.id) {
@@ -67,16 +64,23 @@ export const getServerSideProps: GetServerSideProps<{
       };
     }
   }
+  const seller = await prisma.sellerAccount.findFirst({
+    where: {
+      userId: link.creatorId,
+    },
+  });
 
   return {
     props: {
       link: JSON.parse(JSON.stringify(link)),
+      seller: JSON.parse(JSON.stringify(seller)),
     },
   };
 };
 
 function ToPay({
   link,
+  seller,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
   const { linkid } = router.query;
@@ -89,6 +93,10 @@ function ToPay({
     actions: CreateOrderActions
   ) => {
     const orderId = await actions.order.create({
+      intent: "CAPTURE",
+      application_context: {
+        shipping_preference: "NO_SHIPPING",
+      },
       purchase_units: [
         {
           reference_id: linkid as string,
@@ -97,17 +105,33 @@ function ToPay({
             currency_code: "EUR",
             value: `${link.price}`,
           },
-          // payment_instruction: {
-          //   disbursement_mode: "INSTANT",
-          //   platform_fees: [
-          //     {
-          //       amount: {
-          //         currency_code: "EUR",
-          //         value: (0.1 * data.link.price).toFixed(2)
-          //       }
-          //     }
-          //   ]
-          // }
+          // items: [
+          //   {
+          //     name: `Takeover ${linkid} by ${link.creator.name}`,
+          //     quantity: "1",
+          //     unit_amount: {
+          //       currency_code: "EUR",
+          //       value: `${link.price}`,
+          //     },
+          //     category: "DIGITAL_GOODS",
+          //   },
+          // ],
+
+          /*
+           * consider adding payee information (needs their email address)
+           * https://developer.paypal.com/api/orders/v2/#definition-purchase_unit_request
+           */
+          payment_instruction: {
+            disbursement_mode: "INSTANT",
+            platform_fees: [
+              {
+                amount: {
+                  currency_code: "EUR",
+                  value: (0.1 * link.price).toFixed(2),
+                },
+              },
+            ],
+          },
         },
       ],
     });
@@ -148,15 +172,26 @@ function ToPay({
           €{link.price}
         </Text>
       </Flex>
-
-      {payment ? (
-        <Button as={ChakraLink} href={`/to/${payment.link_hash}`}>
-          proceed to content
-        </Button>
+      {seller ? (
+        <PayPalScriptProvider
+          options={{
+            "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID as string,
+            "merchant-id": seller.merchantIdInPayPal,
+            currency: "EUR",
+          }}
+        >
+          {payment ? (
+            <Button as={ChakraLink} href={`/to/${payment.link_hash}`}>
+              proceed to content
+            </Button>
+          ) : (
+            <Flex direction="column" w="full" mt={6}>
+              <PayPalButtons createOrder={createOrder} onApprove={onApprove} />
+            </Flex>
+          )}
+        </PayPalScriptProvider>
       ) : (
-        <Flex direction="column" w="full" mt={6}>
-          <PayPalButtons createOrder={createOrder} onApprove={onApprove} />
-        </Flex>
+        <SellerNotConnectedAlert creator={link.creator} />
       )}
     </Flex>
   );
