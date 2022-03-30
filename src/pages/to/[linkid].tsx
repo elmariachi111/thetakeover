@@ -132,4 +132,6 @@ ToView.getLayout = function (page: ReactElement) {
   return <Flex h="100vh">{page}</Flex>;
 };
 
+ToView.auth = true;
+
 export default ToView;

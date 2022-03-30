@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { PrismaClient } from "@prisma/client";
 import type { InferGetServerSidePropsType } from "next";
-import { getSession, useSession } from "next-auth/react";
+import { getSession } from "next-auth/react";
 import { SellerAccountDialog } from "../components/molecules/SellerAccountDialog";
 
 export async function getServerSideProps(context) {
@@ -85,10 +85,6 @@ function MyTakeOvers({
   payments,
   sellerAccount,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const { data: session } = useSession({
-    required: true,
-  });
-
   return (
     <Flex direction="column" h="full" align="flex-start">
       {links.length > 0 && (
@@ -158,3 +154,5 @@ function MyTakeOvers({
 }
 
 export default MyTakeOvers;
+
+MyTakeOvers.auth = true;

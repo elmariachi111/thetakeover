@@ -26,6 +26,7 @@ import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
+import { SellerNotConnectedAlert } from "../../../components/molecules/SellerNotConnectedAlert";
 import { findLink } from "../../../modules/findLink";
 
 export const getServerSideProps: GetServerSideProps<{
@@ -171,23 +172,27 @@ function ToPay({
           €{link.price}
         </Text>
       </Flex>
-      <PayPalScriptProvider
-        options={{
-          "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID as string,
-          "merchant-id": seller.merchantIdInPayPal,
-          currency: "EUR",
-        }}
-      >
-        {payment ? (
-          <Button as={ChakraLink} href={`/to/${payment.link_hash}`}>
-            proceed to content
-          </Button>
-        ) : (
-          <Flex direction="column" w="full" mt={6}>
-            <PayPalButtons createOrder={createOrder} onApprove={onApprove} />
-          </Flex>
-        )}
-      </PayPalScriptProvider>
+      {seller ? (
+        <PayPalScriptProvider
+          options={{
+            "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID as string,
+            "merchant-id": seller.merchantIdInPayPal,
+            currency: "EUR",
+          }}
+        >
+          {payment ? (
+            <Button as={ChakraLink} href={`/to/${payment.link_hash}`}>
+              proceed to content
+            </Button>
+          ) : (
+            <Flex direction="column" w="full" mt={6}>
+              <PayPalButtons createOrder={createOrder} onApprove={onApprove} />
+            </Flex>
+          )}
+        </PayPalScriptProvider>
+      ) : (
+        <SellerNotConnectedAlert creator={link.creator} />
+      )}
     </Flex>
   );
 }

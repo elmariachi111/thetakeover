@@ -10,6 +10,7 @@ import type { NextPage } from "next";
 import { signIn, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
+import { useMemo } from "react";
 import logo from "../img/to_logo.svg";
 
 const CreateLink: NextPage = () => {
@@ -17,14 +18,29 @@ const CreateLink: NextPage = () => {
     required: false,
   });
 
+  const salutation = useMemo(() => {
+    if (status === "authenticated") {
+      if (session) {
+        if (session.user) {
+          return (
+            "gm, " +
+            (session.user.name || session.user.email || session.user.id)
+          );
+        } else {
+          return "gm.";
+        }
+      }
+    } else {
+      return "gm, please";
+    }
+  }, [session, status]);
+
   return (
     <Flex direction="column" h="full" align="center">
       <Spacer />
       {status === "authenticated" ? (
         <Flex direction="column" align="center">
-          <Text my={3}>
-            gm, {session?.user?.name ? session.user.name : session?.user?.id}
-          </Text>
+          <Text my={3}>{salutation}</Text>
           <Link href="/create" passHref>
             <Button as={ChakraLink} to="/create">
               Create a Takeover
