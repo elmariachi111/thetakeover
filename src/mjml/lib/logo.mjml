@@ -1,0 +1,9 @@
+<mj-section>
+  <mj-column>
+    <mj-image
+      width="100px"
+      src="https://the-takeover.vercel.app/to_logo.png"
+    ></mj-image>
+    <mj-divider border-color="#4e4dff"></mj-divider>
+  </mj-column>
+</mj-section>

@@ -12,7 +12,7 @@ import { getSession, useSession } from "next-auth/react";
 import { ReactElement, useEffect, useState } from "react";
 import Iframe from "react-iframe";
 import { ToLogo } from "../../components/atoms/ToLogo";
-import { findLink } from "../../modules/findLink";
+import { findLink } from "../../modules/api/findLink";
 import { fixEmbed } from "../../modules/fixEmbed";
 import { XPayment } from "../../types/Payment";
 

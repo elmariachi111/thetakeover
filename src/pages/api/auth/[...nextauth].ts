@@ -1,14 +1,11 @@
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
 import NextAuth from "next-auth";
-import EmailProvider from "next-auth/providers/email";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
-
-const prisma = new PrismaClient();
+import { prismaAdapter } from "../../../modules/api/adapter";
+import { emailProvider } from "../../../modules/api/emailProvider";
 
 export default NextAuth({
-  adapter: PrismaAdapter(prisma),
+  adapter: prismaAdapter,
   providers: [
     GithubProvider({
       clientId: process.env.GITHUB_ID,
@@ -18,22 +15,7 @@ export default NextAuth({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
-    EmailProvider({
-      from: `The Takeover Movement <${process.env.GOOGLE_MAIL_CLIENT_USER}>`,
-      server: {
-        host: "smtp.gmail.com",
-        port: 465,
-        secure: true,
-
-        auth: {
-          type: "OAuth2",
-          user: process.env.GOOGLE_MAIL_CLIENT_USER,
-          serviceClient: process.env.GOOGLE_MAIL_CLIENT_ID,
-          privateKey: process.env.GOOGLE_MAIL_CLIENT_KEY,
-        },
-        logger: true,
-      },
-    }),
+    emailProvider,
     // CredentialsProvider({
     //   // The name to display on the sign in form (e.g. 'Sign in with...')
     //   name: "Dummy Customer",

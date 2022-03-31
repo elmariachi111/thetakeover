@@ -15,6 +15,10 @@
 # production
 /build
 
+# mjml
+src/mjml/generated/*
+!src/mjml/generated/.gitkeep
+
 # misc
 .DS_Store
 *.pem

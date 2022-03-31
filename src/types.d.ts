@@ -13,3 +13,8 @@ declare module "next-auth/jwt/types" {
     uid: string;
   }
 }
+
+declare module "*.html" {
+  const value: string;
+  export default value;
+}

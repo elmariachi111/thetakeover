@@ -1,0 +1,20 @@
+<mj-head>
+  <mj-font
+    name="Space Mono"
+    href="https://fonts.googleapis.com/css?family=Space%20Mono"
+  />
+  <mj-attributes>
+    <mj-all
+      font-family="Space Mono,Helvetica,Arial,sans-serif"
+      color="#FFFFFF"
+    />
+    <mj-text line-height="18px" />
+    <mj-button
+      text-transform="uppercase"
+      font-weight="bold"
+      color="#FFFFFF"
+      background-color="#4e4dff"
+      height="40px"
+    />
+  </mj-attributes>
+</mj-head>

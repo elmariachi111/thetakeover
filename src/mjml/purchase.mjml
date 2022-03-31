@@ -1,0 +1,24 @@
+<mjml>
+  <mj-include path="./lib/head.mjml" />
+  <mj-body background-color="#1A202C">
+    <mj-include path="./lib/logo.mjml" />
+    <mj-section>
+      <mj-column>
+        <mj-text>gm, </mj-text>
+        <mj-text
+          >You just purchased a Takeover item, how lovely! Since you haven't
+          signed up for <b>{{host}}</b> before, we want make sure that you can
+          access your items later. This link signs you in as
+          <b>{{email}}</b> for that purpose:
+        </mj-text>
+
+        <mj-button href="{{signinUrl}}">Sign in</mj-button>
+
+        <mj-text>
+          If you haven't purchased anything using The Takeover, you can safely
+          ignore this email.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
