@@ -11,6 +11,7 @@ import mailServerConfig from "../../lib/mailConfig";
 import tplLogin from "../../mjml/generated/verifyToken.html";
 
 const AUTH_BASE = `${process.env.NEXTAUTH_URL}/api/auth`;
+const emailFrom = `The Takeover Movement <${process.env.GOOGLE_MAIL_CLIENT_USER}>`;
 
 const sendVerificationRequest = async (params: {
   identifier: string;
@@ -24,7 +25,7 @@ const sendVerificationRequest = async (params: {
 
   await transport.sendMail({
     to: params.identifier,
-    from: params.provider.from,
+    from: emailFrom,
     subject: `Sign in to ${host}`,
     text: text({ url: params.url, host }),
     html: tplLogin({
@@ -50,9 +51,9 @@ const generateVerificationToken = (): string => {
 
 const emailProvider = EmailProvider({
   id: "email",
-  from: `The Takeover Movement <${process.env.GOOGLE_MAIL_CLIENT_USER}>`,
+  from: emailFrom,
   server: mailServerConfig,
-  sendVerificationRequest: sendVerificationRequest,
+  sendVerificationRequest,
   generateVerificationToken,
 });
 // see next-auth / core / lib / signin : email
@@ -87,4 +88,9 @@ const createVerificationSigninUrl = async (
   return _url;
 };
 
-export { sendVerificationRequest, emailProvider, createVerificationSigninUrl };
+export {
+  sendVerificationRequest,
+  emailProvider,
+  emailFrom,
+  createVerificationSigninUrl,
+};

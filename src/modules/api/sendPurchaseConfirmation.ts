@@ -5,9 +5,11 @@ import nodemailer from "nodemailer";
 import mailServerConfig from "../../lib/mailConfig";
 //@ts-ignore
 import tplPurchase from "../../mjml/generated/purchase.html";
+//@ts-ignore
+import tplPurchaseNotification from "../../mjml/generated/purchaseNotification.html";
 import { XLink } from "../../types/Payment";
 import { prismaAdapter } from "./adapter";
-import { createVerificationSigninUrl, emailProvider } from "./emailProvider";
+import { createVerificationSigninUrl, emailFrom } from "./emailProvider";
 
 const sendBuyerNotification = async (
   transport: any,
@@ -25,12 +27,11 @@ const sendBuyerNotification = async (
     user.email,
     callbackUrl
   );
-  console.log(signinUrl);
 
   const { host } = new URL(signinUrl);
-  await transport.sendMail({
+  return transport.sendMail({
     to: user.email,
-    from: emailProvider.from,
+    from: emailFrom,
     subject: `Thank you for purchasing ${payload.link.metadata?.title}`,
     text: "text not impl",
     html: tplPurchase({
@@ -41,20 +42,24 @@ const sendBuyerNotification = async (
   });
 };
 
-// const sendSellerNotification = () => {
-//   await transport.sendMail({
-//     to: params.identifier,
-//     from: params.provider.from,
-//     subject: `Sign in to ${host}`,
-//     text: text({ url: params.url, host }),
-//     html: template({
-//       url: params.url,
-//       host: host,
-//       email: params.identifier,
-//       type,
-//     }),
-//   });
-// };
+const sendSellerNotification = async (
+  transport: any,
+  payload: { link: XLink; user: AdapterUser; payment: Payment }
+) => {
+  const { link, user, payment } = payload;
+
+  return transport.sendMail({
+    to: link.creator.email,
+    from: emailFrom,
+    subject: `Someone purchased ${link.metadata?.title}`,
+    text: "text not impl",
+    html: tplPurchaseNotification({
+      link,
+      payment,
+      host: process.env.NEXTAUTH_URL,
+    }),
+  });
+};
 
 const sendPurchaseConfirmations = async (props: {
   payment: Payment;
@@ -63,10 +68,16 @@ const sendPurchaseConfirmations = async (props: {
 }) => {
   const { payment, user, link } = props;
   const transport = nodemailer.createTransport(mailServerConfig);
-  await sendBuyerNotification(transport, {
+  const p1 = sendBuyerNotification(transport, {
     link,
     user,
   });
+  const p2 = sendSellerNotification(transport, {
+    link,
+    user,
+    payment,
+  });
+  await Promise.all([p1, p2]);
 };
 
 export { sendPurchaseConfirmations };

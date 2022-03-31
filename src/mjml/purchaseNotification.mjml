@@ -1,0 +1,19 @@
+<mjml>
+  <mj-include path="./lib/head.mjml" />
+  <mj-body background-color="#1A202C">
+    <mj-include path="./lib/logo.mjml" />
+    <mj-section>
+      <mj-column>
+        <mj-text>gm, {{link.creator.email}} </mj-text>
+        <mj-text
+          >Someone just purchased your item <b>{{link.metadata.title}}</b> at
+          The Takeover, how lovely! The payment reference is
+          <i>{{payment.paymentRef}}</i>.
+        </mj-text>
+        <mj-text>
+          You can access an overview of all items you're selling at: {{host}}/my
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

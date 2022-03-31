@@ -8,8 +8,8 @@
         <mj-text
           >You just purchased a Takeover item, how lovely! Since you haven't
           signed up for <b>{{host}}</b> before, we want make sure that you can
-          access your items later. The link in this email signs you in as
-          <b>{{email}}</b> for that purpose.
+          access your items later. This link signs you in as
+          <b>{{email}}</b> for that purpose:
         </mj-text>
 
         <mj-button href="{{signinUrl}}">Sign in</mj-button>
