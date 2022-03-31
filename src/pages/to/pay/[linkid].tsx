@@ -147,10 +147,16 @@ function ToPay({
     //console.log(actions, details);
     const res = await axios.post(`/api/to/pay/${details.id}`);
 
-    const signinResult = await signIn("email", {
-      email: details.payer.email_address,
-      redirect: false,
-    });
+    const signinResult = await signIn(
+      "email-payment",
+      {
+        email: details.payer.email_address,
+        redirect: false,
+      },
+      {
+        signinType: "loginAfterPayment",
+      }
+    );
     setPayment(await res.data);
   };
 

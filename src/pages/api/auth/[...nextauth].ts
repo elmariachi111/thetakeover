@@ -4,7 +4,8 @@ import NextAuth from "next-auth";
 import EmailProvider from "next-auth/providers/email";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
-
+import { buildVerificationRequest } from "../../../modules/emailVerification";
+import mailServerConfig from "../../../lib/mailConfig";
 const prisma = new PrismaClient();
 
 export default NextAuth({
@@ -19,20 +20,16 @@ export default NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
     EmailProvider({
+      id: "email",
       from: `The Takeover Movement <${process.env.GOOGLE_MAIL_CLIENT_USER}>`,
-      server: {
-        host: "smtp.gmail.com",
-        port: 465,
-        secure: true,
-
-        auth: {
-          type: "OAuth2",
-          user: process.env.GOOGLE_MAIL_CLIENT_USER,
-          serviceClient: process.env.GOOGLE_MAIL_CLIENT_ID,
-          privateKey: process.env.GOOGLE_MAIL_CLIENT_KEY,
-        },
-        logger: true,
-      },
+      server: mailServerConfig,
+      sendVerificationRequest: buildVerificationRequest("login"),
+    }),
+    EmailProvider({
+      id: "email-payment",
+      from: `The Takeover Movement <${process.env.GOOGLE_MAIL_CLIENT_USER}>`,
+      server: mailServerConfig,
+      sendVerificationRequest: buildVerificationRequest("payment"),
     }),
     // CredentialsProvider({
     //   // The name to display on the sign in form (e.g. 'Sign in with...')
