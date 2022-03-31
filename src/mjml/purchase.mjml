@@ -12,7 +12,7 @@
           <b>{{email}}</b> for that purpose.
         </mj-text>
 
-        <mj-button href="{{url}}">Sign in</mj-button>
+        <mj-button href="{{signinUrl}}">Sign in</mj-button>
 
         <mj-text>
           If you haven't purchased anything using The Takeover, you can safely

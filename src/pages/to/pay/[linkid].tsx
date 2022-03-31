@@ -27,7 +27,7 @@ import { getSession, signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { SellerNotConnectedAlert } from "../../../components/molecules/SellerNotConnectedAlert";
-import { findLink } from "../../../modules/findLink";
+import { findLink } from "../../../modules/api/findLink";
 
 export const getServerSideProps: GetServerSideProps<{
   link: Link & { metadata: Metadata; creator: User; price: number };
@@ -147,16 +147,6 @@ function ToPay({
     //console.log(actions, details);
     const res = await axios.post(`/api/to/pay/${details.id}`);
 
-    const signinResult = await signIn(
-      "email-payment",
-      {
-        email: details.payer.email_address,
-        redirect: false,
-      },
-      {
-        signinType: "loginAfterPayment",
-      }
-    );
     setPayment(await res.data);
   };
 

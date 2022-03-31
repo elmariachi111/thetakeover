@@ -1,7 +1,7 @@
 import { NextApiRequest } from "next";
 import { DefaultUser } from "next-auth";
 import { encode } from "next-auth/jwt";
-import { Cookie, SessionStore } from "../lib/cookie";
+import { Cookie, SessionStore } from "../../lib/cookie";
 
 //https://github.com/nextauthjs/next-auth/blob/8d7ba75bca2f8a076ff53d55e1916a157e084b1e/packages/next-auth/src/core/routes/callback.ts
 

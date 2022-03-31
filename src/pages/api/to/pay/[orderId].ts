@@ -2,15 +2,14 @@ import { core as Paypal, orders } from "@paypal/checkout-server-sdk";
 import { Order } from "@paypal/checkout-server-sdk/lib/orders/lib";
 import { PaymentIntent, PaymentStatus, PrismaClient } from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
-
 import { getSession } from "next-auth/react";
 import { setCookie } from "../../../../lib/cookie";
-
 import {
   findOrCreateAndAttachPaypalAccount,
   findOrCreateUser,
-} from "../../../../modules/findOrCreateUser";
-import { loginPayer } from "../../../../modules/loginPayer";
+} from "../../../../modules/api/findOrCreateUser";
+import { loginPayer } from "../../../../modules/api/loginPayer";
+import { sendPurchaseConfirmations } from "../../../../modules/api/sendPurchaseConfirmation";
 
 const prisma = new PrismaClient();
 const paypalEnv = new Paypal.SandboxEnvironment(
@@ -41,6 +40,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     where: {
       hash: purchaseUnit0,
     },
+    select: {
+      hash: true,
+      creator: true,
+      creatorId: true,
+      metadata: true,
+    },
   });
 
   if (!link) return res.status(404).send("link not found");
@@ -62,7 +67,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     );
 
     const sessionCookies = await loginPayer(req, user);
-    console.log(sessionCookies);
     sessionCookies.forEach((cookie) => setCookie(res, cookie));
   }
 
@@ -84,6 +88,18 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       userId: user?.id,
     },
   });
+
+  if (order.status === PaymentStatus.COMPLETED) {
+    if (!user) {
+      throw new Error("a user should exist here");
+    }
+    await sendPurchaseConfirmations({
+      payment,
+      user,
+      link,
+    });
+  }
+
   return res.json(payment);
 };
 

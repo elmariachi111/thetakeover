@@ -1,4 +1,4 @@
-import { Payment } from "@prisma/client";
+import { Metadata, Payment, User } from "@prisma/client";
 
 export type ClientCredentials = {
   scope: string;
@@ -7,6 +7,13 @@ export type ClientCredentials = {
   app_id: string;
   expires_in: number;
   nonce: string;
+};
+
+export type XLink = {
+  hash: string;
+  creator: User;
+  creatorId: string;
+  metadata: Metadata | null;
 };
 
 export type XPayment = Payment & {

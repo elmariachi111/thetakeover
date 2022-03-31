@@ -1,6 +1,6 @@
 import axios from "axios";
 import * as AxiosLogger from "axios-logger";
-import { ClientCredentials, HateoasResponse } from "../types/Payment";
+import { ClientCredentials, HateoasResponse } from "../../types/Payment";
 
 export default function (
   sdkEndpoint: string,

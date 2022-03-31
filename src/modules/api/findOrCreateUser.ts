@@ -1,6 +1,8 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 import { DefaultAccount, DefaultUser } from "next-auth";
+import { AdapterUser } from "next-auth/adapters";
+import { prismaAdapter } from "./adapter";
 
 export const findOrCreateAndAttachPaypalAccount = async (
   prisma: PrismaClient,
@@ -32,17 +34,16 @@ export const findOrCreateUser = async (
   email: string,
   name: string,
   sessionUser?: (DefaultUser & { id: string }) | undefined
-): Promise<DefaultUser & { id: string }> => {
+): Promise<AdapterUser> => {
   if (sessionUser) {
-    return sessionUser;
+    const adapterUser = await prismaAdapter.getUser(sessionUser.id);
+    if (adapterUser) return adapterUser;
   }
 
-  const adapter = PrismaAdapter(prisma);
-  let user = await adapter.getUserByEmail(email);
-
+  let user = await prismaAdapter.getUserByEmail(email);
   if (user) return user;
 
-  user = await adapter.createUser({
+  user = await prismaAdapter.createUser({
     emailVerified: new Date(),
     email,
     name,
