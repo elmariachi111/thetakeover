@@ -1,13 +1,13 @@
 // yarn prisma db push --schema=./src/prisma/schema.prisma
 generator client {
     provider = "prisma-client-js"
-    //previewFeatures = ["referentialIntegrity"]
+    previewFeatures = ["referentialIntegrity"]
 }
 
 datasource db {
     provider = "mysql"
     url      = env("DATABASE_URL")
-    //referentialIntegrity = "prisma"
+    referentialIntegrity = "prisma"
 }
 
 model Link {

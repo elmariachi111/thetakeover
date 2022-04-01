@@ -8,7 +8,7 @@
     "lint": "next lint",
     "prisma:gen": "prisma generate --schema=./src/prisma/schema.prisma",
     "mjml": "mjml src/mjml/*.mjml -o src/mjml/generated/",
-    "postinstall": "yarn mjml"
+    "postinstall": "yarn prisma:gen && yarn mjml"
   },
   "dependencies": {
     "@chakra-ui/react": "^1.8.3",
