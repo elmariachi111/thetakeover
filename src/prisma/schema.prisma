@@ -20,6 +20,7 @@ model Link {
     metadata   Metadata?
 
     @@index([hash, origin_uri])
+    @@index([creatorId])
 }
 
 model Metadata {
@@ -74,6 +75,7 @@ model SellerAccount {
     isEmailConfirmed    Boolean
     riskStatus          String?
     user                User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    @@index([userId])
 }
 
 model Account {
@@ -95,6 +97,7 @@ model Account {
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([provider, providerAccountId])
+    @@index([userId])
 }
 
 model Session {
@@ -103,6 +106,7 @@ model Session {
     userId       String
     expires      DateTime
     user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    @@index([userId])
 }
 
 model User {
