@@ -7,11 +7,12 @@ import {
   Image,
   Input,
   Portal,
+  Progress,
   Textarea,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { Field, Form, Formik, useField, useFormikContext } from "formik";
-import React, { MutableRefObject, useEffect } from "react";
+import React, { MutableRefObject, useEffect, useState } from "react";
 import * as Yup from "yup";
 import { LinkInput } from "../../types/LinkInput";
 import { XOembedData } from "../../types/Oembed";
@@ -47,9 +48,12 @@ const MetadataEditor = () => {
     name: "previewImage",
   });
 
+  const [loading, isLoading] = useState(false);
+
   useEffect(() => {
     (async () => {
       try {
+        isLoading(true);
         const oembed: XOembedData = await (
           await axios.post("/api/links/oembed", {
             uri: url,
@@ -62,10 +66,17 @@ const MetadataEditor = () => {
         setFieldValue("embed", oembed.html);
       } catch (e: any) {
         console.error(e.message);
+      } finally {
+        setTimeout(() => {
+          isLoading(false);
+        }, 500);
       }
     })();
   }, [url, setFieldValue]);
 
+  if (loading) {
+    return <Progress size="sm" isIndeterminate />;
+  }
   return (
     <Flex
       direction="column"
@@ -139,7 +150,7 @@ const NewLink = (props: {
         <Form id="newlink-form">
           <Flex direction="column" gridGap={6}>
             <FormControl isInvalid={!!errors.url}>
-              <FormLabel>a protected link</FormLabel>
+              <FormLabel>Paste a link to protect:</FormLabel>
               <Field
                 name="url"
                 type="text"
