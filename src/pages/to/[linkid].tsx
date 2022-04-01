@@ -29,7 +29,7 @@ const viewLink = (link: Link & { metadata: Metadata | null }) => {
   if (link.metadata) {
     return `/to/${link.hash}`;
   } else {
-    return link.origin_uri;
+    return link.originUri;
   }
 };
 
@@ -62,7 +62,7 @@ export const getServerSideProps: GetServerSideProps<{
   } else {
     payment = await prisma.payment.findFirst({
       where: {
-        link_hash: linkid,
+        linkHash: linkid,
         userId: user.id,
       },
     });
@@ -122,7 +122,7 @@ function ToView({
           </Flex>
         </>
       ) : (
-        <ChakraLink href={link.origin_uri}>visit</ChakraLink>
+        <ChakraLink href={link.originUri}>visit</ChakraLink>
       )}
     </Flex>
   );

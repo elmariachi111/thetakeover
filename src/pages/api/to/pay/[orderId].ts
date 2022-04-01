@@ -79,7 +79,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       provider: "PAYPAL",
       paymentIntent: order.intent as PaymentIntent,
       paymentStatus: order.status as PaymentStatus,
-      link_hash: link.hash,
+      linkHash: link.hash,
       userId: user?.id,
     },
     update: {

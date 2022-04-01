@@ -10,7 +10,7 @@ export const findLink = async (prisma: PrismaClient, linkid: string) => {
       price: true,
       creatorId: true,
       creator: true,
-      origin_uri: true,
+      originUri: true,
       metadata: true,
     },
   });

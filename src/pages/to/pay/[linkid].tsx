@@ -23,7 +23,7 @@ import {
 } from "@prisma/client";
 import axios from "axios";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
-import { getSession, signIn } from "next-auth/react";
+import { getSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { SellerNotConnectedAlert } from "../../../components/molecules/SellerNotConnectedAlert";
@@ -50,7 +50,7 @@ export const getServerSideProps: GetServerSideProps<{
   if (session && session.user?.id) {
     const payment = await prisma.payment.findFirst({
       where: {
-        link_hash: linkid,
+        linkHash: linkid,
         userId: session.user.id,
       },
     });
@@ -177,7 +177,7 @@ function ToPay({
           }}
         >
           {payment ? (
-            <Button as={ChakraLink} href={`/to/${payment.link_hash}`}>
+            <Button as={ChakraLink} href={`/to/${payment.linkHash}`}>
               proceed to content
             </Button>
           ) : (
