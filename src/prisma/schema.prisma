@@ -1,4 +1,7 @@
 // yarn prisma db push --schema=./src/prisma/schema.prisma
+// add referential integrity when using prisma db push to planetscale (cant handle fks)
+// remove it when deploying the app (app thinks it can handle fks)
+
 generator client {
     provider = "prisma-client-js"
     previewFeatures = ["referentialIntegrity"]

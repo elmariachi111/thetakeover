@@ -7,8 +7,8 @@
         <mj-text>gm, </mj-text>
         <mj-text
           >You just purchased a Takeover item, how lovely! Since you haven't
-          signed up for <b>{{host}}</b> before, we want make sure that you can
-          access your items later. This link signs you in as
+          signed up for <b>{{host}}</b> before, we want to make sure that you
+          can access your items later. This link signs you in as
           <b>{{email}}</b> for that purpose:
         </mj-text>
 
