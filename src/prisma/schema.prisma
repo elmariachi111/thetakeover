@@ -12,14 +12,14 @@ datasource db {
 
 model Link {
     hash       String    @id
-    origin_uri String
+    originUri String
     price      Decimal
     creatorId  String
     creator    User      @relation(fields: [creatorId], references: [id])
     payments   Payment[]
     metadata   Metadata?
 
-    @@index([hash, origin_uri])
+    @@index([hash, originUri])
     @@index([creatorId])
 }
 
@@ -30,6 +30,7 @@ model Metadata {
     description  String  @db.LongText
     previewImage String
     embed        String? @db.MediumText
+    @@index([linkHash])
 }
 
 enum PaymentIntent {
@@ -48,7 +49,7 @@ enum PaymentProvider {
 
 model Payment {
     id            String          @id @default(uuid())
-    link_hash     String
+    linkHash      String
     userId        String?
     provider      PaymentProvider @default(PAYPAL)
     paymentRef    String          @unique
@@ -58,10 +59,10 @@ model Payment {
     paidAt        DateTime?
 
     user User? @relation(fields: [userId], references: [id])
-    link Link  @relation(fields: [link_hash], references: [hash])
+    link Link  @relation(fields: [linkHash], references: [hash])
 
     @@index([paymentRef])
-    @@index([link_hash, userId])
+    @@index([linkHash, userId])
 }
 
 model SellerAccount {
@@ -79,23 +80,24 @@ model SellerAccount {
 }
 
 model Account {
-    id                 String  @id @default(cuid())
-    userId             String
-    type               String
-    provider           String
-    providerAccountId  String
-    refresh_token      String? @db.Text
-    access_token       String? @db.Text
-    expires_at         Int?
-    token_type         String?
-    scope              String?
-    id_token           String? @db.Text
-    session_state      String?
-    oauth_token_secret String?
-    oauth_token        String?
-
+    id                       String   @id @default(cuid())
+    createdAt                DateTime @default(now())
+    updatedAt                DateTime @updatedAt
+    userId                   String
+    type                     String
+    provider                 String
+    providerAccountId        String
+    refresh_token            String? @db.VarChar(500)
+    access_token             String? @db.VarChar(500)
+    refresh_token_expires_in Int?
+    expires_at               Int?
+    token_type               String?
+    scope                    String?
+    id_token                 String? @db.Text
+    session_state            String?
+    oauth_token_secret       String?
+    oauth_token              String?
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
     @@unique([provider, providerAccountId])
     @@index([userId])
 }
@@ -103,14 +105,16 @@ model Account {
 model Session {
     id           String   @id @default(cuid())
     sessionToken String   @unique
-    userId       String
+    userId       String?
     expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user         User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
     @@index([userId])
 }
 
 model User {
     id            String    @id @default(cuid())
+    createdAt     DateTime  @default(now())
+    updatedAt     DateTime  @updatedAt
     name          String?
     email         String?   @unique
     emailVerified DateTime?

@@ -19,7 +19,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const newLink = await prisma.link.create({
     data: {
       hash,
-      origin_uri: payload.url,
+      originUri: payload.url,
       price: payload.price,
       creatorId: session.user.id,
     },
