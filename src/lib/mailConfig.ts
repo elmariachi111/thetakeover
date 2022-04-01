@@ -1,4 +1,4 @@
-const mailServerConfig = {
+const prodConf = {
   host: "smtp.gmail.com",
   port: 465,
   secure: true,
@@ -10,5 +10,14 @@ const mailServerConfig = {
   },
   logger: true,
 };
+
+const devConf = {
+  host: "localhost",
+  port: 1025,
+  secure: false,
+};
+
+const mailServerConfig =
+  process.env.NODE_ENV === "production" ? prodConf : devConf;
 
 export default mailServerConfig;
