@@ -46,6 +46,10 @@ const CreateLink: NextPage = () => {
               Create a Takeover
             </Button>
           </Link>
+
+          <Link href="/my" passHref>
+            <ChakraLink mt={8}>Your Takeovers</ChakraLink>
+          </Link>
         </Flex>
       ) : (
         <Flex direction="column" gridGap={4} align="center">
