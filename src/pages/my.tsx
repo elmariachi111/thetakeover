@@ -1,6 +1,7 @@
 import {
   Flex,
   Heading,
+  IconButton,
   Image,
   Link as ChakraLink,
   Table,
@@ -15,6 +16,8 @@ import { PrismaClient } from "@prisma/client";
 import type { InferGetServerSidePropsType } from "next";
 import { getSession } from "next-auth/react";
 import { SellerAccountDialog } from "../components/molecules/SellerAccountDialog";
+import { FiEdit2 } from "react-icons/fi";
+import { default as NextLink } from "next/link";
 
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
@@ -100,6 +103,7 @@ function MyTakeOvers({
             <Th>Title</Th>
             <Th isNumeric>Price</Th>
             <Th isNumeric>Downloads</Th>
+            <Th></Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -120,6 +124,15 @@ function MyTakeOvers({
                 <Text>€{link.price}</Text>
               </Td>
               <Td isNumeric>{link._count.payments}</Td>
+              <Td>
+                <NextLink href={`/to/edit/${link.hash}`} passHref>
+                  <IconButton
+                    variant="unstyled"
+                    aria-label="edit"
+                    icon={<FiEdit2 />}
+                  />
+                </NextLink>
+              </Td>
             </Tr>
           ))}
         </Tbody>

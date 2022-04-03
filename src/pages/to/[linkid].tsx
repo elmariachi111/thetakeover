@@ -1,6 +1,10 @@
-import { Flex, Heading, Link as ChakraLink } from "@chakra-ui/react";
 import {
-  Link,
+  Flex,
+  Heading,
+  IconButton,
+  Link as ChakraLink,
+} from "@chakra-ui/react";
+import {
   Metadata,
   Payment,
   PaymentStatus,
@@ -15,6 +19,8 @@ import { ToLogo } from "../../components/atoms/ToLogo";
 import { findLink } from "../../modules/api/findLink";
 import { fixEmbed } from "../../modules/fixEmbed";
 import { XPayment } from "../../types/Payment";
+import { FiEdit2 } from "react-icons/fi";
+import Link from "next/link";
 
 const redirectToPayment = (linkId: string) => {
   return {
@@ -49,7 +55,7 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   const session = await getSession(context);
-  console.log("USer", session?.user);
+
   if (!session || !session.user?.id) {
     return redirectToPayment(linkid);
   }
@@ -86,11 +92,13 @@ function ToView({
   const { data: session } = useSession({
     required: true,
   });
+
   const [embed, setEmbed] = useState<string | null>();
   useEffect(() => {
     setEmbed(fixEmbed(link.metadata.embed));
   }, [link.metadata.embed]);
 
+  console.log(session?.user?.id, link.creatorId);
   return (
     <Flex direction="column" w="100%" h="100%">
       {embed ? (
@@ -106,6 +114,13 @@ function ToView({
           <Flex position="absolute" left={12} top={12}>
             <ToLogo />
           </Flex>
+          {session?.user?.id === link.creatorId && (
+            <Flex position="absolute" right={2} top={2}>
+              <Link href={`/to/edit/${link.hash}`} passHref>
+                <IconButton aria-label="edit" icon={<FiEdit2 />} />
+              </Link>
+            </Flex>
+          )}
           <Flex
             position="absolute"
             bottom={10}
