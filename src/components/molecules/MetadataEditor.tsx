@@ -1,4 +1,5 @@
 import {
+  AspectRatio,
   Flex,
   FormControl,
   FormErrorMessage,
@@ -14,6 +15,7 @@ import React, { useEffect, useState } from "react";
 import { LinkInput } from "../../types/LinkInput";
 import { XOembedData } from "../../types/Oembed";
 import * as Yup from "yup";
+import CloudinaryUploadWidget from "../organisms/CloudinaryUploadWidget";
 
 const LinkSchema = Yup.object().shape({
   url: Yup.string().url("not an url").required("required"),
@@ -49,6 +51,7 @@ const MetadataEditor = (props: { initialValues?: LinkInput }) => {
   const [fPreviewImage, mPreviewImage] = useField({
     name: "previewImage",
     value: initialValues?.previewImage,
+    placeholder: "https://some-image.jpg",
   });
 
   const [loading, isLoading] = useState(false);
@@ -78,6 +81,11 @@ const MetadataEditor = (props: { initialValues?: LinkInput }) => {
     })();
   }, [url, setFieldValue]);
 
+  const cloudinaryUploaded = (fileInfo: any) => {
+    //console.log(fileInfo);
+    setFieldValue("previewImage", fileInfo.secure_url, true);
+    return;
+  };
   if (loading) {
     return <Progress size="sm" isIndeterminate />;
   }
@@ -110,17 +118,18 @@ const MetadataEditor = (props: { initialValues?: LinkInput }) => {
       </FormControl>
 
       <FormControl isInvalid={!!mPreviewImage.error}>
-        <Flex direction="row" gap={2}>
-          <Flex direction="column" flex={3}>
+        <Flex direction="row" gap={2} align="flex-end">
+          <Flex direction="column" flex={1}>
             <FormLabel>preview</FormLabel>
             <Input {...fPreviewImage} />
           </Flex>
-          {!mPreviewImage.error && (
-            <Flex flex={1}>
-              <Image src={fPreviewImage.value} />
-            </Flex>
-          )}
+          <CloudinaryUploadWidget onUploaded={cloudinaryUploaded} />
         </Flex>
+        {!mPreviewImage.error && fPreviewImage.value && (
+          <AspectRatio ratio={4 / 3} mt={3}>
+            <Image src={fPreviewImage.value} />
+          </AspectRatio>
+        )}
       </FormControl>
     </Flex>
   );

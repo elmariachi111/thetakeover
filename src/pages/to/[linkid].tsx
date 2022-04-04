@@ -3,6 +3,7 @@ import {
   Flex,
   Heading,
   IconButton,
+  Image,
   Link as ChakraLink,
 } from "@chakra-ui/react";
 import {
@@ -94,14 +95,14 @@ export const getServerSideProps: GetServerSideProps<{
 const TitleAndCreator = (props: { link: XLink; color?: string }) => {
   const { link, color } = props;
   return (
-    <>
+    <Flex direction="column">
       <Heading size="md" color={color}>
         {link.creator.name}
       </Heading>
       <Heading size="md" color={color} my={2} textAlign="center">
         {link.metadata.title}
       </Heading>
-    </>
+    </Flex>
   );
 };
 
@@ -118,12 +119,16 @@ function ToView({
     return (
       <Flex
         direction="column"
-        w="100%"
-        h="100%"
-        alignItems="center"
+        h="100vh"
+        w="container.lg"
         justify="center"
+        margin="0 auto"
+        gridGap={6}
       >
         <TitleAndCreator link={link} />
+        {link.metadata.previewImage && (
+          <Image src={link.metadata.previewImage} />
+        )}
         <Button as={ChakraLink} href={link.originUri}>
           visit
         </Button>
