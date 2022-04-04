@@ -96,13 +96,12 @@ function MyTakeOvers({
       <Heading fontSize="xl" my={5}>
         Your Takeovers
       </Heading>
-      <Table>
+      <Table size="md">
         <Thead>
           <Tr>
             <Th></Th>
             <Th>Title</Th>
-            <Th isNumeric>Price</Th>
-            <Th isNumeric>Downloads</Th>
+            <Th isNumeric>Price / Downloads</Th>
             <Th></Th>
           </Tr>
         </Thead>
@@ -122,8 +121,9 @@ function MyTakeOvers({
               </Td>
               <Td isNumeric>
                 <Text>€{link.price}</Text>
+                <Text>{link._count.payments}</Text>
               </Td>
-              <Td isNumeric>{link._count.payments}</Td>
+
               <Td>
                 <NextLink href={`/to/edit/${link.hash}`} passHref>
                   <IconButton
