@@ -1,6 +1,5 @@
-const IFRAME_SRC_REGEX = new RegExp(`src\s*=\s*['"](.*?)['"]`, "gi");
-
-export const fixEmbed = (code: string | null | undefined) => {
+export const extractEmbedUrl = (code: string | null | undefined) => {
+  const IFRAME_SRC_REGEX = new RegExp(`src\s*=\s*['"](.*?)['"]`, "gi");
   if (!code) return null;
 
   const matches = IFRAME_SRC_REGEX.exec(code);

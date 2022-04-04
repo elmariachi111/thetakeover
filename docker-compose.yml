@@ -15,5 +15,14 @@ services:
       - "3306"
     volumes:
       - my-db:/var/lib/mysql
+  mailcatcher:
+    image: schickling/mailcatcher
+    expose:
+      - "1080"
+      - "1025"
+    ports:
+      - "1080:1080"
+      - "1025:1025"
+
 volumes:
   my-db:

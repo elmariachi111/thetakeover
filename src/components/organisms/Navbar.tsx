@@ -1,4 +1,5 @@
 import {
+  Button,
   Container,
   Drawer,
   DrawerContent,
@@ -11,7 +12,7 @@ import {
   useColorMode,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 
 import { default as NextLink } from "next/link";
 import React from "react";
@@ -87,17 +88,22 @@ const Navbar = () => {
               </Flex>
             )}
             <Spacer />
-            <Flex direction="row" my={5} gridGap={6}>
-              <Text>The Takeover</Text>
+            <Flex direction="column">
+              {status === "authenticated" && (
+                <Button onClick={() => signOut()}>Sign out</Button>
+              )}
+              <Flex direction="row" my={5} gridGap={6}>
+                <Text>The Takeover</Text>
 
-              <IconButton
-                icon={<FaSun size={16} />}
-                color="brand.200"
-                variant="unstyled"
-                size="xs"
-                aria-label=" toggle color mode"
-                onClick={toggleColorMode}
-              />
+                <IconButton
+                  icon={<FaSun size={16} />}
+                  color="brand.200"
+                  variant="unstyled"
+                  size="xs"
+                  aria-label=" toggle color mode"
+                  onClick={toggleColorMode}
+                />
+              </Flex>
             </Flex>
           </Flex>
         </DrawerContent>

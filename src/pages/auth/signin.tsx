@@ -1,7 +1,5 @@
 import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
+  AlertStatus,
   Button,
   Divider,
   Flex,
@@ -12,34 +10,30 @@ import {
 } from "@chakra-ui/react";
 import { Provider } from "next-auth/providers";
 import { getCsrfToken, getProviders, signIn } from "next-auth/react";
+import { useRouter } from "next/router";
+import { GeneralAlert } from "../../components/atoms/GeneralAlert";
+import { IoLogoGithub, IoLogoGoogle } from "react-icons/io5";
 
-export function CredentialSignin({
-  provider,
-  csrfToken,
-  callbackUrl,
-}: {
-  provider: Provider;
-  csrfToken: string;
-  callbackUrl: string;
-}) {
-  return (
-    <form method="post" action="/api/auth/callback/credentials">
-      <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
-      <input name="callbackUrl" type="hidden" defaultValue={callbackUrl} />
-      <FormLabel>
-        Email
-        <Input name="email" type="email" />
-      </FormLabel>
-      <FormLabel>
-        Password
-        <Input name="password" type="password" />
-      </FormLabel>
-      <Button type="submit">Sign in</Button>
-    </form>
-  );
-}
+const transErrors: Record<string, string> = {
+  Signin: "Try signing in with a different account.",
+  OAuthSignin: "Try signing in with a different account.",
+  OAuthCallback: "Try signing in with a different account.",
+  OAuthCreateAccount: "Try signing in with a different account.",
+  EmailCreateAccount: "Try signing in with a different account.",
+  Callback: "Try signing in with a different account.",
+  OAuthAccountNotLinked:
+    "To confirm your identity, sign in with the same account you used originally.",
+  EmailSignin: "The e-mail could not be sent.",
+  CredentialsSignin:
+    "Sign in failed. Check the details you provided are correct.",
+  SessionRequired: "Please sign in to access this page.",
+  default: "Unable to sign in.",
+};
 
-// signIn("email", { email: "jsmith@example.com" })
+const iconMap = {
+  github: <IoLogoGithub />,
+  google: <IoLogoGoogle />,
+};
 export function EmailSignin({
   csrfToken,
   callbackUrl,
@@ -50,14 +44,12 @@ export function EmailSignin({
   return (
     <form method="post" action="/api/auth/signin/email">
       <input name="callbackUrl" type="hidden" defaultValue={callbackUrl} />
-
       <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
-
-      <FormLabel>
-        Email address
+      <FormLabel>Email address</FormLabel>
+      <Flex direction="row" gridGap={3} alignItems="center">
         <Input name="email" id="email" type="email" />
-      </FormLabel>
-      <Button type="submit">Sign in</Button>
+        <Button type="submit">Sign in</Button>
+      </Flex>
     </form>
   );
 }
@@ -71,9 +63,8 @@ export default function SignIn({
   csrfToken: string;
   callbackUrl: string;
 }) {
-  const credentialProvider = Object.values(providers).find(
-    (p) => p.type === "credentials"
-  );
+  const router = useRouter();
+  const { error: signinError } = router.query;
 
   const emailProvider = Object.values(providers).find(
     (p) => p.type === "email"
@@ -81,18 +72,28 @@ export default function SignIn({
 
   return (
     <Flex direction="column" gridGap={3} my={5}>
-      <Heading textTransform="uppercase">Signin</Heading>
-      {Object.values(providers)
-        .filter((p) => p.type === "oauth")
-        .map((provider: Provider) => (
-          <Flex key={provider.name}>
-            <Button onClick={() => signIn(provider.id, { callbackUrl })}>
-              Sign in with {provider.name}
+      {signinError && (
+        <GeneralAlert title="Login failed" status="error" my={6}>
+          {transErrors[signinError as string]}
+        </GeneralAlert>
+      )}
+      <Heading textTransform="uppercase" size="lg">
+        Signin with
+      </Heading>
+      <Flex direction="row" gridGap={3}>
+        {Object.values(providers)
+          .filter((p) => p.type === "oauth")
+          .map((provider: Provider) => (
+            <Button
+              leftIcon={iconMap[provider.id]}
+              key={provider.name}
+              onClick={() => signIn(provider.id, { callbackUrl })}
+            >
+              {provider.name}
             </Button>
-          </Flex>
-        ))}
-
-      <Flex direction="row" align="center" gridGap={5}>
+          ))}
+      </Flex>
+      <Flex direction="row" align="center" gridGap={5} my={6}>
         <Divider orientation="horizontal" />
         <Text>OR</Text>
         <Divider orientation="horizontal" />
@@ -100,27 +101,13 @@ export default function SignIn({
       {emailProvider && (
         <EmailSignin csrfToken={csrfToken} callbackUrl={callbackUrl} />
       )}
-      {credentialProvider && (
-        <Flex direction="column">
-          <Alert size="sm" status="warning" variant="top-accent" my={2}>
-            <AlertIcon />
-            <AlertDescription>
-              Don't use these for creation, only for payment testing:
-            </AlertDescription>
-          </Alert>
-          <CredentialSignin
-            provider={credentialProvider}
-            csrfToken={csrfToken}
-            callbackUrl={callbackUrl}
-          />
-        </Flex>
-      )}
     </Flex>
   );
 }
 
 export async function getServerSideProps(context) {
   const providers = await getProviders();
+
   return {
     props: {
       providers,
