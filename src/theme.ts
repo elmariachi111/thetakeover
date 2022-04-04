@@ -78,7 +78,9 @@ const theme = {
         },
         solid: {
           color: "white",
+          background: "brand.300",
           _hover: {
+            background: "brand.200",
             _disabled: {},
           },
           _active: { bg: "brand.400" },
