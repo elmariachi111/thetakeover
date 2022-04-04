@@ -1,4 +1,5 @@
 import {
+  Button,
   Flex,
   Heading,
   IconButton,
@@ -40,8 +41,10 @@ const viewLink = (link: Link & { metadata: Metadata | null }) => {
   }
 };
 
+type XLink = Link & { metadata: Metadata; creator: User };
+
 export const getServerSideProps: GetServerSideProps<{
-  link: Link & { metadata: Metadata; creator: User };
+  link: XLink;
   payment: XPayment;
   embed: string | null;
 }> = async (context) => {
@@ -88,6 +91,20 @@ export const getServerSideProps: GetServerSideProps<{
   };
 };
 
+const TitleAndCreator = (props: { link: XLink; color?: string }) => {
+  const { link, color } = props;
+  return (
+    <>
+      <Heading size="md" color={color}>
+        {link.creator.name}
+      </Heading>
+      <Heading size="md" color={color} my={2} textAlign="center">
+        {link.metadata.title}
+      </Heading>
+    </>
+  );
+};
+
 function ToView({
   link,
   payment,
@@ -99,8 +116,17 @@ function ToView({
 
   if (!embed)
     return (
-      <Flex direction="column" w="100%" h="100%">
-        <ChakraLink href={link.originUri}>visit</ChakraLink>
+      <Flex
+        direction="column"
+        w="100%"
+        h="100%"
+        alignItems="center"
+        justify="center"
+      >
+        <TitleAndCreator link={link} />
+        <Button as={ChakraLink} href={link.originUri}>
+          visit
+        </Button>
       </Flex>
     );
 
@@ -131,12 +157,7 @@ function ToView({
         alignItems="center"
         direction="column"
       >
-        <Heading size="md" color="white">
-          {link.creator.name}
-        </Heading>
-        <Heading size="md" color="white" my={2} textAlign="center">
-          {link.metadata.title}
-        </Heading>
+        <TitleAndCreator link={link} color="white" />
       </Flex>
     </Flex>
   );
