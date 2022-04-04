@@ -2,6 +2,7 @@ import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import { NextPage } from "next";
 import { SessionProvider, useSession } from "next-auth/react";
 import type { AppProps } from "next/app";
+import Head from "next/head";
 import { ReactElement, ReactNode } from "react";
 import Layout from "../components/Layout";
 import { default as TOTheme } from "../theme";
@@ -35,6 +36,12 @@ function MyApp({
   return (
     <ChakraProvider theme={theme}>
       <SessionProvider session={session}>
+        <Head>
+          <script
+            src="https://widget.cloudinary.com/v2.0/global/all.js"
+            type="text/javascript"
+          ></script>
+        </Head>
         {Component.auth ? (
           <Auth>{getLayout(<Component {...pageProps} />)}</Auth>
         ) : (

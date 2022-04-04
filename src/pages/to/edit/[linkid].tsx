@@ -6,7 +6,6 @@ import {
   FormLabel,
   Input,
   Link as ChakraLink,
-  toast,
   useToast,
 } from "@chakra-ui/react";
 import { Link, Metadata, PrismaClient, User } from "@prisma/client";
@@ -130,7 +129,7 @@ function ToEdit({
               update
             </Button>
             <NextLink href={`/to/${link.hash}`} passHref>
-              <Button as={ChakraLink} variant="outline">
+              <Button as={ChakraLink} variant="ghost">
                 visit
               </Button>
             </NextLink>

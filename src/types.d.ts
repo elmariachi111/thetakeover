@@ -18,3 +18,14 @@ declare module "*.html" {
   const value: string;
   export default value;
 }
+
+declare global {
+  interface Window {
+    cloudinary: {
+      createUploadWidget: (
+        options: any,
+        callback: (err: any, result: any) => unknown
+      ) => unknown;
+    };
+  }
+}
