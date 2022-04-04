@@ -5,6 +5,7 @@ import {
   Link as ChakraLink,
 } from "@chakra-ui/react";
 import {
+  Link,
   Metadata,
   Payment,
   PaymentStatus,
@@ -13,14 +14,14 @@ import {
 } from "@prisma/client";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { getSession, useSession } from "next-auth/react";
-import { ReactElement, useEffect, useState } from "react";
+import { default as NextLink } from "next/link";
+import { ReactElement } from "react";
+import { FiEdit2 } from "react-icons/fi";
 import Iframe from "react-iframe";
 import { ToLogo } from "../../components/atoms/ToLogo";
 import { findLink } from "../../modules/api/findLink";
-import { fixEmbed } from "../../modules/fixEmbed";
+import { extractEmbedUrl } from "../../modules/fixEmbed";
 import { XPayment } from "../../types/Payment";
-import { FiEdit2 } from "react-icons/fi";
-import Link from "next/link";
 
 const redirectToPayment = (linkId: string) => {
   return {
@@ -42,6 +43,7 @@ const viewLink = (link: Link & { metadata: Metadata | null }) => {
 export const getServerSideProps: GetServerSideProps<{
   link: Link & { metadata: Metadata; creator: User };
   payment: XPayment;
+  embed: string | null;
 }> = async (context) => {
   const linkid: string = context.params?.linkid as string;
   if (!linkid) return { notFound: true };
@@ -81,6 +83,7 @@ export const getServerSideProps: GetServerSideProps<{
     props: {
       link: JSON.parse(JSON.stringify(link)),
       payment: JSON.parse(JSON.stringify(payment)),
+      embed: extractEmbedUrl(link.metadata?.embed),
     },
   };
 };
@@ -88,57 +91,53 @@ export const getServerSideProps: GetServerSideProps<{
 function ToView({
   link,
   payment,
+  embed,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { data: session } = useSession({
-    required: true,
+    required: false,
   });
 
-  const [embed, setEmbed] = useState<string | null>();
-  useEffect(() => {
-    setEmbed(fixEmbed(link.metadata.embed));
-  }, [link.metadata.embed]);
+  if (!embed)
+    return (
+      <Flex direction="column" w="100%" h="100%">
+        <ChakraLink href={link.originUri}>visit</ChakraLink>
+      </Flex>
+    );
 
-  console.log(session?.user?.id, link.creatorId);
   return (
     <Flex direction="column" w="100%" h="100%">
-      {embed ? (
-        <>
-          <Flex w="100%" h="100%">
-            <Iframe
-              url={embed}
-              allowFullScreen
-              width="100%"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            />
-          </Flex>
-          <Flex position="absolute" left={12} top={12}>
-            <ToLogo />
-          </Flex>
-          {session?.user?.id === link.creatorId && (
-            <Flex position="absolute" right={2} top={2}>
-              <Link href={`/to/edit/${link.hash}`} passHref>
-                <IconButton aria-label="edit" icon={<FiEdit2 />} />
-              </Link>
-            </Flex>
-          )}
-          <Flex
-            position="absolute"
-            bottom={10}
-            alignSelf="center"
-            alignItems="center"
-            direction="column"
-          >
-            <Heading size="md" color="white">
-              {link.creator.name}
-            </Heading>
-            <Heading size="md" color="white" my={2} textAlign="center">
-              {link.metadata.title}
-            </Heading>
-          </Flex>
-        </>
-      ) : (
-        <ChakraLink href={link.originUri}>visit</ChakraLink>
+      <Flex w="100%" h="100%">
+        <Iframe
+          url={embed}
+          allowFullScreen
+          width="100%"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        />
+      </Flex>
+      <Flex position="absolute" left={12} top={12}>
+        <ToLogo />
+      </Flex>
+      {session?.user?.id === link.creatorId && (
+        <Flex position="absolute" right={2} top={2}>
+          <NextLink href={`/to/edit/${link.hash}`} passHref>
+            <IconButton aria-label="edit" icon={<FiEdit2 />} />
+          </NextLink>
+        </Flex>
       )}
+      <Flex
+        position="absolute"
+        bottom={10}
+        alignSelf="center"
+        alignItems="center"
+        direction="column"
+      >
+        <Heading size="md" color="white">
+          {link.creator.name}
+        </Heading>
+        <Heading size="md" color="white" my={2} textAlign="center">
+          {link.metadata.title}
+        </Heading>
+      </Flex>
     </Flex>
   );
 }
@@ -146,7 +145,5 @@ function ToView({
 ToView.getLayout = function (page: ReactElement) {
   return <Flex h="100vh">{page}</Flex>;
 };
-
-ToView.auth = true;
 
 export default ToView;
