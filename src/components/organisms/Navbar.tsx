@@ -24,6 +24,26 @@ import { ToLogo } from "../atoms/ToLogo";
 
 import LoginComponent from "../LoginComponent";
 
+const Navlink = (props: {
+  href: string;
+  children: string | React.ReactNode;
+  onClose?: () => void;
+}) => {
+  const { onClose, href, children } = props;
+  return (
+    <NextLink href={href} passHref>
+      <Link
+        onClick={onClose}
+        _hover={{ background: "brand.300", color: "white" }}
+        d="flex"
+        w="full"
+        p={3}
+      >
+        {children}
+      </Link>
+    </NextLink>
+  );
+};
 const Navbar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { status } = useSession();
@@ -59,7 +79,7 @@ const Navbar = () => {
       </Flex>
       <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
         <DrawerOverlay />
-        <DrawerContent>
+        <DrawerContent bg="brand.800">
           <Flex
             direction="column"
             justify="space-evenly"
@@ -73,18 +93,16 @@ const Navbar = () => {
               <Flex
                 w="full"
                 my={6}
-                p={3}
                 align="flex-start"
                 direction="column"
                 gridGap={2}
               >
-                <NextLink href="/my" passHref>
-                  <Link onClick={onClose}>My Takeovers</Link>
-                </NextLink>
-
-                <NextLink href="/create" passHref>
-                  <Link onClick={onClose}>Create a Takeover</Link>
-                </NextLink>
+                <Navlink onClose={onClose} href="/my">
+                  Your Takeovers
+                </Navlink>
+                <Navlink onClose={onClose} href="/create">
+                  Create a Takeover
+                </Navlink>
               </Flex>
             )}
             <Spacer />

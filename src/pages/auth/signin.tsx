@@ -60,7 +60,7 @@ export function EmailSignin({
           <input name="callbackUrl" type="hidden" defaultValue={callbackUrl} />
           <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
           <FormLabel>Email address</FormLabel>
-          <Flex direction="row" gridGap={3} alignItems="center">
+          <Flex direction="row" gridGap={0} alignItems="center">
             <Input
               name="email"
               id="email"
@@ -113,7 +113,7 @@ export default function SignIn({
         </GeneralAlert>
       )}
       <Heading textTransform="uppercase" size="lg">
-        Signin with
+        Sign in with
       </Heading>
       <Flex direction="row" gridGap={3}>
         {Object.values(providers)

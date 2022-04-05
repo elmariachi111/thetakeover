@@ -6,11 +6,11 @@ export default function LoginComponent() {
 
   if (session) {
     return (
-      <Flex direction="row" align="center" p={3} gridGap={3}>
-        <Text fontSize="sm" isTruncated>
+      <Flex direction="column" align="center" p={2}>
+        <Text fontSize="xs">You're logged in as</Text>
+        <Text fontSize="sm" fontWeight="bold" isTruncated>
           {session.user?.email}
         </Text>
-        <Spacer />
       </Flex>
     );
   }
