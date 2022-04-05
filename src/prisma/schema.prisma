@@ -31,7 +31,7 @@ model Metadata {
     link         Link    @relation(fields: [linkHash], references: [hash])
     title        String
     description  String  @db.LongText
-    previewImage String  @map("preview_image")
+    previewImage String  @db.MediumText @map("preview_image")
     embed        String? @db.MediumText
     @@index([linkHash])
 }

@@ -38,7 +38,7 @@ const theme = {
   components: {
     Link: {
       baseStyle: {
-        color: "brand.200",
+        color: "brand.300",
         // _hover: {
         //   color: "brand.300",
         // },
@@ -48,6 +48,7 @@ const theme = {
       baseStyle: {
         field: {
           padding: 8,
+          borderRadius: 0,
           _placeholder: {
             opacity: 1,
           },
@@ -65,7 +66,6 @@ const theme = {
       baseStyle: {
         textTransform: "uppercase",
         borderRadius: 0,
-
         p: 8,
       },
       defaultProps: {
@@ -78,7 +78,9 @@ const theme = {
         },
         solid: {
           color: "white",
+          background: "brand.300",
           _hover: {
+            background: "brand.200",
             _disabled: {},
           },
           _active: { bg: "brand.400" },

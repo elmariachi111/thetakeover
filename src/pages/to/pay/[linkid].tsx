@@ -100,22 +100,11 @@ function ToPay({
       purchase_units: [
         {
           reference_id: linkid as string,
-          description: `TO ${linkid}`,
+          description: `Takeover ${linkid} by ${link.creator.name}`,
           amount: {
             currency_code: "EUR",
             value: `${link.price}`,
           },
-          // items: [
-          //   {
-          //     name: `Takeover ${linkid} by ${link.creator.name}`,
-          //     quantity: "1",
-          //     unit_amount: {
-          //       currency_code: "EUR",
-          //       value: `${link.price}`,
-          //     },
-          //     category: "DIGITAL_GOODS",
-          //   },
-          // ],
 
           /*
            * consider adding payee information (needs their email address)
@@ -152,14 +141,16 @@ function ToPay({
 
   return (
     <Flex direction="column">
-      <Flex my={6} direction="column">
+      <Flex my={5} direction="column">
         <Heading size="md" color="brand.300">
           {link.creator.name}
         </Heading>
         <Heading size="md">{link.metadata.title}</Heading>
       </Flex>
       <Image src={link.metadata.previewImage} mt={2} />
-      <Text>{link.metadata.description}</Text>
+      <Text my={5} fontSize="sm">
+        {link.metadata.description}
+      </Text>
       <Flex direction="row" my={6} justify="space-between">
         <Text fontWeight="bold" fontSize="lg">
           Total

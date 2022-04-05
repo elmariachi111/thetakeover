@@ -1,5 +1,4 @@
 import {
-  AlertStatus,
   Button,
   Divider,
   Flex,
@@ -8,11 +7,13 @@ import {
   Input,
   Text,
 } from "@chakra-ui/react";
+import axios from "axios";
 import { Provider } from "next-auth/providers";
 import { getCsrfToken, getProviders, signIn } from "next-auth/react";
 import { useRouter } from "next/router";
-import { GeneralAlert } from "../../components/atoms/GeneralAlert";
+import { useState } from "react";
 import { IoLogoGithub, IoLogoGoogle } from "react-icons/io5";
+import { GeneralAlert } from "../../components/atoms/GeneralAlert";
 
 const transErrors: Record<string, string> = {
   Signin: "Try signing in with a different account.",
@@ -41,15 +42,49 @@ export function EmailSignin({
   csrfToken: string;
   callbackUrl: string;
 }) {
+  const [submittedEMail, setSubmittedEMail] = useState<string>();
+  const onSubmit = async (e: any) => {
+    e.preventDefault();
+    const data = new FormData(e.target);
+    const values = Object.fromEntries(data.entries());
+    const res = await axios.post("/api/auth/signin/email", values);
+    setSubmittedEMail(values.email.toString());
+
+    return false;
+  };
+
   return (
-    <form method="post" action="/api/auth/signin/email">
-      <input name="callbackUrl" type="hidden" defaultValue={callbackUrl} />
-      <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
-      <FormLabel>Email address</FormLabel>
-      <Flex direction="row" gridGap={3} alignItems="center">
-        <Input name="email" id="email" type="email" />
-        <Button type="submit">Sign in</Button>
-      </Flex>
+    <form onSubmit={onSubmit}>
+      {!submittedEMail ? (
+        <>
+          <input name="callbackUrl" type="hidden" defaultValue={callbackUrl} />
+          <input name="csrfToken" type="hidden" defaultValue={csrfToken} />
+          <FormLabel>Email address</FormLabel>
+          <Flex direction="row" gridGap={0} alignItems="center">
+            <Input
+              name="email"
+              id="email"
+              type="email"
+              disabled={!!submittedEMail}
+            />
+            <Button type="submit" disabled={!!submittedEMail}>
+              Sign in
+            </Button>
+          </Flex>
+        </>
+      ) : (
+        <GeneralAlert
+          status="success"
+          title="check your inbox"
+          mt={6}
+          onClosed={() => setSubmittedEMail(undefined)}
+        >
+          <Text>
+            We've sent an email to <b>{submittedEMail}</b> with a link to sign
+            you up.
+          </Text>
+        </GeneralAlert>
+      )}
     </form>
   );
 }
@@ -78,7 +113,7 @@ export default function SignIn({
         </GeneralAlert>
       )}
       <Heading textTransform="uppercase" size="lg">
-        Signin with
+        Sign in with
       </Heading>
       <Flex direction="row" gridGap={3}>
         {Object.values(providers)
