@@ -8,6 +8,7 @@ import {
   Portal,
 } from "@chakra-ui/react";
 import { Field, Form, Formik } from "formik";
+import { useSession } from "next-auth/react";
 import React, { MutableRefObject } from "react";
 import { LinkInput } from "../../types/LinkInput";
 import { LinkSchema, MetadataEditor } from "../molecules/MetadataEditor";
@@ -15,6 +16,7 @@ import { LinkSchema, MetadataEditor } from "../molecules/MetadataEditor";
 const NewLink = (props: {
   onSubmit: (p: LinkInput) => unknown;
   buttonRef: MutableRefObject<HTMLElement | null>;
+  initialValues?: Partial<LinkInput>;
 }) => {
   const initialValues: LinkInput = {
     url: "",
@@ -23,12 +25,15 @@ const NewLink = (props: {
     previewImage: "",
     description: "",
     embed: "",
+    ...props.initialValues,
   };
-
+  const { status } = useSession();
   const buttonRef = props.buttonRef;
 
   return (
     <Formik
+      enableReinitialize
+      validateOnMount={props.initialValues !== undefined}
       initialValues={initialValues}
       validationSchema={LinkSchema}
       onSubmit={(values) => {
@@ -36,7 +41,7 @@ const NewLink = (props: {
         return;
       }}
     >
-      {({ errors, touched }) => (
+      {({ errors, touched, values }) => (
         <Form id="newlink-form">
           <Flex direction="column" gridGap={6}>
             <FormControl isInvalid={!!errors.url}>
@@ -52,7 +57,13 @@ const NewLink = (props: {
               )}
             </FormControl>
 
-            {!!touched.url && !errors.url && <MetadataEditor />}
+            {!!values.url && !errors.url && (
+              <MetadataEditor
+                initialValues={
+                  values.description?.length > 10 ? initialValues : undefined
+                }
+              />
+            )}
 
             <FormControl mb={8} isInvalid={!!errors.price}>
               <Flex direction="row" align="center">
@@ -68,11 +79,12 @@ const NewLink = (props: {
               w="100%"
               form="newlink-form"
               disabled={
-                Object.values(touched).length == 0 ||
-                Object.values(errors).length > 0
+                values.url.length < 5 || Object.values(errors).length > 0
               }
             >
-              create takeover
+              {status === "authenticated"
+                ? "create takeover"
+                : "login and create takeover"}
             </Button>
           </Portal>
         </Form>

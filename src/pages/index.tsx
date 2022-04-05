@@ -11,6 +11,7 @@ import { signIn, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo } from "react";
+import { ToLogo } from "../components/atoms/ToLogo";
 import logo from "../img/to_logo.svg";
 
 const CreateLink: NextPage = () => {
@@ -67,7 +68,16 @@ const CreateLink: NextPage = () => {
             delay={0.3}
             transition={{ enter: { duration: 1 } }}
           >
-            <Button onClick={() => signIn()}>Sign in</Button>
+            <Flex direction="column">
+              <Link href="/create" passHref>
+                <Button as={ChakraLink} to="/create">
+                  Create a Takeover
+                </Button>
+              </Link>
+              <Button size="sm" onClick={() => signIn()} variant="link" py={6}>
+                Sign in
+              </Button>
+            </Flex>
           </SlideFade>
         </Flex>
       )}

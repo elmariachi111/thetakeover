@@ -39,9 +39,9 @@ const theme = {
     Link: {
       baseStyle: {
         color: "brand.300",
-        // _hover: {
-        //   color: "brand.300",
-        // },
+        _hover: {
+          color: "brand.200",
+        },
       },
     },
     Input: {
@@ -76,10 +76,23 @@ const theme = {
           bg: "white",
           borderWidth: 2,
         },
+        link: {
+          color: "brand.300",
+          _hover: {
+            color: "brand.200",
+          },
+        },
+        ghost: {
+          color: "brand.300",
+          _hover: {
+            color: "brand.200",
+          },
+        },
         solid: {
           color: "white",
           background: "brand.300",
           _hover: {
+            color: "white",
             background: "brand.200",
             _disabled: {},
           },

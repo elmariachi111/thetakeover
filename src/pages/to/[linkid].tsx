@@ -124,13 +124,14 @@ function ToView({
         justify="center"
         margin="0 auto"
         gridGap={6}
+        px={[2, 2, null]}
       >
         <TitleAndCreator link={link} />
         {link.metadata.previewImage && (
           <Image src={link.metadata.previewImage} />
         )}
         <Button as={ChakraLink} href={link.originUri}>
-          visit
+          proceed to content
         </Button>
       </Flex>
     );

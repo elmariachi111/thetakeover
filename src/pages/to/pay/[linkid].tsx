@@ -23,9 +23,9 @@ import {
 } from "@prisma/client";
 import axios from "axios";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
-import { getSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { SellerNotConnectedAlert } from "../../../components/molecules/SellerNotConnectedAlert";
 import { findLink } from "../../../modules/api/findLink";
 
@@ -84,6 +84,7 @@ function ToPay({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const router = useRouter();
   const { linkid } = router.query;
+  const { status: sessionStatus, data: sessionData } = useSession();
   //console.log(link);
 
   const [payment, setPayment] = useState<Payment>();
@@ -133,12 +134,17 @@ function ToPay({
   const onApprove = async (data: OnApproveData, actions: OnApproveActions) => {
     if (!actions.order) return;
     const details = await actions.order.capture();
-    //console.log(actions, details);
     const res = await axios.post(`/api/to/pay/${details.id}`);
 
     setPayment(await res.data);
   };
 
+  const isCreator = useMemo(() => {
+    return (
+      sessionStatus === "authenticated" &&
+      link.creatorId === sessionData.user?.id
+    );
+  }, [sessionStatus, sessionData, link]);
   return (
     <Flex direction="column">
       <Flex my={5} direction="column">
@@ -179,6 +185,11 @@ function ToPay({
         </PayPalScriptProvider>
       ) : (
         <SellerNotConnectedAlert creator={link.creator} />
+      )}
+      {isCreator && (
+        <Button as={ChakraLink} href={`/to/${link.hash}`} mt={6}>
+          proceed to content
+        </Button>
       )}
     </Flex>
   );

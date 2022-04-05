@@ -154,30 +154,34 @@ function MyTakeOvers({
         </Tbody>
       </Table>
 
-      <Heading fontSize="xl" mt={12} mb={6}>
-        Downloaded
-      </Heading>
+      {payments?.length > 0 && (
+        <>
+          <Heading fontSize="xl" mt={12} mb={6}>
+            Purchases
+          </Heading>
 
-      <Table>
-        <Thead>
-          <Tr>
-            <Th>Link</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {payments?.map((payment) => (
-            <Tr key={payment.id}>
-              <Td>
-                <ChakraLink isExternal href={`/to/${payment.link.hash}`}>
-                  {payment.link.metadata
-                    ? payment.link.metadata.title
-                    : payment.link.hash}
-                </ChakraLink>
-              </Td>
-            </Tr>
-          ))}
-        </Tbody>
-      </Table>
+          <Table>
+            <Thead>
+              <Tr>
+                <Th>Link</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {payments?.map((payment) => (
+                <Tr key={payment.id}>
+                  <Td>
+                    <ChakraLink isExternal href={`/to/${payment.link.hash}`}>
+                      {payment.link.metadata
+                        ? payment.link.metadata.title
+                        : payment.link.hash}
+                    </ChakraLink>
+                  </Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </>
+      )}
     </Flex>
   );
 }
