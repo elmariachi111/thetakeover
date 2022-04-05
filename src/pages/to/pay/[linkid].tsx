@@ -142,7 +142,7 @@ function ToPay({
   const isCreator = useMemo(() => {
     return (
       sessionStatus === "authenticated" &&
-      link.creatorId === sessionData.user?.id
+      link.creatorId === sessionData?.user?.id
     );
   }, [sessionStatus, sessionData, link]);
   return (

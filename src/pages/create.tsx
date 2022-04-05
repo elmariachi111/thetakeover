@@ -44,7 +44,7 @@ const CreateLink: NextPage = () => {
       router.push("/my", {});
     } else {
       window.localStorage.setItem("newLink", JSON.stringify(payload));
-      await signIn(undefined, { callbackUrl: "http://localhost:3000/create" });
+      await signIn(undefined, { callbackUrl: "/create" });
     }
   };
 
