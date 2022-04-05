@@ -11,10 +11,11 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useField, useFormikContext } from "formik";
+import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
+import * as Yup from "yup";
 import { LinkInput } from "../../types/LinkInput";
 import { XOembedData } from "../../types/Oembed";
-import * as Yup from "yup";
 import CloudinaryUploadWidget from "../organisms/CloudinaryUploadWidget";
 
 const LinkSchema = Yup.object().shape({
@@ -35,6 +36,7 @@ const LinkSchema = Yup.object().shape({
 
 const MetadataEditor = (props: { initialValues?: LinkInput }) => {
   const { initialValues } = props;
+  const { status } = useSession();
 
   const {
     values: { url },
@@ -51,13 +53,18 @@ const MetadataEditor = (props: { initialValues?: LinkInput }) => {
   const [fPreviewImage, mPreviewImage] = useField({
     name: "previewImage",
     value: initialValues?.previewImage,
-    placeholder: "https://some-image.jpg",
   });
 
   const [loading, isLoading] = useState(false);
+  const [initialValuesUnused, setInitialValuesUnused] = useState(true);
 
   useEffect(() => {
-    if (initialValues) return;
+    if (initialValues && initialValuesUnused) {
+      console.log("unuse initial values");
+      setInitialValuesUnused(false);
+
+      return;
+    }
     (async () => {
       try {
         isLoading(true);
@@ -121,9 +128,11 @@ const MetadataEditor = (props: { initialValues?: LinkInput }) => {
         <Flex direction="row" gap={2} align="flex-end">
           <Flex direction="column" flex={1}>
             <FormLabel>preview</FormLabel>
-            <Input {...fPreviewImage} />
+            <Input {...fPreviewImage} placeholder="https://some-image.jpg" />
           </Flex>
-          <CloudinaryUploadWidget onUploaded={cloudinaryUploaded} />
+          {status === "authenticated" && (
+            <CloudinaryUploadWidget onUploaded={cloudinaryUploaded} />
+          )}
         </Flex>
         {!mPreviewImage.error && fPreviewImage.value && (
           <AspectRatio ratio={4 / 3} mt={3}>
