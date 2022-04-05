@@ -48,7 +48,7 @@ const Navbar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { status } = useSession();
 
-  const { toggleColorMode } = useColorMode();
+  const { toggleColorMode, colorMode } = useColorMode();
 
   return (
     <Container
@@ -79,7 +79,7 @@ const Navbar = () => {
       </Flex>
       <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
         <DrawerOverlay />
-        <DrawerContent bg="brand.800">
+        <DrawerContent bg={colorMode === "light" ? "white" : "brand.800"}>
           <Flex
             direction="column"
             justify="space-evenly"
