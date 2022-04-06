@@ -4,4 +4,4 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 const prismaAdapter = PrismaAdapter(prisma);
 
-export { prismaAdapter };
+export { prisma as adapterClient, prismaAdapter };
