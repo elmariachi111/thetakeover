@@ -1,10 +1,10 @@
-import { Box, Flex, Heading, Spacer } from "@chakra-ui/react";
+import { Box, Flex, Heading, Spacer, useBoolean } from "@chakra-ui/react";
 import axios from "axios";
 import type { NextPage } from "next";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
-
+import { ToLoadingModal } from "../components/atoms/ToLoadingModal";
 import NewLink from "../components/organisms/NewLink";
 import { LinkInput } from "../types/LinkInput";
 
@@ -14,6 +14,7 @@ const CreateLink: NextPage = () => {
   const { status } = useSession();
 
   const [initialValues, setInitialValues] = useState<Partial<LinkInput>>();
+  const [buzy, setBuzy] = useBoolean(false);
 
   useEffect(() => {
     const _newLink = window.localStorage.getItem("newLink");
@@ -40,7 +41,9 @@ const CreateLink: NextPage = () => {
 
   const create = async (payload: LinkInput) => {
     if (status === "authenticated") {
+      setBuzy.on();
       const res = await axios.post("/api/links/create", payload);
+      setBuzy.off();
       router.push("/my", {});
     } else {
       window.localStorage.setItem("newLink", JSON.stringify(payload));
@@ -53,7 +56,10 @@ const CreateLink: NextPage = () => {
   return (
     <Flex direction="column" h="full">
       <Spacer />
-
+      <ToLoadingModal
+        buzy={buzy}
+        title="hang on, we're creating your Takeover"
+      />
       <Heading size="lg" my={6}>
         Create a Takeover
       </Heading>
