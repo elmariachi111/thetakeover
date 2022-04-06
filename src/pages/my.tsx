@@ -1,24 +1,21 @@
 import {
   Flex,
   Heading,
-  IconButton,
-  Image,
   Link as ChakraLink,
   Table,
   Tbody,
   Td,
-  Text,
   Th,
   Thead,
   Tr,
+  VStack,
 } from "@chakra-ui/react";
 import { PrismaClient } from "@prisma/client";
 import type { InferGetServerSidePropsType } from "next";
 import { getSession } from "next-auth/react";
-import { SellerAccountDialog } from "../components/molecules/SellerAccountDialog";
-import { FiEdit2 } from "react-icons/fi";
-import { default as NextLink } from "next/link";
 import React from "react";
+import { SellerAccountDialog } from "../components/molecules/SellerAccountDialog";
+import { TakeoverCard } from "../components/molecules/TakeoverCard";
 
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
@@ -44,10 +41,13 @@ export async function getServerSideProps(context) {
     where: {
       creatorId: session.user.id,
     },
-    include: {
+    select: {
       _count: {
         select: { payments: true },
       },
+      hash: true,
+      price: true,
+      originUri: true,
       metadata: {
         select: {
           title: true,
@@ -97,63 +97,14 @@ function MyTakeOvers({
       <Heading fontSize="xl" my={5}>
         Your Takeovers
       </Heading>
-      <Table size="md" variant="unstyled">
-        <Thead>
-          <Tr w="100%">
-            <Th w="30%"></Th>
-            <Th isNumeric w="15%">
-              <Text align="right">Price</Text>
-            </Th>
-            <Th isNumeric align="right">
-              <Text align="right">Downloads</Text>
-            </Th>
-            <Th></Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {links?.map((link) => (
-            <React.Fragment key={link.hash}>
-              <Tr>
-                <Td colSpan={4} p={0}>
-                  <Flex direction="column">
-                    <ChakraLink
-                      isExternal
-                      href={`/to/${link.hash}`}
-                      fontSize="lg"
-                    >
-                      {link.metadata ? link.metadata.title : link.hash}
-                    </ChakraLink>
-                    <Text fontSize="xs">{link.origin_uri}</Text>
-                  </Flex>
-                </Td>
-              </Tr>
 
-              <Tr key={link.hash} w="100%">
-                <Td px={0}>
-                  <Image src={link.metadata?.previewImage} />
-                </Td>
-                <Td w="15%">
-                  <Text align="right">€{link.price}</Text>
-                </Td>
-                <Td w="15%">
-                  <Text align="right">{link._count.payments}</Text>
-                </Td>
-
-                <Td w="10%">
-                  <NextLink href={`/to/edit/${link.hash}`} passHref>
-                    <IconButton
-                      variant="ghost"
-                      aria-label="edit"
-                      icon={<FiEdit2 />}
-                    />
-                  </NextLink>
-                </Td>
-              </Tr>
-            </React.Fragment>
-          ))}
-        </Tbody>
-      </Table>
-
+      <VStack gap={3} align="left">
+        {links?.map((link) => (
+          <>
+            <TakeoverCard link={link} key={link.hash} />
+          </>
+        ))}
+      </VStack>
       {payments?.length > 0 && (
         <>
           <Heading fontSize="xl" mt={12} mb={6}>
