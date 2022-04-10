@@ -98,11 +98,9 @@ function MyTakeOvers({
         Your Takeovers
       </Heading>
 
-      <VStack gap={3} align="left">
+      <VStack gap={3} align="left" w="full">
         {links?.map((link) => (
-          <>
-            <TakeoverCard link={link} key={link.hash} />
-          </>
+          <TakeoverCard link={link} key={link.hash} />
         ))}
       </VStack>
       {payments?.length > 0 && (
