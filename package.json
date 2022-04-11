@@ -23,6 +23,7 @@
     "axios": "^0.26.0",
     "axios-logger": "^2.6.0",
     "cookie": "^0.4.1",
+    "ethers": "^5.6.2",
     "formik": "^2.2.9",
     "framer-motion": "^4",
     "mustache": "^4.2.0",
@@ -36,8 +37,10 @@
     "react-dom": "17.0.2",
     "react-icons": "^4.3.1",
     "react-iframe": "^1.8.0",
+    "siwe": "^1.1.6",
     "swr": "^1.2.1",
     "validator": "^13.7.0",
+    "wagmi": "^0.2.26",
     "yup": "^0.32.11"
   },
   "devDependencies": {

@@ -1,11 +1,13 @@
 import { ChakraProvider, extendTheme } from "@chakra-ui/react";
 import { NextPage } from "next";
 import { SessionProvider, useSession } from "next-auth/react";
+import { Provider as WagmiProvider } from "wagmi";
 import type { AppProps } from "next/app";
 import Head from "next/head";
 import { ReactElement, ReactNode } from "react";
 import Layout from "../components/Layout";
 import { default as TOTheme } from "../theme";
+import { connectors } from "../modules/connectors";
 
 const theme = extendTheme(TOTheme);
 
@@ -35,19 +37,21 @@ function MyApp({
   const getLayout = Component.getLayout ?? ((page) => <Layout>{page}</Layout>);
   return (
     <ChakraProvider theme={theme}>
-      <SessionProvider session={session}>
-        <Head>
-          <script
-            src="https://widget.cloudinary.com/v2.0/global/all.js"
-            type="text/javascript"
-          ></script>
-        </Head>
-        {Component.auth ? (
-          <Auth>{getLayout(<Component {...pageProps} />)}</Auth>
-        ) : (
-          getLayout(<Component {...pageProps} />)
-        )}
-      </SessionProvider>
+      <WagmiProvider autoConnect connectors={connectors}>
+        <SessionProvider session={session}>
+          <Head>
+            <script
+              src="https://widget.cloudinary.com/v2.0/global/all.js"
+              type="text/javascript"
+            ></script>
+          </Head>
+          {Component.auth ? (
+            <Auth>{getLayout(<Component {...pageProps} />)}</Auth>
+          ) : (
+            getLayout(<Component {...pageProps} />)
+          )}
+        </SessionProvider>
+      </WagmiProvider>
     </ChakraProvider>
   );
 }

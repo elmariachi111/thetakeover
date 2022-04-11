@@ -1,8 +1,13 @@
 import NextAuth from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { prismaAdapter } from "../../../modules/api/adapter";
 import { emailProvider } from "../../../modules/api/emailProvider";
+import { SiweMessage } from "siwe";
+import { getCsrfToken } from "next-auth/react";
+
+//https://github.com/spruceid/siwe-next-auth-example/blob/main/pages/api/auth/%5B...nextauth%5D.ts
 
 export default NextAuth({
   adapter: prismaAdapter,
@@ -16,6 +21,46 @@ export default NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     }),
     emailProvider,
+
+    CredentialsProvider({
+      name: "Ethereum",
+      id: "ethereum",
+      credentials: {
+        message: {
+          label: "Message",
+          type: "text",
+          placeholder: "0x0",
+        },
+        signature: {
+          label: "Signature",
+          type: "text",
+          placeholder: "0x0",
+        },
+      },
+      async authorize(credentials) {
+        try {
+          const siwe = new SiweMessage(
+            JSON.parse(credentials?.message || "{}")
+          );
+          const nextAuthUrl = new URL(process.env.NEXTAUTH_URL as string);
+          if (siwe.domain !== nextAuthUrl.host) {
+            return null;
+          }
+
+          if (siwe.nonce !== (await getCsrfToken({ req }))) {
+            return null;
+          }
+
+          await siwe.validate(credentials?.signature || "");
+          return {
+            id: siwe.address,
+          };
+        } catch (e) {
+          return null;
+        }
+      },
+    }),
+
     // CredentialsProvider({
     //   // The name to display on the sign in form (e.g. 'Sign in with...')
     //   name: "Dummy Customer",
