@@ -1,0 +1,27 @@
+{
+  "[javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  },
+  "sqltools.connections": [
+    {
+      "mysqlOptions": {
+        "authProtocol": "default"
+      },
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 3309,
+      "driver": "MySQL",
+      "name": "pscale local",
+      "database": "db",
+      "username": "user",
+      "password": "password"
+    }
+  ],
+  "editor.formatOnSave": true,
+}
