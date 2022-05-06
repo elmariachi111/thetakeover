@@ -23,6 +23,7 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { IoLogoGithub, IoLogoGoogle } from "react-icons/io5";
 import { GeneralAlert } from "../../components/atoms/GeneralAlert";
+import { SiweButton } from "../../components/atoms/SiweButton";
 import { adapterClient, prismaAdapter } from "../../modules/api/adapter";
 
 const transErrors: Record<string, string> = {
@@ -122,7 +123,7 @@ export default function SignIn({
   const connectableProviders = Object.keys(providers)
     .filter((p) => !connectedProviderKeys.includes(p))
     .map((k) => providers[k])
-    .filter((p) => p.type === "oauth");
+    .filter((p) => ["oauth"].includes(p.type));
 
   return (
     <Flex direction="column" gridGap={3} my={5}>
@@ -144,6 +145,7 @@ export default function SignIn({
             {provider.name}
           </Button>
         ))}
+        <SiweButton />
       </Flex>
       {accounts.length > 0 && (
         <Flex mt={12} direction="column" gridGap={2}>

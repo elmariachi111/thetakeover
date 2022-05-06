@@ -89,5 +89,27 @@ export default function (
         return null;
       }
     },
+    getMerchantInfo: async (userId: string): Promise<HateoasResponse> => {
+      const token = await getBearerToken();
+      //console.log(token);
+
+      try {
+        const resp: HateoasResponse = await (
+          await paypalHttp({
+            method: "GET",
+            url: `/v2/customer/partner-referrals/${userId}`,
+            headers: {
+              "content-type": "application/json",
+              authorization: `Bearer ${token.access_token}`,
+            },
+          })
+        ).data;
+
+        return resp;
+      } catch (e: any) {
+        console.error(e);
+        throw e;
+      }
+    },
   };
 }

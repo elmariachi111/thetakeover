@@ -86,3 +86,9 @@ Content-Type: application/json
 GET https://api-m.sandbox.paypal.com/v1/customer/partners/X4LS5MX6Z2MX2/merchant-integrations/9X4J4F77QWQUU 
 Authorization: Bearer {{PaypalAccessToken}}
 Content-Type: application/json
+
+### 
+
+GET {{Paypal}}/v2/customer/partner-referrals/9X4J4F77QWQUU
+Authorization: Bearer {{PaypalAccessToken}}
+Content-Type: application/json

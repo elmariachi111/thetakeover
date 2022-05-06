@@ -65,7 +65,6 @@ export default async function auth(req, res) {
     secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
       jwt: async ({ user, token }) => {
-        console.debug("jwt", user, token);
         if (user) {
           token.uid = user.id;
           const ethAccount = await adapterClient.account.findFirst({
@@ -81,7 +80,7 @@ export default async function auth(req, res) {
       session: async ({ session, token, user }) => {
         if (session?.user) {
           session.user.id = token.uid;
-          session.eth = token.eth;
+          session.user.eth = token.eth;
         }
         return session;
       },
