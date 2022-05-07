@@ -4,7 +4,9 @@ import { useCallback } from "react";
 import { SiweMessage } from "siwe";
 import { useWeb3 } from "../../modules/Web3Context";
 
-export const SiweButton = () => {
+export const SiweButton = (props: {
+  children?: React.ReactNode
+}) => {
   const { data: session } = useSession();
   const { connect, account, chainId, provider, signer } = useWeb3();
 
@@ -37,7 +39,8 @@ export const SiweButton = () => {
     }
   }, [session, signer, chainId, account]);
 
-  return (
-    <Button onClick={account ? handleSiwe : () => connect()}>Ethereum</Button>
+  return (<>
+    <Button onClick={account ? handleSiwe : () => connect()} > {props.children}</Button >
+  </>
   );
 };

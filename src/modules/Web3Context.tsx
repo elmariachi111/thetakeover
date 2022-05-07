@@ -48,35 +48,39 @@ const Web3Provider = ({ children }: { children: React.ReactNode }) => {
       if (!web3Modal) return;
 
       console.log(provider);
-      const instance = provider
-        ? web3Modal.connectTo(provider)
-        : web3Modal.connect();
-      const _instance = await instance;
-      const _provider = new providers.Web3Provider(_instance);
-      const signer = await _provider.getSigner();
-      const account = await signer.getAddress();
+      try {
+        const instance = provider
+          ? web3Modal.connectTo(provider)
+          : web3Modal.connect();
+        const _instance = await instance;
+        const _provider = new providers.Web3Provider(_instance);
+        const signer = await _provider.getSigner();
+        const account = await signer.getAddress();
 
-      setWeb3Resources({
-        provider: _provider,
-        signer,
-        account,
-        chainId: Number(_instance.chainId),
-      });
+        setWeb3Resources({
+          provider: _provider,
+          signer,
+          account,
+          chainId: Number(_instance.chainId),
+        });
 
-      _instance.on("accountsChanged", (accounts: string[]) => {
-        console.log(accounts);
-        setWeb3Resources((old) => ({
-          ...old,
-          account: accounts[0],
-        }));
-      });
+        _instance.on("accountsChanged", (accounts: string[]) => {
+          console.log(accounts);
+          setWeb3Resources((old) => ({
+            ...old,
+            account: accounts[0],
+          }));
+        });
 
-      _instance.on("chainChanged", (chainId: number) => {
-        setWeb3Resources((old) => ({
-          ...old,
-          chainId,
-        }));
-      });
+        _instance.on("chainChanged", (chainId: number) => {
+          setWeb3Resources((old) => ({
+            ...old,
+            chainId,
+          }));
+        });
+      } catch (e: any) {
+        console.warn("user rejected connection");
+      }
     },
     [web3Modal]
   );

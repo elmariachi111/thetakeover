@@ -5,9 +5,8 @@ import {
   FormLabel,
   Heading,
   HStack,
-  Icon,
   Input,
-  Text,
+  Text
 } from "@chakra-ui/react";
 import { Account } from "@prisma/client";
 import axios from "axios";
@@ -17,14 +16,15 @@ import {
   getProviders,
   getSession,
   signIn,
-  useSession,
+  useSession
 } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { IoLogoGithub, IoLogoGoogle } from "react-icons/io5";
 import { GeneralAlert } from "../../components/atoms/GeneralAlert";
 import { SiweButton } from "../../components/atoms/SiweButton";
-import { adapterClient, prismaAdapter } from "../../modules/api/adapter";
+
+import { adapterClient } from "../../modules/api/adapter";
 
 const transErrors: Record<string, string> = {
   Signin: "Try signing in with a different account.",
@@ -145,7 +145,7 @@ export default function SignIn({
             {provider.name}
           </Button>
         ))}
-        <SiweButton />
+        <SiweButton>Ethereum</SiweButton>
       </Flex>
       {accounts.length > 0 && (
         <Flex mt={12} direction="column" gridGap={2}>

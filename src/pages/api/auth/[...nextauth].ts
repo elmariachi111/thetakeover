@@ -23,40 +23,6 @@ export default async function auth(req, res) {
     ...defaultProviders,
     emailProvider,
     ethereumProvider(req),
-
-    // CredentialsProvider({
-    //   // The name to display on the sign in form (e.g. 'Sign in with...')
-    //   name: "Dummy Customer",
-    //   credentials: {
-    //     email: {
-    //       label: "email",
-    //       type: "text",
-    //       placeholder: "chuck@norris.com",
-    //     },
-    //     password: { label: "Password", type: "password" },
-    //   },
-    //   async authorize(credentials, req) {
-    //     // const res = await fetch("/your/endpoint", {
-    //     //   method: 'POST',
-    //     //   body: JSON.stringify(credentials),
-    //     //   headers: { "Content-Type": "application/json" }
-    //     // })
-    //     // const user = await res.json()
-    //     if (!credentials) return null;
-
-    //     let user = await prisma.user.findUnique({
-    //       where: { email: credentials.email },
-    //     });
-    //     if (user) return user;
-
-    //     user = await prisma.user.create({
-    //       data: {
-    //         email: credentials.email,
-    //       },
-    //     });
-    //     return user;
-    //   },
-    // }),
   ];
 
   return await NextAuth(req, res, {
@@ -65,8 +31,10 @@ export default async function auth(req, res) {
     secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
       jwt: async ({ user, token }) => {
+
         if (user) {
           token.uid = user.id;
+          token.name = user.name;
           const ethAccount = await adapterClient.account.findFirst({
             where: {
               userId: user?.id,
@@ -78,9 +46,10 @@ export default async function auth(req, res) {
         return token;
       },
       session: async ({ session, token, user }) => {
-        if (session?.user) {
+        if (session.user) {
           session.user.id = token.uid;
           session.user.eth = token.eth;
+          session.user.name = token.name;
         }
         return session;
       },
