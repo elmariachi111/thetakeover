@@ -145,7 +145,7 @@ export default function SignIn({
             {provider.name}
           </Button>
         ))}
-        <SiweButton>Ethereum</SiweButton>
+        {!accounts.find(a => a.provider === "ethereum") && <SiweButton>Ethereum</SiweButton>}
       </Flex>
       {accounts.length > 0 && (
         <Flex mt={12} direction="column" gridGap={2}>
