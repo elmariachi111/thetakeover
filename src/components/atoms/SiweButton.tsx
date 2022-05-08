@@ -1,4 +1,4 @@
-import { Button, Text } from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
 import { getCsrfToken, signIn, useSession } from "next-auth/react";
 import { useCallback } from "react";
 import { SiweMessage } from "siwe";

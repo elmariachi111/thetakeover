@@ -1,4 +1,4 @@
-import { Button, Flex, Text, Link } from "@chakra-ui/react";
+import { Button, Flex, Link } from "@chakra-ui/react";
 import { signIn, useSession } from "next-auth/react";
 import { default as NextLink } from "next/link";
 

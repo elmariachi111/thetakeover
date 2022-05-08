@@ -15,7 +15,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     consentStatus: req.query.consentStatus === "true",
   };
 
-  const account = await prisma.sellerAccount.create({
+  await prisma.sellerAccount.create({
     data: {
       ...sellerAccount,
     },

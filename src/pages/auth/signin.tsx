@@ -58,7 +58,7 @@ export function EmailSignin({
     e.preventDefault();
     const data = new FormData(e.target);
     const values = Object.fromEntries(data.entries());
-    const res = await axios.post("/api/auth/signin/email", values);
+    await axios.post("/api/auth/signin/email", values);
     setSubmittedEMail(values.email.toString());
 
     return false;
@@ -114,7 +114,7 @@ export default function SignIn({
   const router = useRouter();
   const { error: signinError } = router.query;
 
-  const { data: session, status: authStatus } = useSession();
+  const { status: authStatus } = useSession();
   const emailProvider = Object.values(providers).find(
     (p) => p.type === "email"
   );
@@ -145,7 +145,7 @@ export default function SignIn({
             {provider.name}
           </Button>
         ))}
-        {!accounts.find(a => a.provider === "ethereum") && <SiweButton onConnected={(address) => {
+        {!accounts.find(a => a.provider === "ethereum") && <SiweButton onConnected={() => {
           router.replace(callbackUrl);
         }}>Ethereum</SiweButton>}
       </Flex>

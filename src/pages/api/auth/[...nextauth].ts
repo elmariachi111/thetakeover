@@ -45,7 +45,7 @@ export default async function auth(req, res) {
         }
         return token;
       },
-      session: async ({ session, token, user }) => {
+      session: async ({ session, token }) => {
         if (session.user) {
           session.user.id = token.uid;
           session.user.eth = token.eth;

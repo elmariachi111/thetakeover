@@ -45,7 +45,7 @@ const Web3Provider = ({ children }: { children: React.ReactNode }) => {
 
   const connect = useCallback(
     async (provider?: string) => {
-      if (!web3Modal) return;
+      if (!web3Modal) return {};
       if (web3Resources) return web3Resources;
 
       try {
@@ -83,6 +83,8 @@ const Web3Provider = ({ children }: { children: React.ReactNode }) => {
       } catch (e: any) {
         console.warn("user rejected connection");
       }
+      return {};
+
     },
     [web3Modal]
   );

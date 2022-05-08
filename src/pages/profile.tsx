@@ -9,10 +9,10 @@ import { FiCheckCircle } from "react-icons/fi";
 import { SiweButton } from "../components/atoms/SiweButton";
 import { adapterClient } from "../modules/api/adapter";
 
-type XUser = User & {
-  emailVerified: string,
+type XUser = Omit<User, "emailVerified"> & {
+  emailVerified: string | null,
   accounts: Account[],
-  sellerAccount: SellerAccount
+  sellerAccount: SellerAccount | null
 }
 
 export const getServerSideProps: GetServerSideProps<{
@@ -72,7 +72,7 @@ const EmailVerified = (props: {
       callbackUrl: `${window.location.origin}/profile`
     };
 
-    const res = await axios.post("/api/auth/signin/email", signinPayload);
+    await axios.post("/api/auth/signin/email", signinPayload);
     setVerificationSent(true);
   };
 
@@ -92,12 +92,13 @@ const ProfileEditor = (props: { user: XUser }) => {
     }
   }, []);
 
+
   const [fEmail, mEmail] = useField({
     name: "email",
     value: user.email || '',
   });
 
-  const [fName, mName] = useField({
+  const [fName] = useField({
     name: "name",
     value: user.name || '',
   });
@@ -133,7 +134,7 @@ const ProfileEditor = (props: { user: XUser }) => {
 const Profile = ({ user }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
 
   const submit = async (user: XUser) => {
-    const res = await axios.post("/api/user/update", user);
+    await axios.post("/api/user/update", user);
   };
 
   return (
@@ -145,7 +146,7 @@ const Profile = ({ user }: InferGetServerSidePropsType<typeof getServerSideProps
           return;
         }}
       >
-        {({ errors, touched, values }) => (
+        {() => (
           <Form id="profile-form">
             <Flex direction="column" w="100%" gridGap={5}>
 

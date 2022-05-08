@@ -20,7 +20,7 @@ type AppPropsWithLayout = AppProps & {
 };
 
 function Auth({ children }) {
-  const { data: session, status } = useSession({ required: true });
+  const { data: session } = useSession({ required: true });
   if (session?.user) {
     return children;
   }

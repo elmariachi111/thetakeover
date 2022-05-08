@@ -125,7 +125,7 @@ function ToPay({
         },
       ],
     });
-    const res = await axios.post(`/api/to/pay/${orderId}`);
+    await axios.post(`/api/to/pay/${orderId}`);
 
     //console.log(orderId);
     return orderId;
