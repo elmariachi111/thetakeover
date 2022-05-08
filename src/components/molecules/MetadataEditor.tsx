@@ -32,6 +32,7 @@ const LinkSchema = Yup.object().shape({
     .min(10, "too short")
     .max(2000, "too long")
     .required("required"),
+  previewImage: Yup.string().url("must be an url").required("needs a preview image")
 });
 
 const MetadataEditor = (props: { initialValues?: LinkInput }) => {
@@ -128,11 +129,14 @@ const MetadataEditor = (props: { initialValues?: LinkInput }) => {
         <Flex direction="row" gap={2} align="flex-end">
           <Flex direction="column" flex={1}>
             <FormLabel>preview</FormLabel>
-            <Input {...fPreviewImage} placeholder="https://some-image.jpg" />
+            <Flex gridGap={2} align="center">
+              <Input {...fPreviewImage} placeholder="https://some-image.jpg" />
+              {status === "authenticated" && (
+                <CloudinaryUploadWidget onUploaded={cloudinaryUploaded} />
+              )}
+            </Flex>
+            <FormErrorMessage>{mPreviewImage.error}</FormErrorMessage>
           </Flex>
-          {status === "authenticated" && (
-            <CloudinaryUploadWidget onUploaded={cloudinaryUploaded} />
-          )}
         </Flex>
         {!mPreviewImage.error && fPreviewImage.value && (
           <AspectRatio ratio={4 / 3} mt={3}>

@@ -24,17 +24,17 @@ const TakeoverCard = (props: { link: ToCardLink }) => {
   return (
     <LinkBox
       minH={275}
-      borderColor="brand.500"
+      borderColor="black"
       sx={{
-        transition: "all 100ms",
-        _hover: { borderWidth: "4px" },
+        transition: "all 20ms",
+        _hover: { borderWidth: "2px" },
       }}
     >
       <LinkOverlay href={`/to/${link.hash}`}>
         <Flex
           position="absolute"
           backgroundImage={link.metadata?.previewImage}
-          backgroundColor="brand.800"
+          backgroundColor="black"
           backgroundSize="cover"
           backgroundPosition="center"
           py={2}
@@ -46,7 +46,7 @@ const TakeoverCard = (props: { link: ToCardLink }) => {
             px={4}
             py={2}
             lineHeight="2rem"
-            background="brand.500"
+            background="black"
             color="white"
             maxW="75%"
             ml={-1}
@@ -71,9 +71,9 @@ const TakeoverCard = (props: { link: ToCardLink }) => {
           <Text
             color="white"
             fontSize="lg"
-            background="brand.500"
+            background="gray.900"
             py={2}
-            px={2}
+            px={4}
           >
             €{link.price}
           </Text>

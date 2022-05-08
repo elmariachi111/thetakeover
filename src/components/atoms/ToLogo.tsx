@@ -8,7 +8,7 @@ export const ToLogo = (props: { width?: number }) => {
   const width = props.width || 60;
   return (
     <NextLink href="/" passHref>
-      <Link href="/" sx={{ _hover: { transform: "scale(0.9)" } }}>
+      <Link href="/" >
         <Image src={logo} alt="logo" height={width} width={width}></Image>
       </Link>
     </NextLink>

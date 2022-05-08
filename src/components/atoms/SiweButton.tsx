@@ -1,8 +1,9 @@
-import { Button } from "@chakra-ui/react";
+import { Button, Icon } from "@chakra-ui/react";
 import { getCsrfToken, signIn, useSession } from "next-auth/react";
 import { useCallback } from "react";
 import { SiweMessage } from "siwe";
 import { useWeb3 } from "../../modules/Web3Context";
+import { FaEthereum } from 'react-icons/fa';
 
 export const SiweButton = (props: {
   children?: React.ReactNode,
@@ -51,7 +52,7 @@ export const SiweButton = (props: {
   }, [session, connect]);
 
   return (<>
-    <Button onClick={handleSiwe}> {props.children}</Button >
+    <Button onClick={handleSiwe} leftIcon={<FaEthereum />}>{props.children}</Button >
   </>
   );
 };
