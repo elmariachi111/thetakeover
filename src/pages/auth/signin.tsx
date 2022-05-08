@@ -145,7 +145,9 @@ export default function SignIn({
             {provider.name}
           </Button>
         ))}
-        {!accounts.find(a => a.provider === "ethereum") && <SiweButton>Ethereum</SiweButton>}
+        {!accounts.find(a => a.provider === "ethereum") && <SiweButton onConnected={(address) => {
+          router.replace(callbackUrl);
+        }}>Ethereum</SiweButton>}
       </Flex>
       {accounts.length > 0 && (
         <Flex mt={12} direction="column" gridGap={2}>

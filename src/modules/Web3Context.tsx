@@ -12,11 +12,11 @@ interface IWeb3Resources {
 }
 
 interface IWeb3Context extends IWeb3Resources {
-  connect: () => Promise<void>;
+  connect: () => Promise<IWeb3Resources>;
 }
 
 const Web3Context = React.createContext<IWeb3Context>({
-  connect: () => Promise.resolve(),
+  connect: () => Promise.resolve({}),
 });
 
 const useWeb3 = () => useContext(Web3Context);
@@ -46,8 +46,8 @@ const Web3Provider = ({ children }: { children: React.ReactNode }) => {
   const connect = useCallback(
     async (provider?: string) => {
       if (!web3Modal) return;
+      if (web3Resources) return web3Resources;
 
-      console.log(provider);
       try {
         const instance = provider
           ? web3Modal.connectTo(provider)
@@ -56,13 +56,13 @@ const Web3Provider = ({ children }: { children: React.ReactNode }) => {
         const _provider = new providers.Web3Provider(_instance);
         const signer = await _provider.getSigner();
         const account = await signer.getAddress();
-
-        setWeb3Resources({
+        const _newResources = {
           provider: _provider,
           signer,
           account,
           chainId: Number(_instance.chainId),
-        });
+        };
+        setWeb3Resources(_newResources);
 
         _instance.on("accountsChanged", (accounts: string[]) => {
           console.log(accounts);
@@ -78,6 +78,8 @@ const Web3Provider = ({ children }: { children: React.ReactNode }) => {
             chainId,
           }));
         });
+
+        return _newResources;
       } catch (e: any) {
         console.warn("user rejected connection");
       }

@@ -1,18 +1,24 @@
-import { Button } from "@chakra-ui/react";
+import { Button, Text } from "@chakra-ui/react";
 import { getCsrfToken, signIn, useSession } from "next-auth/react";
 import { useCallback } from "react";
 import { SiweMessage } from "siwe";
 import { useWeb3 } from "../../modules/Web3Context";
 
 export const SiweButton = (props: {
-  children?: React.ReactNode
+  children?: React.ReactNode,
+  onConnected?: (addr: string) => void,
 }) => {
   const { data: session } = useSession();
-  const { connect, account, chainId, provider, signer } = useWeb3();
+  const { connect } = useWeb3();
 
   const handleSiwe = useCallback(async () => {
     try {
       const csrfToken = await getCsrfToken();
+      const {
+        signer,
+        account,
+        chainId,
+      } = await connect();
 
       const callbackUrl = "/";
       const message = new SiweMessage({
@@ -33,14 +39,19 @@ export const SiweButton = (props: {
           signature,
           callbackUrl,
         });
+        if (props.onConnected) {
+          props.onConnected(account as string);
+        }
+
       }
+
     } catch (error) {
       window.alert(error);
     }
-  }, [session, signer, chainId, account]);
+  }, [session, connect]);
 
   return (<>
-    <Button onClick={account ? handleSiwe : () => connect()} > {props.children}</Button >
+    <Button onClick={handleSiwe}> {props.children}</Button >
   </>
   );
 };
