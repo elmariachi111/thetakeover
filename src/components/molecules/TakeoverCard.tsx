@@ -1,12 +1,11 @@
 import {
-  Box,
   Flex,
   IconButton,
   Link as ChakraLink,
   LinkBox,
   LinkOverlay,
   Spacer,
-  Text,
+  Text
 } from "@chakra-ui/react";
 import { Link } from "@prisma/client";
 import { default as NextLink } from "next/link";

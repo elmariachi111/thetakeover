@@ -11,7 +11,6 @@ import { signIn, useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo } from "react";
-import { ToLogo } from "../components/atoms/ToLogo";
 import logo from "../img/to_logo.svg";
 
 const CreateLink: NextPage = () => {

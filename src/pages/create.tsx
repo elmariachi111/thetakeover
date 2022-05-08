@@ -42,7 +42,7 @@ const CreateLink: NextPage = () => {
   const create = async (payload: LinkInput) => {
     if (status === "authenticated") {
       setBuzy.on();
-      const res = await axios.post("/api/links/create", payload);
+      await axios.post("/api/links/create", payload);
       setBuzy.off();
       router.push("/my", {});
     } else {

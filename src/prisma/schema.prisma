@@ -14,13 +14,13 @@ datasource db {
 }
 
 model Link {
-    hash       String    @id
-    originUri  String    @map("origin_uri")
-    price      Decimal
-    creatorId  String   @map("creator_id")
-    creator    User      @relation(fields: [creatorId], references: [id])
-    payments   Payment[]
-    metadata   Metadata?
+    hash      String    @id
+    originUri String    @map("origin_uri")
+    price     Decimal
+    creatorId String    @map("creator_id")
+    creator   User      @relation(fields: [creatorId], references: [id])
+    payments  Payment[]
+    metadata  Metadata?
 
     @@index([hash, originUri])
     @@index([creatorId])
@@ -31,8 +31,9 @@ model Metadata {
     link         Link    @relation(fields: [linkHash], references: [hash])
     title        String
     description  String  @db.LongText
-    previewImage String  @db.MediumText @map("preview_image")
+    previewImage String  @map("preview_image") @db.MediumText
     embed        String? @db.MediumText
+
     @@index([linkHash])
 }
 
@@ -53,7 +54,7 @@ enum PaymentProvider {
 model Payment {
     id            String          @id @default(uuid())
     linkHash      String          @map("link_hash")
-    userId        String?         @map("user_id")  
+    userId        String?         @map("user_id")
     provider      PaymentProvider @default(PAYPAL)
     paymentRef    String          @unique @map("payment_ref")
     paymentIntent PaymentIntent   @default(CAPTURE) @map("payment_intent")
@@ -69,35 +70,37 @@ model Payment {
 }
 
 model SellerAccount {
-    id                  String  @id @default(cuid())
-    userId              String  @map("user_id")
-    merchantIdInPayPal  String  @map("merchant_id_in_paypal")
-    permissionsGranted  Boolean @map("permissions_granted")
-    accountStatus       String? @map("account_status")
-    consentStatus       Boolean @map("consent_status")
-    productIntentId     String  @map("product_intent_id")
-    isEmailConfirmed    Boolean @map("is_email_confirmed")
-    riskStatus          String? @map("risk_status")
-    user                User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id                 String  @id @default(cuid())
+    userId             String  @unique @map("user_id")
+    merchantIdInPayPal String  @map("merchant_id_in_paypal")
+    permissionsGranted Boolean @map("permissions_granted")
+    accountStatus      String? @map("account_status")
+    consentStatus      Boolean @map("consent_status")
+    productIntentId    String  @map("product_intent_id")
+    isEmailConfirmed   Boolean @map("is_email_confirmed")
+    riskStatus         String? @map("risk_status")
+    user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
     @@index([userId])
 }
 
 model Account {
-    id                       String   @id @default(cuid())
-    userId                   String @map("user_id")
-    type                     String
-    provider                 String
-    providerAccountId        String @map("provider_account_id")
-    refresh_token            String? @db.Text
-    access_token             String? @db.Text
-    expires_at               Int?
-    token_type               String?
-    scope                    String?
-    id_token                 String? @db.Text
-    session_state            String? @db.Text
-    oauth_token_secret       String?
-    oauth_token              String?
-    user                     User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id                 String  @id @default(cuid())
+    userId             String  @map("user_id")
+    type               String
+    provider           String
+    providerAccountId  String  @map("provider_account_id")
+    refresh_token      String? @db.Text
+    access_token       String? @db.Text
+    expires_at         Int?
+    token_type         String?
+    scope              String?
+    id_token           String? @db.Text
+    session_state      String? @db.Text
+    oauth_token_secret String?
+    oauth_token        String?
+    user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
     @@unique([provider, providerAccountId])
     @@index([userId])
 }
@@ -105,9 +108,10 @@ model Account {
 model Session {
     id           String   @id @default(cuid())
     sessionToken String   @unique @map("session_token")
-    userId       String   @map("user_id")  
+    userId       String   @map("user_id")
     expires      DateTime
-    user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
     @@index([userId])
 }
 

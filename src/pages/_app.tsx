@@ -6,6 +6,7 @@ import Head from "next/head";
 import { ReactElement, ReactNode } from "react";
 import Layout from "../components/Layout";
 import { default as TOTheme } from "../theme";
+import { Web3Provider } from "../modules/Web3Context";
 
 const theme = extendTheme(TOTheme);
 
@@ -19,8 +20,7 @@ type AppPropsWithLayout = AppProps & {
 };
 
 function Auth({ children }) {
-  const { data: session, status } = useSession({ required: true });
-
+  const { data: session } = useSession({ required: true });
   if (session?.user) {
     return children;
   }
@@ -35,19 +35,21 @@ function MyApp({
   const getLayout = Component.getLayout ?? ((page) => <Layout>{page}</Layout>);
   return (
     <ChakraProvider theme={theme}>
-      <SessionProvider session={session}>
-        <Head>
-          <script
-            src="https://widget.cloudinary.com/v2.0/global/all.js"
-            type="text/javascript"
-          ></script>
-        </Head>
-        {Component.auth ? (
-          <Auth>{getLayout(<Component {...pageProps} />)}</Auth>
-        ) : (
-          getLayout(<Component {...pageProps} />)
-        )}
-      </SessionProvider>
+      <Web3Provider>
+        <SessionProvider session={session}>
+          <Head>
+            <script
+              src="https://widget.cloudinary.com/v2.0/global/all.js"
+              type="text/javascript"
+            ></script>
+          </Head>
+          {Component.auth ? (
+            <Auth>{getLayout(<Component {...pageProps} />)}</Auth>
+          ) : (
+            getLayout(<Component {...pageProps} />)
+          )}
+        </SessionProvider>
+      </Web3Provider>
     </ChakraProvider>
   );
 }

@@ -5,9 +5,8 @@ import {
   FormLabel,
   Heading,
   HStack,
-  Icon,
   Input,
-  Text,
+  Text
 } from "@chakra-ui/react";
 import { Account } from "@prisma/client";
 import axios from "axios";
@@ -17,13 +16,15 @@ import {
   getProviders,
   getSession,
   signIn,
-  useSession,
+  useSession
 } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { IoLogoGithub, IoLogoGoogle } from "react-icons/io5";
 import { GeneralAlert } from "../../components/atoms/GeneralAlert";
-import { adapterClient, prismaAdapter } from "../../modules/api/adapter";
+import { SiweButton } from "../../components/atoms/SiweButton";
+
+import { adapterClient } from "../../modules/api/adapter";
 
 const transErrors: Record<string, string> = {
   Signin: "Try signing in with a different account.",
@@ -57,7 +58,7 @@ export function EmailSignin({
     e.preventDefault();
     const data = new FormData(e.target);
     const values = Object.fromEntries(data.entries());
-    const res = await axios.post("/api/auth/signin/email", values);
+    await axios.post("/api/auth/signin/email", values);
     setSubmittedEMail(values.email.toString());
 
     return false;
@@ -113,7 +114,7 @@ export default function SignIn({
   const router = useRouter();
   const { error: signinError } = router.query;
 
-  const { data: session, status: authStatus } = useSession();
+  const { status: authStatus } = useSession();
   const emailProvider = Object.values(providers).find(
     (p) => p.type === "email"
   );
@@ -122,7 +123,7 @@ export default function SignIn({
   const connectableProviders = Object.keys(providers)
     .filter((p) => !connectedProviderKeys.includes(p))
     .map((k) => providers[k])
-    .filter((p) => p.type === "oauth");
+    .filter((p) => ["oauth"].includes(p.type));
 
   return (
     <Flex direction="column" gridGap={3} my={5}>
@@ -144,6 +145,9 @@ export default function SignIn({
             {provider.name}
           </Button>
         ))}
+        {!accounts.find(a => a.provider === "ethereum") && <SiweButton onConnected={() => {
+          router.replace(callbackUrl);
+        }}>Ethereum</SiweButton>}
       </Flex>
       {accounts.length > 0 && (
         <Flex mt={12} direction="column" gridGap={2}>

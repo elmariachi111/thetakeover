@@ -34,13 +34,13 @@ const redirectToPayment = (linkId: string) => {
   };
 };
 
-const viewLink = (link: Link & { metadata: Metadata | null }) => {
-  if (link.metadata) {
-    return `/to/${link.hash}`;
-  } else {
-    return link.originUri;
-  }
-};
+// const viewLink = (link: Link & { metadata: Metadata | null }) => {
+//   if (link.metadata) {
+//     return `/to/${link.hash}`;
+//   } else {
+//     return link.originUri;
+//   }
+// };
 
 type XLink = Link & { metadata: Metadata; creator: User };
 
