@@ -35,9 +35,10 @@ const Navlink = (props: {
     <NextLink href={href} passHref>
       <Link
         onClick={onClose}
-        _hover={{ background: "brand.300", color: "white" }}
+        _hover={{ background: "gray.600", color: "white" }}
         d="flex"
         w="full"
+        fontWeight="bold"
         p={3}
       >
         {children}
@@ -60,7 +61,10 @@ const Navbar = () => {
       px={0}
       py={2}
     >
-      <ToLogo />
+      <Flex direction="row" align="center" gridGap={3} sx={{ transition: "all 200ms", _hover: { transform: "scale(1.03)" } }}>
+        <ToLogo />
+        <Text fontWeight="bold" fontSize="xl">The Takeover</Text>
+      </Flex>
       <Spacer />
       <Flex direction="row">
         <NextLink href="/create" passHref>
@@ -80,7 +84,7 @@ const Navbar = () => {
       </Flex>
       <Drawer isOpen={isOpen} placement="right" onClose={onClose}>
         <DrawerOverlay />
-        <DrawerContent bg={colorMode === "light" ? "white" : "brand.800"}>
+        <DrawerContent bg={colorMode === "light" ? "white" : "gray.900"}>
           <Flex
             direction="column"
             justify="space-evenly"

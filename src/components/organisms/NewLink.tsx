@@ -83,8 +83,8 @@ const NewLink = (props: {
               }
             >
               {status === "authenticated"
-                ? "create takeover"
-                : "login and create takeover"}
+                ? "Create Takeover"
+                : "Login and create Takeover"}
             </Button>
           </Portal>
         </Form>

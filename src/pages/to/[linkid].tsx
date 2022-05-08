@@ -95,11 +95,11 @@ export const getServerSideProps: GetServerSideProps<{
 const TitleAndCreator = (props: { link: XLink; color?: string }) => {
   const { link, color } = props;
   return (
-    <Flex direction="column">
-      <Heading size="md" color={color}>
+    <Flex direction="column" align="center">
+      <Heading size="lg" color={color}>
         {link.creator.name}
       </Heading>
-      <Heading size="md" color={color} my={2} textAlign="center">
+      <Heading size="md" color={color}>
         {link.metadata.title}
       </Heading>
     </Flex>
@@ -158,7 +158,7 @@ function ToView({
       )}
       <Flex
         position="absolute"
-        bottom={10}
+        bottom={5}
         alignSelf="center"
         alignItems="center"
         direction="column"

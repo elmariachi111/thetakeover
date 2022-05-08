@@ -1,5 +1,6 @@
-import "@fontsource/space-mono/400.css";
-import "@fontsource/space-mono/700.css";
+import "@fontsource/dm-sans/400.css";
+import "@fontsource/dm-sans/500.css";
+import "@fontsource/dm-sans/700.css";
 
 const theme = {
   config: {
@@ -7,18 +8,23 @@ const theme = {
     useSystemColorMode: false,
   },
   fonts: {
-    heading: "Space Mono",
-    body: "Space Mono",
-    textTransform: "uppercase",
+    heading: "DM Sans",
+    body: "DM Sans",
   },
   styles: {
-    global: {
+    global: (props) => ({
+      'html, body': {
+        bg: props.colorMode === 'dark' ? 'black' : 'gray.100',
+      },
       "a, p, label": {
-        textTransform: "uppercase",
+
       },
       "h1,h2,h3,h4": {
-        textTransform: "uppercase",
+
       },
+    }),
+    shadows: {
+      outline: '0 0 0 3px var(--chakra-colors-brand-500)',
     },
   },
   colors: {
@@ -37,12 +43,17 @@ const theme = {
   },
   components: {
     Link: {
-      baseStyle: {
-        color: "brand.300",
+      baseStyle: (props) => ({
+        color: props.colorMode === 'dark' ? 'white' : 'black',
         _hover: {
-          color: "brand.200",
+          color: "gray.300",
         },
-      },
+      }),
+    },
+    TextArea: {
+      defaultProps: {
+        focusBorderColor: "white",
+      }
     },
     Input: {
       baseStyle: {
@@ -51,6 +62,7 @@ const theme = {
           borderRadius: 0,
           _placeholder: {
             opacity: 1,
+            color: "gray.600"
           },
         },
       },
@@ -59,17 +71,18 @@ const theme = {
       },
       defaultProps: {
         variant: "filled",
-        focusBorderColor: "brand.300",
+        borderRadius: 0,
+        focusBorderColor: "white",
       },
     },
     Button: {
       baseStyle: {
-        textTransform: "uppercase",
         borderRadius: 0,
-        p: 8,
+        px: 8,
+        py: 7,
       },
       defaultProps: {
-        colorScheme: "brand",
+        colorScheme: "white",
       },
       variants: {
         outline: {
@@ -77,26 +90,31 @@ const theme = {
           borderWidth: 2,
         },
         link: {
-          color: "brand.300",
+          color: "white",
           _hover: {
-            color: "brand.200",
+            textDecoration: "underline",
+
           },
         },
         ghost: {
-          color: "brand.300",
+          color: "gray.300",
           _hover: {
-            color: "brand.200",
+            color: "gray.200",
+            background: "gray.800"
           },
         },
         solid: {
-          color: "white",
-          background: "brand.300",
+          color: "black",
+          background: "white",
+          border: "2px solid transparent",
           _hover: {
             color: "white",
-            background: "brand.200",
+            background: "gray.900",
+            border: "2px solid white",
+            textDecoration: "none",
             _disabled: {},
           },
-          _active: { bg: "brand.400" },
+          _active: { bg: "gray.800" },
         },
       },
     },

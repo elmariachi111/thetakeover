@@ -73,7 +73,8 @@ const CreateLink: NextPage = () => {
                   Create a Takeover
                 </Button>
               </Link>
-              <Button size="sm" onClick={() => signIn()} variant="link" py={6}>
+
+              <Button size="sm" onClick={() => signIn()} variant="link" my={6}>
                 Sign in
               </Button>
             </Flex>

@@ -148,7 +148,7 @@ function ToPay({
   return (
     <Flex direction="column">
       <Flex my={5} direction="column">
-        <Heading size="md" color="brand.300">
+        <Heading size="lg" color="gray.500">
           {link.creator.name}
         </Heading>
         <Heading size="md">{link.metadata.title}</Heading>
@@ -158,10 +158,10 @@ function ToPay({
         {link.metadata.description}
       </Text>
       <Flex direction="row" my={6} justify="space-between">
-        <Text fontWeight="bold" fontSize="lg">
+        <Text fontWeight={500} fontSize="lg">
           Total
         </Text>
-        <Text fontWeight="bold" fontSize="lg">
+        <Text fontWeight={700} fontSize="xl">
           €{link.price}
         </Text>
       </Flex>
@@ -179,7 +179,7 @@ function ToPay({
             </Button>
           ) : (
             <Flex direction="column" w="full" mt={6}>
-              <PayPalButtons createOrder={createOrder} onApprove={onApprove} />
+              <PayPalButtons createOrder={createOrder} onApprove={onApprove} style={{ shape: "rect" }} />
             </Flex>
           )}
         </PayPalScriptProvider>

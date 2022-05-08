@@ -1243,6 +1243,11 @@
     "@ethersproject/properties" "^5.6.0"
     "@ethersproject/strings" "^5.6.0"
 
+"@fontsource/dm-sans@^4.5.7":
+  version "4.5.7"
+  resolved "https://registry.yarnpkg.com/@fontsource/dm-sans/-/dm-sans-4.5.7.tgz#fcf6b866eeb2cf8b9cf8a6e7756f21e8ed3cfc7f"
+  integrity sha512-pYzU78F4HZHMpERjarfOnQZ20XL2thfDXTaZW30CoQgfqgZSSxHDfB6bVrs6jUPrgeAxK5ZuGG9hkpvZJT7SdQ==
+
 "@fontsource/space-mono@^4.5.0":
   version "4.5.5"
   resolved "https://registry.yarnpkg.com/@fontsource/space-mono/-/space-mono-4.5.5.tgz#8b7ca5563d3d8ba33f25b321421aa6aafe60f84c"
