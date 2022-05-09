@@ -1,12 +1,32 @@
-import { Box, Flex, Heading, Spacer, useBoolean } from "@chakra-ui/react";
+import { Box, CloseButton, Flex, Heading, Icon, IconButton, Input, Spacer, Text, useBoolean, useClipboard } from "@chakra-ui/react";
 import axios from "axios";
 import type { NextPage } from "next";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
-import { ToLoadingModal, ToLoadingOverlay } from "../components/atoms/ToLoadingOverlay";
+import { FaCheckCircle } from 'react-icons/fa';
+import { FiCopy } from 'react-icons/fi';
+import { ToLoadingOverlay, ToOverlay } from "../components/atoms/ToOverlay";
 import NewLink from "../components/organisms/NewLink";
 import { LinkInput } from "../types/LinkInput";
+
+
+const ToSuccessOverlay = ({ createdLink, onClose }: { createdLink: string, onClose?: () => void }) => {
+  const { onCopy } = useClipboard(createdLink);
+  return (<ToOverlay>
+    <Flex w="50vw" h="40vh" align="center" justify="center" direction="column" gridGap={5}>
+      <Flex alignSelf="flex-end">
+        <CloseButton onClick={() => onClose ? onClose() : null} />
+      </Flex>
+      <Icon as={FaCheckCircle} h="20vh" w="20vw" />
+      <Text fontSize="2xl">Your Takeover is ready.</Text>
+      <Flex direction="row" align="center" w="100%">
+        <Input value={createdLink} variant="outline" background="black" />
+        <IconButton aria-label="copy" onClick={onCopy} ml={2} icon={<FiCopy />} fontSize="2xl" w="20%" h="100%" />
+      </Flex>
+    </Flex>
+  </ToOverlay>);
+};
 
 const CreateLink: NextPage = () => {
   const router = useRouter();
@@ -15,7 +35,7 @@ const CreateLink: NextPage = () => {
 
   const [initialValues, setInitialValues] = useState<Partial<LinkInput>>();
   const [buzy, setBuzy] = useBoolean(false);
-  const [success, setSuccess] = useState();
+  const [createdLink, setCreatedLink] = useState<string>();
 
   useEffect(() => {
     const _newLink = window.localStorage.getItem("newLink");
@@ -44,15 +64,17 @@ const CreateLink: NextPage = () => {
     if (status === "authenticated") {
       setBuzy.on();
       const _res = await axios.post("/api/links/create", payload);
-      const createResult = _res.data;
+      const { newUrl } = _res.data;
       setBuzy.off();
-
-      console.log(createResult);
-      //router.push("/my", {});
+      setCreatedLink(newUrl);
     } else {
       window.localStorage.setItem("newLink", JSON.stringify(payload));
       await signIn(undefined, { callbackUrl: "/create" });
     }
+  };
+
+  const proceedToContent = async () => {
+    router.push("/my", {});
   };
 
   const buttonRef = useRef<HTMLDivElement | null>(null);
@@ -64,6 +86,8 @@ const CreateLink: NextPage = () => {
           hang on, we're creating your Takeover
         </ToLoadingOverlay>
       }
+      {createdLink && <ToSuccessOverlay createdLink={createdLink} onClose={proceedToContent} />}
+
       <Spacer />
       <Heading size="lg" my={6}>
         Create a Takeover
@@ -78,7 +102,7 @@ const CreateLink: NextPage = () => {
       <Spacer />
 
       <Box ref={buttonRef}></Box>
-    </Flex>
+    </Flex >
   );
 };
 
