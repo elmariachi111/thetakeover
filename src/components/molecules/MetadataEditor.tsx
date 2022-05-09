@@ -118,7 +118,6 @@ const MetadataEditor = (props: { isDisabled?: boolean, initialValues?: LinkInput
             {...fDescription}
             resize="vertical"
             variant="filled"
-            size="sm"
             rows={12}
           />
           <FormErrorMessage>{mDescription.error}</FormErrorMessage>

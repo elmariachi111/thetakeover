@@ -50,11 +50,7 @@ const theme = {
         },
       }),
     },
-    TextArea: {
-      defaultProps: {
-        focusBorderColor: "white",
-      }
-    },
+
     Input: {
       baseStyle: {
         field: {
@@ -76,9 +72,20 @@ const theme = {
       },
       defaultProps: {
         variant: "filled",
-        borderRadius: 0,
         focusBorderColor: "white",
       },
+    },
+    Textarea: {
+      defaultProps: {
+        variant: "filled",
+        focusBorderColor: "white",
+      },
+      variants: {
+        filled: {
+          borderRadius: 0,
+          bg: "gray.800"
+        }
+      }
     },
     Button: {
       baseStyle: {
