@@ -1,4 +1,4 @@
-import { Box, CloseButton, Flex, Heading, Icon, IconButton, Input, Spacer, Text, useBoolean, useClipboard } from "@chakra-ui/react";
+import { Box, CloseButton, Flex, Heading, Icon, IconButton, Input, ScaleFade, Spacer, Text, useBoolean, useClipboard, useColorMode } from "@chakra-ui/react";
 import axios from "axios";
 import type { NextPage } from "next";
 import { signIn, useSession } from "next-auth/react";
@@ -13,18 +13,21 @@ import { LinkInput } from "../types/LinkInput";
 
 const ToSuccessOverlay = ({ createdLink, onClose }: { createdLink: string, onClose?: () => void }) => {
   const { onCopy } = useClipboard(createdLink);
+  const { colorMode } = useColorMode();
   return (<ToOverlay>
-    <Flex w="50vw" h="40vh" align="center" justify="center" direction="column" gridGap={5}>
-      <Flex alignSelf="flex-end">
-        <CloseButton onClick={() => onClose ? onClose() : null} />
+    <ScaleFade initialScale={0.5} in={true} delay={0.2}>
+      <Flex w="50vw" h="40vh" align="center" justify="center" direction="column" gridGap={5}>
+        <Flex alignSelf="flex-end">
+          <CloseButton onClick={() => onClose ? onClose() : null} color="white" />
+        </Flex>
+        <Icon as={FaCheckCircle} h="20vh" w="20vw" color="white" />
+        <Text fontSize="2xl" color="white">Your Takeover is ready.</Text>
+        <Flex direction="row" align="center" w="100%">
+          <Input value={createdLink} variant="outline" background={colorMode === "dark" ? "black" : "white"} />
+          <IconButton aria-label="copy" onClick={onCopy} ml={2} icon={<FiCopy />} fontSize="2xl" w="20%" h="100%" />
+        </Flex>
       </Flex>
-      <Icon as={FaCheckCircle} h="20vh" w="20vw" />
-      <Text fontSize="2xl">Your Takeover is ready.</Text>
-      <Flex direction="row" align="center" w="100%">
-        <Input value={createdLink} variant="outline" background="black" />
-        <IconButton aria-label="copy" onClick={onCopy} ml={2} icon={<FiCopy />} fontSize="2xl" w="20%" h="100%" />
-      </Flex>
-    </Flex>
+    </ScaleFade>
   </ToOverlay>);
 };
 

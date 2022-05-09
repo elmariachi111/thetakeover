@@ -16,7 +16,7 @@ import { useSession, signOut } from "next-auth/react";
 
 import { default as NextLink } from "next/link";
 import React from "react";
-import { FaSun } from "react-icons/fa";
+import { FaSun, FaMoon } from "react-icons/fa";
 import { FiPlusSquare } from "react-icons/fi";
 
 import { HiDotsVertical } from "react-icons/hi";
@@ -115,15 +115,12 @@ const Navbar = () => {
               {status === "authenticated" && (
                 <Button onClick={() => signOut()}>Sign out</Button>
               )}
-              <Flex direction="row" my={5} gridGap={6}>
+              <Flex direction="row" my={5} gridGap={6} align="center">
                 <Text>The Takeover</Text>
-
                 <IconButton
-                  icon={<FaSun size={16} />}
-                  color="brand.200"
-                  variant="unstyled"
-                  size="xs"
-                  aria-label=" toggle color mode"
+                  icon={colorMode === "dark" ? <FaSun /> : <FaMoon />}
+                  variant="ghost"
+                  aria-label="toggle color mode"
                   onClick={toggleColorMode}
                 />
               </Flex>
