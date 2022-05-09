@@ -1,6 +1,8 @@
 import { providers } from "ethers";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import WalletConnectProvider from "@walletconnect/web3-provider";
+import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
+
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
 
@@ -37,6 +39,13 @@ const Web3Provider = ({ children }: { children: React.ReactNode }) => {
           options: {
             infuraId: process.env.NEXT_PUBLIC_INFURA_KEY, // required
           },
+        },
+        coinbasewallet: {
+          package: CoinbaseWalletSDK, // Required
+          options: {
+            appName: "The Takeover", // Required
+            infuraId: process.env.NEXT_PUBLIC_INFURA_KEY, // Required
+          }
         },
       },
     });
