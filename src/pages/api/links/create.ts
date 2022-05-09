@@ -36,10 +36,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   });
 
   res.status(200).json({
-    link: payload.url,
+    status: "ok",
     newLink: {
-      ...newLink,
-      metadata: md,
+      hash,
     },
   });
 };

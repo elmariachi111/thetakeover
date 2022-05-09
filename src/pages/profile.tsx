@@ -1,4 +1,4 @@
-import { Button, Flex, FormControl, FormLabel, Icon, Input, Spacer } from "@chakra-ui/react";
+import { Button, Flex, FormControl, FormLabel, Icon, Input, Spacer, Spinner, useToast } from "@chakra-ui/react";
 import { Account, SellerAccount, User } from "@prisma/client";
 import axios from "axios";
 import { Form, Formik, useField } from "formik";
@@ -63,6 +63,7 @@ const EmailVerified = (props: {
 }) => {
   const verified = !!props.user.emailVerified && props.value === props.user.email;
   const [verificationSent, setVerificationSent] = useState<boolean>(verified);
+  const toast = useToast();
 
   const verifyEmail = async () => {
     const csrfToken = await getCsrfToken();
@@ -74,11 +75,15 @@ const EmailVerified = (props: {
 
     await axios.post("/api/auth/signin/email", signinPayload);
     setVerificationSent(true);
+    toast({
+      title: `we just sent a verification mail to ${props.value}`,
+      description: "please check your inbox"
+    });
   };
 
   return verified
     ? <Icon m={6} w={6} h={6} as={FiCheckCircle} color="green.300" />
-    : <Button d="flex" aria-label="verify your email address" onClick={verifyEmail} disabled={verificationSent}>Verify</Button>;
+    : <Button disabled={verificationSent} d="flex" aria-label="verify your email address" onClick={verifyEmail}>Verify</Button>;
 };
 
 const ProfileEditor = (props: { user: XUser }) => {
@@ -133,8 +138,11 @@ const ProfileEditor = (props: { user: XUser }) => {
 
 const Profile = ({ user }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
 
+  const [busy, setBusy] = useState<boolean>(false);
   const submit = async (user: XUser) => {
+    setBusy(true);
     await axios.post("/api/user/update", user);
+    setBusy(false);
   };
 
   return (
@@ -149,13 +157,12 @@ const Profile = ({ user }: InferGetServerSidePropsType<typeof getServerSideProps
         {() => (
           <Form id="profile-form">
             <Flex direction="column" w="100%" gridGap={5}>
-
-
               <ProfileEditor user={user} />
-
               <Spacer />
-              <Button type="submit" >Submit</Button>
-
+              <Button type="submit" disabled={busy}>
+                {busy && <Spinner mx={3} />}
+                Submit
+              </Button>
             </Flex>
           </Form>
         )}

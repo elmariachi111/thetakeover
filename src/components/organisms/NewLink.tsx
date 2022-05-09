@@ -36,8 +36,9 @@ const NewLink = (props: {
       validateOnMount={props.initialValues !== undefined}
       initialValues={initialValues}
       validationSchema={LinkSchema}
-      onSubmit={(values) => {
-        props.onSubmit(values);
+      onSubmit={async (values, { resetForm }) => {
+        await props.onSubmit(values);
+        resetForm();
         return;
       }}
     >

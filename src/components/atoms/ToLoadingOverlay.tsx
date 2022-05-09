@@ -1,15 +1,46 @@
 import {
-  Flex,
-  Modal,
-  ModalContent,
-  ModalOverlay,
-  Spinner,
-  Text,
+  Flex, Spinner,
+  Text
 } from "@chakra-ui/react";
 
-const ToLoadingModal = ({ buzy, title }: { buzy: boolean; title?: string }) => {
+const ToLoadingOverlay = ({ children }: { children: React.ReactNode }) => {
   return (
-    <Modal
+    <Flex
+      background="black"
+      w="100vw"
+      h="100vh"
+      direction="column"
+      gridGap={3}
+      alignItems="center"
+      justify="center"
+      position="absolute"
+      left="0"
+      top="0"
+      zIndex={1000}
+      opacity={0.7}
+    >
+      <Spinner
+        thickness="4px"
+        speed="0.65s"
+        emptyColor="gray.300"
+        color="gray.500"
+        size="xl"
+      />
+      {children && (
+        <Text bg="gray.500" p={2} fontSize="xl">
+          {children}
+        </Text>
+      )}
+    </Flex>
+
+  );
+};
+
+export { ToLoadingOverlay };
+
+
+/*
+<Modal
       isOpen={buzy}
       onClose={() => {
         return;
@@ -42,7 +73,4 @@ const ToLoadingModal = ({ buzy, title }: { buzy: boolean; title?: string }) => {
         </Flex>
       </ModalContent>
     </Modal>
-  );
-};
-
-export { ToLoadingModal };
+    */

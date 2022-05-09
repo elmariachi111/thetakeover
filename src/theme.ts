@@ -67,7 +67,12 @@ const theme = {
         },
       },
       variants: {
-        filled: {},
+        filled: {
+          field: {
+            bg: "gray.800",
+            borderRadius: 0,
+          }
+        },
       },
       defaultProps: {
         variant: "filled",
