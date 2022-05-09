@@ -4,14 +4,13 @@ import {
   Link as ChakraLink,
   SlideFade,
   Spacer,
-  Text,
+  Text
 } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import { signIn, useSession } from "next-auth/react";
-import Image from "next/image";
 import Link from "next/link";
 import { useMemo } from "react";
-import logo from "../img/to_logo.svg";
+import { ToLogo } from "../components/atoms/ToLogo";
 
 const CreateLink: NextPage = () => {
   const { data: session, status } = useSession({
@@ -59,7 +58,7 @@ const CreateLink: NextPage = () => {
             delay={0.3}
             transition={{ enter: { duration: 1 } }}
           >
-            <Image src={logo} alt="logo" height={120} width={120}></Image>
+            <ToLogo width={120} />
           </SlideFade>
           <SlideFade
             offsetY="40px"

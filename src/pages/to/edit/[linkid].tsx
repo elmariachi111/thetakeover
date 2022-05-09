@@ -6,7 +6,8 @@ import {
   FormLabel,
   Input,
   Link as ChakraLink,
-  useToast,
+  Spinner,
+  useBoolean
 } from "@chakra-ui/react";
 import { Link, Metadata, PrismaClient, User } from "@prisma/client";
 import axios from "axios";
@@ -17,7 +18,7 @@ import NextLink from "next/link";
 import React from "react";
 import {
   LinkSchema,
-  MetadataEditor,
+  MetadataEditor
 } from "../../../components/molecules/MetadataEditor";
 import { findLink } from "../../../modules/api/findLink";
 import { LinkInput } from "../../../types/LinkInput";
@@ -71,15 +72,12 @@ function ToEdit({
   useSession({
     required: true,
   });
-  const toast = useToast();
+
+  const [busy, setBusy] = useBoolean(false);
   const onSubmit = async (values) => {
-    const res = await axios.post(`/api/to/${link.hash}`, { link: values });
-    const result = await res.data;
-    toast({
-      status: "success",
-      isClosable: true,
-      title: result.result,
-    });
+    setBusy.on();
+    await axios.post(`/api/to/${link.hash}`, { link: values });
+    setBusy.off();
     return false;
   };
 
@@ -109,9 +107,9 @@ function ToEdit({
               <Field name="url" disabled={true} type="text" as={Input} />
             </FormControl>
 
-            <MetadataEditor initialValues={initialValues} />
+            <MetadataEditor isDisabled={busy} initialValues={initialValues} />
 
-            <FormControl mb={8} isInvalid={!!errors.price}>
+            <FormControl mb={8} isInvalid={!!errors.price} isDisabled={busy}>
               <Flex direction="row" align="center">
                 <FormLabel flex={2}>Price (EUR)</FormLabel>
                 <Field name="price" type="text" as={Input} flex={6} />
@@ -123,10 +121,11 @@ function ToEdit({
             <Button
               type="submit"
               w="100%"
+              gap={3}
               form="newlink-form"
-              disabled={Object.values(errors).length > 0}
+              disabled={busy || Object.values(errors).length > 0}
             >
-              update
+              {busy && <Spinner />} update
             </Button>
             <NextLink href={`/to/${link.hash}`} passHref>
               <Button as={ChakraLink} variant="ghost">

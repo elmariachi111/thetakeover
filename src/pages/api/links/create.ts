@@ -35,12 +35,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     },
   });
 
+  const newUrl = `${process.env.NEXTAUTH_URL}/to/${hash}`;
+
   res.status(200).json({
-    link: payload.url,
-    newLink: {
-      ...newLink,
-      metadata: md,
-    },
+    status: "ok",
+    hash,
+    newUrl,
   });
 };
 

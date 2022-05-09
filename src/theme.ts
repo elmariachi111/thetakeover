@@ -46,15 +46,11 @@ const theme = {
       baseStyle: (props) => ({
         color: props.colorMode === 'dark' ? 'white' : 'black',
         _hover: {
-          color: "gray.300",
+          color: props.colorMode === 'dark' ? "gray.300" : "gray.600",
         },
       }),
     },
-    TextArea: {
-      defaultProps: {
-        focusBorderColor: "white",
-      }
-    },
+
     Input: {
       baseStyle: {
         field: {
@@ -67,13 +63,36 @@ const theme = {
         },
       },
       variants: {
-        filled: {},
+        outline: {
+          field: {
+            borderRadius: 0
+          }
+        },
+        filled: (props) => ({
+          field: {
+            bg: props.colorMode === "dark" ? "gray.800" : "gray.200",
+            borderRadius: 0,
+          }
+        }),
       },
       defaultProps: {
         variant: "filled",
-        borderRadius: 0,
         focusBorderColor: "white",
       },
+    },
+
+    Textarea: {
+      defaultProps: {
+        variant: "filled",
+        focusBorderColor: "white",
+      },
+      variants: {
+        filled: (props) => ({
+          borderRadius: 0,
+          bg: props.colorMode === "dark" ? "gray.800" : "gray.200",
+
+        })
+      }
     },
     Button: {
       baseStyle: {
@@ -89,32 +108,39 @@ const theme = {
           bg: "white",
           borderWidth: 2,
         },
-        link: {
-          color: "white",
-          _hover: {
-            textDecoration: "underline",
 
-          },
+        ghost: (props) => {
+
+          return props.colorMode === 'dark' ? {
+            color: "gray.300",
+            _hover: {
+              color: "gray.200",
+              background: "gray.800"
+            },
+          } : {
+            color: "gray.800",
+            _hover: {
+              color: "gray.700",
+              background: "gray.300"
+            },
+          };
         },
-        ghost: {
-          color: "gray.300",
-          _hover: {
-            color: "gray.200",
-            background: "gray.800"
-          },
-        },
-        solid: {
-          color: "black",
-          background: "white",
-          border: "2px solid transparent",
-          _hover: {
-            color: "white",
-            background: "gray.900",
-            border: "2px solid white",
-            textDecoration: "none",
-            _disabled: {},
-          },
-          _active: { bg: "gray.800" },
+        solid: (props) => {
+          const [cBg, cText, cBorder] = props.colorMode === 'dark' ? ["white", "black", "white"] : ['black', 'white', "gray.500"];
+
+          return {
+            color: cText,
+            background: cBg,
+            border: "2px solid transparent",
+            _hover: {
+              color: cBg,
+              background: cText,
+              border: `2px solid ${cBorder}`,
+              textDecoration: "none",
+              _disabled: {},
+            },
+            _active: { bg: "gray.800" },
+          };
         },
       },
     },

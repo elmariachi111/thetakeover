@@ -35,8 +35,8 @@ const LinkSchema = Yup.object().shape({
   previewImage: Yup.string().url("must be an url").required("needs a preview image")
 });
 
-const MetadataEditor = (props: { initialValues?: LinkInput }) => {
-  const { initialValues } = props;
+const MetadataEditor = (props: { isDisabled?: boolean, initialValues?: LinkInput }) => {
+  const { isDisabled, initialValues } = props;
   const { status } = useSession();
 
   const {
@@ -105,27 +105,26 @@ const MetadataEditor = (props: { initialValues?: LinkInput }) => {
       borderLeftColor="gray.700"
       pl={4}
     >
-      <FormControl isInvalid={!!mTitle.error && !!mTitle.touched}>
+      <FormControl isInvalid={!!mTitle.error && !!mTitle.touched} isDisabled={isDisabled}>
         <FormLabel>title</FormLabel>
         <Input {...fTitle} />
         <FormErrorMessage>{mTitle.error}</FormErrorMessage>
       </FormControl>
 
-      <FormControl isInvalid={!!mDescription.error && !!mDescription.touched}>
+      <FormControl isInvalid={!!mDescription.error && !!mDescription.touched} isDisabled={isDisabled}>
         <Flex direction="column">
           <FormLabel>description</FormLabel>
           <Textarea
             {...fDescription}
             resize="vertical"
             variant="filled"
-            size="sm"
             rows={12}
           />
           <FormErrorMessage>{mDescription.error}</FormErrorMessage>
         </Flex>
       </FormControl>
 
-      <FormControl isInvalid={!!mPreviewImage.error}>
+      <FormControl isInvalid={!!mPreviewImage.error} isDisabled={isDisabled}>
         <Flex direction="row" gap={2} align="flex-end">
           <Flex direction="column" flex={1}>
             <FormLabel>preview</FormLabel>
