@@ -19,6 +19,15 @@
     "semi": [
       "error",
       "always"
+    ],
+    "prettier/prettier": [
+      "error",
+      {
+        "endOfLine": "auto"
+      },
+      {
+        "usePrettierrc": true
+      }
     ]
   }
 }

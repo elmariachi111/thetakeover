@@ -32,10 +32,15 @@ const LinkSchema = Yup.object().shape({
     .min(10, "too short")
     .max(2000, "too long")
     .required("required"),
-  previewImage: Yup.string().url("must be an url").required("needs a preview image")
+  previewImage: Yup.string()
+    .url("must be an url")
+    .required("needs a preview image"),
 });
 
-const MetadataEditor = (props: { isDisabled?: boolean, initialValues?: LinkInput }) => {
+const MetadataEditor = (props: {
+  isDisabled?: boolean;
+  initialValues?: LinkInput;
+}) => {
   const { isDisabled, initialValues } = props;
   const { status } = useSession();
 
@@ -105,13 +110,19 @@ const MetadataEditor = (props: { isDisabled?: boolean, initialValues?: LinkInput
       borderLeftColor="gray.700"
       pl={4}
     >
-      <FormControl isInvalid={!!mTitle.error && !!mTitle.touched} isDisabled={isDisabled}>
+      <FormControl
+        isInvalid={!!mTitle.error && !!mTitle.touched}
+        isDisabled={isDisabled}
+      >
         <FormLabel>title</FormLabel>
         <Input {...fTitle} />
         <FormErrorMessage>{mTitle.error}</FormErrorMessage>
       </FormControl>
 
-      <FormControl isInvalid={!!mDescription.error && !!mDescription.touched} isDisabled={isDisabled}>
+      <FormControl
+        isInvalid={!!mDescription.error && !!mDescription.touched}
+        isDisabled={isDisabled}
+      >
         <Flex direction="column">
           <FormLabel>description</FormLabel>
           <Textarea
