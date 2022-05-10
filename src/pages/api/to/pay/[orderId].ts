@@ -45,10 +45,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       creator: true,
       creatorId: true,
       metadata: true,
+      saleStatus: true,
     },
   });
 
   if (!link) return res.status(404).send("link not found");
+  if (link.saleStatus !== "ON_SALE") {
+    return res.status(403).send("item is not on sale");
+  }
 
   let user;
   if (order.payer) {

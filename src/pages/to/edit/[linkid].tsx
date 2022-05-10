@@ -97,7 +97,6 @@ function ToEdit({
       initialValues={initialValues}
       validationSchema={LinkSchema}
       onSubmit={(values) => {
-        console.log(values);
         onSubmit(values);
         return;
       }}
