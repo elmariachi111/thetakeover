@@ -41,9 +41,7 @@ const GeneralAlert = (
       <Alert status={status} w="100%" alignItems="flex-start" {...boxProps}>
         <AlertIcon />
         <Flex direction="column">
-          <AlertTitle mr={2} textTransform="uppercase">
-            {title}
-          </AlertTitle>
+          <AlertTitle mr={2}>{title}</AlertTitle>
           {children && (
             <AlertDescription fontSize="sm">{children}</AlertDescription>
           )}

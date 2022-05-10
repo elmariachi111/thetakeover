@@ -5,6 +5,7 @@ import {
   Image,
   Link as ChakraLink,
   Text,
+  useToast,
 } from "@chakra-ui/react";
 import type {
   CreateOrderActions,
@@ -26,6 +27,7 @@ import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { useMemo, useState } from "react";
+import { GeneralAlert } from "../../../components/atoms/GeneralAlert";
 import { SellerNotConnectedAlert } from "../../../components/molecules/SellerNotConnectedAlert";
 import { findLink } from "../../../modules/api/findLink";
 
@@ -44,7 +46,6 @@ export const getServerSideProps: GetServerSideProps<{
       notFound: true,
     };
   }
-  console.log(link);
 
   const session = await getSession(context);
   if (session && session.user?.id) {
@@ -85,7 +86,7 @@ function ToPay({
   const router = useRouter();
   const { linkid } = router.query;
   const { status: sessionStatus, data: sessionData } = useSession();
-  //console.log(link);
+  const toast = useToast();
 
   const [payment, setPayment] = useState<Payment>();
 
@@ -125,18 +126,32 @@ function ToPay({
         },
       ],
     });
-    await axios.post(`/api/to/pay/${orderId}`);
-
+    try {
+      await axios.post(`/api/to/pay/${orderId}`);
+    } catch (e: any) {
+      toast({
+        status: "warning",
+        title: "Payment failed. Nothing has been charged",
+        description: `Reason: ${e.message}`,
+      });
+      throw e;
+    }
     //console.log(orderId);
     return orderId;
   };
 
   const onApprove = async (data: OnApproveData, actions: OnApproveActions) => {
     if (!actions.order) return;
-    const details = await actions.order.capture();
-    const res = await axios.post(`/api/to/pay/${details.id}`);
-
-    setPayment(await res.data);
+    try {
+      const details = await actions.order.capture();
+      const res = await axios.post(`/api/to/pay/${details.id}`);
+      setPayment(await res.data);
+    } catch (e: any) {
+      toast({
+        title: "Payment failed. Nothing has been charged",
+        description: `Reason: ${e.message}`,
+      });
+    }
   };
 
   const isCreator = useMemo(() => {
@@ -145,6 +160,7 @@ function ToPay({
       link.creatorId === sessionData?.user?.id
     );
   }, [sessionStatus, sessionData, link]);
+
   return (
     <Flex direction="column">
       <Flex my={5} direction="column">
@@ -157,35 +173,49 @@ function ToPay({
       <Text my={5} fontSize="sm">
         {link.metadata.description}
       </Text>
-      <Flex direction="row" my={6} justify="space-between">
-        <Text fontWeight={500} fontSize="lg">
-          Total
-        </Text>
-        <Text fontWeight={700} fontSize="xl">
-          €{link.price}
-        </Text>
-      </Flex>
-      {seller ? (
-        <PayPalScriptProvider
-          options={{
-            "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID as string,
-            "merchant-id": seller.merchantIdInPayPal,
-            currency: "EUR",
-          }}
-        >
-          {payment ? (
-            <Button as={ChakraLink} href={`/to/${payment.linkHash}`}>
-              proceed to content
-            </Button>
+      {link.saleStatus === "ON_SALE" ? (
+        <>
+          <Flex direction="row" my={6} justify="space-between">
+            <Text fontWeight={500} fontSize="lg">
+              Total
+            </Text>
+            <Text fontWeight={700} fontSize="xl">
+              €{link.price}
+            </Text>
+          </Flex>
+          {seller ? (
+            <PayPalScriptProvider
+              options={{
+                "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID as string,
+                "merchant-id": seller.merchantIdInPayPal,
+                currency: "EUR",
+              }}
+            >
+              {payment ? (
+                <Button as={ChakraLink} href={`/to/${payment.linkHash}`}>
+                  proceed to content
+                </Button>
+              ) : (
+                <Flex direction="column" w="full" mt={6}>
+                  <PayPalButtons
+                    createOrder={createOrder}
+                    onApprove={onApprove}
+                    style={{ shape: "rect" }}
+                  />
+                </Flex>
+              )}
+            </PayPalScriptProvider>
           ) : (
-            <Flex direction="column" w="full" mt={6}>
-              <PayPalButtons createOrder={createOrder} onApprove={onApprove} style={{ shape: "rect" }} />
-            </Flex>
+            <SellerNotConnectedAlert creator={link.creator} />
           )}
-        </PayPalScriptProvider>
+        </>
       ) : (
-        <SellerNotConnectedAlert creator={link.creator} />
+        <GeneralAlert
+          status="info"
+          title="This item is currently not for sale."
+        />
       )}
+
       {isCreator && (
         <Button as={ChakraLink} href={`/to/${link.hash}`} mt={6}>
           proceed to content

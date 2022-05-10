@@ -12,6 +12,7 @@ export const findLink = async (prisma: PrismaClient, linkid: string) => {
       creator: true,
       originUri: true,
       metadata: true,
+      saleStatus: true,
     },
   });
 };

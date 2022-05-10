@@ -27,6 +27,7 @@ model Link {
     payments   Payment[]
     metadata   Metadata?
     saleStatus SaleStatus @default(ON_SALE) @map("sale_status")
+    createdAt  DateTime   @default(now())
 
     @@index([hash, originUri])
     @@index([creatorId])

@@ -7,7 +7,7 @@ import {
   Input,
   Link as ChakraLink,
   Spinner,
-  useBoolean
+  useBoolean,
 } from "@chakra-ui/react";
 import { Link, Metadata, PrismaClient, User } from "@prisma/client";
 import axios from "axios";
@@ -16,9 +16,10 @@ import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { getSession, useSession } from "next-auth/react";
 import NextLink from "next/link";
 import React from "react";
+import { FormikChakraSwitch } from "../../../components/molecules/FormikChakraSwitch";
 import {
   LinkSchema,
-  MetadataEditor
+  MetadataEditor,
 } from "../../../components/molecules/MetadataEditor";
 import { findLink } from "../../../modules/api/findLink";
 import { LinkInput } from "../../../types/LinkInput";
@@ -88,6 +89,7 @@ function ToEdit({
     previewImage: link.metadata.previewImage,
     description: link.metadata.description,
     embed: link.metadata.embed || "",
+    salesActive: link.saleStatus,
   };
 
   return (
@@ -99,7 +101,7 @@ function ToEdit({
         return;
       }}
     >
-      {({ errors }) => (
+      {({ errors, values }) => (
         <Form id="newlink-form">
           <Flex direction="column" gridGap={6}>
             <FormControl isInvalid={!!errors.url}>
@@ -109,14 +111,21 @@ function ToEdit({
 
             <MetadataEditor isDisabled={busy} initialValues={initialValues} />
 
-            <FormControl mb={8} isInvalid={!!errors.price} isDisabled={busy}>
+            <FormControl isInvalid={!!errors.price} isDisabled={busy}>
               <Flex direction="row" align="center">
                 <FormLabel flex={2}>Price (EUR)</FormLabel>
                 <Field name="price" type="text" as={Input} flex={6} />
               </Flex>
               <FormErrorMessage>{errors.price}</FormErrorMessage>
             </FormControl>
+
+            <FormikChakraSwitch
+              name="salesActive"
+              label="is on sale"
+              options={{ on: "ON_SALE", off: "PAUSED" }}
+            />
           </Flex>
+
           <Flex gridGap={2}>
             <Button
               type="submit"

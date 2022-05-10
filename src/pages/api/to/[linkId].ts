@@ -13,7 +13,6 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   if (req.method === "POST") {
     const { link }: { link: LinkInput } = req.body;
-    console.log(link);
 
     const oldLink = await prisma.link.findUnique({
       where: {
@@ -31,6 +30,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       },
       data: {
         price: link.price,
+        saleStatus: link.salesActive,
       },
     });
 

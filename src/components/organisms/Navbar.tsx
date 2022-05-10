@@ -54,6 +54,7 @@ const Navbar = () => {
 
   return (
     <Container
+      maxW="100%"
       as={Flex}
       direction="row"
       justify="space-between"
@@ -61,9 +62,16 @@ const Navbar = () => {
       px={0}
       py={2}
     >
-      <Flex direction="row" align="center" gridGap={3} sx={{ transition: "all 200ms", _hover: { transform: "scale(1.03)" } }}>
+      <Flex
+        direction="row"
+        align="center"
+        gridGap={3}
+        sx={{ transition: "all 200ms", _hover: { transform: "scale(1.03)" } }}
+      >
         <ToLogo />
-        <Text fontWeight="bold" fontSize="xl">The Takeover</Text>
+        <Text fontWeight="bold" fontSize="xl">
+          The Takeover
+        </Text>
       </Flex>
       <Spacer />
       <Flex direction="row">

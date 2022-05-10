@@ -1,15 +1,16 @@
 import {
   Flex,
+  Icon,
   IconButton,
   Link as ChakraLink,
   LinkBox,
   LinkOverlay,
   Spacer,
-  Text
+  Text,
 } from "@chakra-ui/react";
 import { Link } from "@prisma/client";
 import { default as NextLink } from "next/link";
-import { FiEdit2, FiExternalLink } from "react-icons/fi";
+import { FiEdit2, FiExternalLink, FiPause } from "react-icons/fi";
 import { XLink } from "../../types/Payment";
 
 type XXLink = XLink & Link;
@@ -26,7 +27,7 @@ const TakeoverCard = (props: { link: ToCardLink }) => {
       minH={275}
       borderColor="black"
       sx={{
-        transition: "all 20ms",
+        transition: "all 100ms",
         _hover: { borderWidth: "2px" },
       }}
     >
@@ -37,6 +38,9 @@ const TakeoverCard = (props: { link: ToCardLink }) => {
           backgroundColor="black"
           backgroundSize="cover"
           backgroundPosition="center"
+          backgroundBlendMode={
+            link.saleStatus === "ON_SALE" ? "normal" : "luminosity"
+          }
           py={2}
           height="100%"
           width="100%"
@@ -49,7 +53,7 @@ const TakeoverCard = (props: { link: ToCardLink }) => {
             background="black"
             color="white"
             maxW="75%"
-            ml={-1}
+            ml="-2px"
             zIndex={1}
           >
             {link.metadata ? link.metadata.title : link.hash}
@@ -67,16 +71,16 @@ const TakeoverCard = (props: { link: ToCardLink }) => {
       </LinkOverlay>
       <Flex direction="row" position="absolute" right={0} bottom={0}>
         {/* <Image src={} fit="contain" maxW="300" /> */}
-        <Flex>
-          <Text
-            color="white"
-            fontSize="lg"
-            background="gray.900"
-            py={2}
-            px={4}
-          >
-            €{link.price}
-          </Text>
+        <Flex background="gray.900" color="white" py={2} px={4}>
+          {link.saleStatus === "ON_SALE" ? (
+            <Text>€{link.price}</Text>
+          ) : (
+            <Flex direction="row" align="center" gap={1}>
+              <Icon as={FiPause} />
+              <Text fontSize="sm">paused</Text>
+            </Flex>
+          )}
+
           {/* <Text>{link._count.payments}</Text> */}
         </Flex>
       </Flex>
