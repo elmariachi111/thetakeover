@@ -1,4 +1,14 @@
-import { Button, Flex, FormControl, FormLabel, Icon, Input, Spacer, Spinner, useToast } from "@chakra-ui/react";
+import {
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  Icon,
+  Input,
+  Spacer,
+  Spinner,
+  useToast,
+} from "@chakra-ui/react";
 import { Account, SellerAccount, User } from "@prisma/client";
 import axios from "axios";
 import { Form, Formik, useField } from "formik";
@@ -10,13 +20,13 @@ import { SiweButton } from "../components/atoms/SiweButton";
 import { adapterClient } from "../modules/api/adapter";
 
 type XUser = Omit<User, "emailVerified"> & {
-  emailVerified: string | null,
-  accounts: Account[],
-  sellerAccount: SellerAccount | null
-}
+  emailVerified: string | null;
+  accounts: Account[];
+  sellerAccount: SellerAccount | null;
+};
 
 export const getServerSideProps: GetServerSideProps<{
-  user: XUser
+  user: XUser;
 }> = async (context) => {
   const session = await getSession(context);
 
@@ -24,8 +34,8 @@ export const getServerSideProps: GetServerSideProps<{
     return {
       redirect: {
         permanent: false,
-        destination: `/`
-      }
+        destination: `/`,
+      },
     };
   }
 
@@ -35,15 +45,15 @@ export const getServerSideProps: GetServerSideProps<{
     },
     include: {
       accounts: true,
-      sellerAccount: true
-    }
+      sellerAccount: true,
+    },
   });
   if (!userData) {
     return {
       redirect: {
         permanent: false,
-        destination: `/`
-      }
+        destination: `/`,
+      },
     };
   }
 
@@ -51,17 +61,15 @@ export const getServerSideProps: GetServerSideProps<{
     props: {
       user: {
         ...userData,
-        emailVerified: userData.emailVerified?.toISOString() || null
-      }
-    }
+        emailVerified: userData.emailVerified?.toISOString() || null,
+      },
+    },
   };
 };
 
-const EmailVerified = (props: {
-  user: XUser,
-  value: string,
-}) => {
-  const verified = !!props.user.emailVerified && props.value === props.user.email;
+const EmailVerified = (props: { user: XUser; value: string }) => {
+  const verified =
+    !!props.user.emailVerified && props.value === props.user.email;
   const [verificationSent, setVerificationSent] = useState<boolean>(verified);
   const toast = useToast();
 
@@ -70,20 +78,29 @@ const EmailVerified = (props: {
     const signinPayload = {
       csrfToken,
       email: props.value,
-      callbackUrl: `${window.location.origin}/profile`
+      callbackUrl: `${window.location.origin}/profile`,
     };
 
     await axios.post("/api/auth/signin/email", signinPayload);
     setVerificationSent(true);
     toast({
       title: `we just sent a verification mail to ${props.value}`,
-      description: "please check your inbox"
+      description: "please check your inbox",
     });
   };
 
-  return verified
-    ? <Icon m={6} w={6} h={6} as={FiCheckCircle} color="green.300" />
-    : <Button disabled={verificationSent} d="flex" aria-label="verify your email address" onClick={verifyEmail}>Verify</Button>;
+  return verified ? (
+    <Icon m={6} w={6} h={6} as={FiCheckCircle} color="green.300" />
+  ) : (
+    <Button
+      disabled={verificationSent}
+      d="flex"
+      aria-label="verify your email address"
+      onClick={verifyEmail}
+    >
+      Verify
+    </Button>
+  );
 };
 
 const ProfileEditor = (props: { user: XUser }) => {
@@ -91,53 +108,53 @@ const ProfileEditor = (props: { user: XUser }) => {
 
   const [ethAddress, setEthAddress] = useState<string>("");
   useEffect(() => {
-    const ethAccount = user.accounts.find(a => a.provider === "ethereum");
+    const ethAccount = user.accounts.find((a) => a.provider === "ethereum");
     if (ethAccount) {
       setEthAddress(ethAccount.providerAccountId);
     }
   }, []);
 
-
   const [fEmail, mEmail] = useField({
     name: "email",
-    value: user.email || '',
+    value: user.email || "",
   });
 
   const [fName] = useField({
     name: "name",
-    value: user.name || '',
+    value: user.name || "",
   });
 
+  return (
+    <>
+      <FormControl>
+        <FormLabel>Name</FormLabel>
+        <Input {...fName} />
+      </FormControl>
 
-  return (<>
-    <FormControl>
-      <FormLabel>Name</FormLabel>
-      <Input {...fName} />
-    </FormControl>
+      <FormControl isDisabled={!!user.emailVerified}>
+        <FormLabel>Email</FormLabel>
+        <Flex direction="row" align="center">
+          <Input {...fEmail} />
+          <EmailVerified user={user} value={mEmail.value} />
+        </Flex>
+      </FormControl>
 
-    <FormControl isDisabled={!!user.emailVerified}>
-      <FormLabel>Email</FormLabel>
-      <Flex direction="row" align="center">
-        <Input {...fEmail} />
-        <EmailVerified user={user} value={mEmail.value} />
-      </Flex>
-    </FormControl>
-
-    <FormControl isDisabled={true}>
-      <FormLabel>Eth Address</FormLabel>
-      <Flex direction="row">
-        <Input type="text" value={ethAddress} />
-        {!ethAddress &&
-          <SiweButton onConnected={setEthAddress}>Connect</SiweButton>
-        }
-      </Flex>
-    </FormControl>
-  </>);
-
+      <FormControl isDisabled={true}>
+        <FormLabel>Eth Address</FormLabel>
+        <Flex direction="row">
+          <Input type="text" value={ethAddress} />
+          {!ethAddress && (
+            <SiweButton onConnected={setEthAddress}>Connect</SiweButton>
+          )}
+        </Flex>
+      </FormControl>
+    </>
+  );
 };
 
-const Profile = ({ user }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-
+const Profile = ({
+  user,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const [busy, setBusy] = useState<boolean>(false);
   const submit = async (user: XUser) => {
     setBusy(true);
@@ -166,7 +183,7 @@ const Profile = ({ user }: InferGetServerSidePropsType<typeof getServerSideProps
             </Flex>
           </Form>
         )}
-      </Formik >
+      </Formik>
     </Flex>
   );
 };

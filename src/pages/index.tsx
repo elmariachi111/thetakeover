@@ -4,7 +4,7 @@ import {
   Link as ChakraLink,
   SlideFade,
   Spacer,
-  Text
+  Text,
 } from "@chakra-ui/react";
 import type { NextPage } from "next";
 import { signIn, useSession } from "next-auth/react";

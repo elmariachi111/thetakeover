@@ -10,8 +10,13 @@ export const ToLogo = (props: { width?: number }) => {
   const { colorMode } = useColorMode();
   return (
     <NextLink href="/" passHref>
-      <Link href="/" >
-        <Image src={colorMode === "dark" ? logo : logo_black} alt="logo" height={width} width={width}></Image>
+      <Link href="/">
+        <Image
+          src={colorMode === "dark" ? logo : logo_black}
+          alt="logo"
+          height={width}
+          width={width}
+        ></Image>
       </Link>
     </NextLink>
   );

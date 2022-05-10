@@ -15,7 +15,6 @@ export default function LoginComponent() {
             {session.user?.name || session.user?.email || session.user?.id}
           </Link>
         </NextLink>
-
       </Flex>
     );
   }

@@ -3,11 +3,11 @@ import { getCsrfToken, signIn, useSession } from "next-auth/react";
 import { useCallback } from "react";
 import { SiweMessage } from "siwe";
 import { useWeb3 } from "../../modules/Web3Context";
-import { FaEthereum } from 'react-icons/fa';
+import { FaEthereum } from "react-icons/fa";
 
 export const SiweButton = (props: {
-  children?: React.ReactNode,
-  onConnected?: (addr: string) => void,
+  children?: React.ReactNode;
+  onConnected?: (addr: string) => void;
 }) => {
   const { data: session } = useSession();
   const { connect } = useWeb3();
@@ -15,11 +15,7 @@ export const SiweButton = (props: {
   const handleSiwe = useCallback(async () => {
     try {
       const csrfToken = await getCsrfToken();
-      const {
-        signer,
-        account,
-        chainId,
-      } = await connect();
+      const { signer, account, chainId } = await connect();
 
       const callbackUrl = "/";
       const message = new SiweMessage({
@@ -43,16 +39,17 @@ export const SiweButton = (props: {
         if (props.onConnected) {
           props.onConnected(account as string);
         }
-
       }
-
     } catch (error) {
       window.alert(error);
     }
   }, [session, connect]);
 
-  return (<>
-    <Button onClick={handleSiwe} leftIcon={<FaEthereum />}>{props.children}</Button >
-  </>
+  return (
+    <>
+      <Button onClick={handleSiwe} leftIcon={<FaEthereum />}>
+        {props.children}
+      </Button>
+    </>
   );
 };

@@ -7,5 +7,5 @@ export type LinkInput = {
   previewImage: string;
   description: string;
   embed: string;
-  salesActive: SaleStatus;
+  salesActive?: SaleStatus;
 };

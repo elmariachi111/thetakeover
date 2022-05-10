@@ -1,7 +1,4 @@
-import {
-  Flex, Spinner,
-  Text
-} from "@chakra-ui/react";
+import { Flex, Spinner, Text } from "@chakra-ui/react";
 
 const ToOverlay = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -17,26 +14,28 @@ const ToOverlay = ({ children }: { children: React.ReactNode }) => {
       left="0"
       top="0"
       zIndex={1000}
-    >{children}
+    >
+      {children}
     </Flex>
-
   );
 };
 
 const ToLoadingOverlay = ({ children }: { children: React.ReactNode }) => {
-  return <ToOverlay>
-    <Spinner
-      thickness="4px"
-      speed="0.65s"
-      emptyColor="gray.300"
-      color="gray.500"
-      size="xl"
-    />
-    {children && (
-      <Text bg="gray.500" p={2} fontSize="xl">
-        {children}
-      </Text>
-    )}
-  </ToOverlay>;
+  return (
+    <ToOverlay>
+      <Spinner
+        thickness="4px"
+        speed="0.65s"
+        emptyColor="gray.300"
+        color="gray.500"
+        size="xl"
+      />
+      {children && (
+        <Text bg="gray.500" p={2} fontSize="xl">
+          {children}
+        </Text>
+      )}
+    </ToOverlay>
+  );
 };
 export { ToOverlay, ToLoadingOverlay };

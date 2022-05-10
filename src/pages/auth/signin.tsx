@@ -6,7 +6,7 @@ import {
   Heading,
   HStack,
   Input,
-  Text
+  Text,
 } from "@chakra-ui/react";
 import { Account } from "@prisma/client";
 import axios from "axios";
@@ -16,7 +16,7 @@ import {
   getProviders,
   getSession,
   signIn,
-  useSession
+  useSession,
 } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -91,8 +91,8 @@ export function EmailSignin({
           onClosed={() => setSubmittedEMail(undefined)}
         >
           <Text>
-            We've sent an email to <b>{submittedEMail}</b> with a link to sign
-            you up.
+            We&apos;ve sent an email to <b>{submittedEMail}</b> with a link to
+            sign you up.
           </Text>
         </GeneralAlert>
       )}
@@ -145,16 +145,22 @@ export default function SignIn({
             {provider.name}
           </Button>
         ))}
-        {!accounts.find(a => a.provider === "ethereum") && <SiweButton onConnected={() => {
-          router.replace(callbackUrl);
-        }}>Ethereum</SiweButton>}
+        {!accounts.find((a) => a.provider === "ethereum") && (
+          <SiweButton
+            onConnected={() => {
+              router.replace(callbackUrl);
+            }}
+          >
+            Ethereum
+          </SiweButton>
+        )}
       </Flex>
       {accounts.length > 0 && (
         <Flex mt={12} direction="column" gridGap={2}>
           <Heading size="md">Connected accounts</Heading>
           <HStack>
             {accounts.map((a) => (
-              <Flex direction="row" gridGap={2} align="center">
+              <Flex key={a.provider} direction="row" gridGap={2} align="center">
                 {iconMap[a.provider]}
                 <Text>{a.provider}</Text>
               </Flex>

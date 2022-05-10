@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
-module.exports = {
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
+});
+
+module.exports = withBundleAnalyzer({
   reactStrictMode: true,
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
     // Important: return the modified config
@@ -9,4 +13,4 @@ module.exports = {
     });
     return config;
   },
-};
+});

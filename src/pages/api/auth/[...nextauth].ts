@@ -19,11 +19,7 @@ const defaultProviders = [
 ];
 
 export default async function auth(req, res) {
-  const providers = [
-    ...defaultProviders,
-    emailProvider,
-    ethereumProvider(req),
-  ];
+  const providers = [...defaultProviders, emailProvider, ethereumProvider(req)];
 
   return await NextAuth(req, res, {
     adapter: prismaAdapter,
@@ -31,7 +27,6 @@ export default async function auth(req, res) {
     secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
       jwt: async ({ user, token }) => {
-
         if (user) {
           token.uid = user.id;
           token.name = user.name;
