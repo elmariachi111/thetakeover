@@ -13,14 +13,20 @@ datasource db {
     //referentialIntegrity = "prisma"
 }
 
+enum SaleStatus {
+    ON_SALE
+    PAUSED
+}
+
 model Link {
-    hash      String    @id
-    originUri String    @map("origin_uri")
-    price     Decimal
-    creatorId String    @map("creator_id")
-    creator   User      @relation(fields: [creatorId], references: [id])
-    payments  Payment[]
-    metadata  Metadata?
+    hash       String     @id
+    originUri  String     @map("origin_uri")
+    price      Decimal
+    creatorId  String     @map("creator_id")
+    creator    User       @relation(fields: [creatorId], references: [id])
+    payments   Payment[]
+    metadata   Metadata?
+    saleStatus SaleStatus @default(ON_SALE) @map("sale_status")
 
     @@index([hash, originUri])
     @@index([creatorId])

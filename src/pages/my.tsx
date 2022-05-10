@@ -48,6 +48,7 @@ export async function getServerSideProps(context) {
       hash: true,
       price: true,
       originUri: true,
+      saleStatus: true,
       metadata: {
         select: {
           title: true,
