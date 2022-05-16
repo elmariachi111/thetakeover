@@ -10,7 +10,7 @@ const ToOverlay = ({ children }: { children: React.ReactNode }) => {
       gridGap={3}
       alignItems="center"
       justify="center"
-      position="absolute"
+      position="fixed"
       left="0"
       top="0"
       zIndex={1000}
