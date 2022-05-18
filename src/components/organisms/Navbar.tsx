@@ -100,7 +100,7 @@ const Navbar = () => {
             height="full"
           >
             <Flex
-              py={3}
+              py={5}
               align="center"
               justify="center"
               w="100%"

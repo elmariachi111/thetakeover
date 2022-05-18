@@ -3,10 +3,13 @@ import {
   Flex,
   FormControl,
   FormLabel,
+  Heading,
   Icon,
   Input,
+  Link,
   Spacer,
   Spinner,
+  Text,
   useToast,
 } from "@chakra-ui/react";
 import { Account, SellerAccount, User } from "@prisma/client";
@@ -17,6 +20,7 @@ import { getCsrfToken, getSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import { FiCheckCircle } from "react-icons/fi";
 import { SiweButton } from "../components/atoms/SiweButton";
+import { SellerAccountView } from "../components/molecules/SellerDetails";
 import { adapterClient } from "../modules/api/adapter";
 
 type XUser = Omit<User, "emailVerified"> & {
@@ -27,6 +31,7 @@ type XUser = Omit<User, "emailVerified"> & {
 
 export const getServerSideProps: GetServerSideProps<{
   user: XUser;
+  sellerAccount: SellerAccount | null;
 }> = async (context) => {
   const session = await getSession(context);
 
@@ -57,12 +62,19 @@ export const getServerSideProps: GetServerSideProps<{
     };
   }
 
+  const sellerAccount = await adapterClient.sellerAccount.findFirst({
+    where: {
+      userId: session.user.id,
+    },
+  });
+
   return {
     props: {
       user: {
         ...userData,
         emailVerified: userData.emailVerified?.toISOString() || null,
       },
+      sellerAccount,
     },
   };
 };
@@ -112,7 +124,7 @@ const ProfileEditor = (props: { user: XUser }) => {
     if (ethAccount) {
       setEthAddress(ethAccount.providerAccountId);
     }
-  }, []);
+  }, [user.accounts]);
 
   const [fEmail, mEmail] = useField({
     name: "email",
@@ -154,6 +166,7 @@ const ProfileEditor = (props: { user: XUser }) => {
 
 const Profile = ({
   user,
+  sellerAccount,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const [busy, setBusy] = useState<boolean>(false);
   const submit = async (user: XUser) => {
@@ -164,6 +177,7 @@ const Profile = ({
 
   return (
     <Flex direction="column">
+      <Heading my={6}>Your Profile</Heading>
       <Formik
         initialValues={user}
         onSubmit={(values) => {
@@ -173,17 +187,31 @@ const Profile = ({
       >
         {() => (
           <Form id="profile-form">
-            <Flex direction="column" w="100%" gridGap={5}>
+            <Flex direction="column" w="100%" gridGap={5} align="center">
               <ProfileEditor user={user} />
               <Spacer />
-              <Button type="submit" disabled={busy}>
+              <Button type="submit" disabled={busy} w={3 / 4}>
                 {busy && <Spinner mx={3} />}
-                Submit
+                Save changes
               </Button>
             </Flex>
           </Form>
         )}
       </Formik>
+
+      <Flex mt={12} direction="column">
+        <Heading my={6}>Sales Settings</Heading>
+        {sellerAccount ? (
+          <SellerAccountView sellerAccount={sellerAccount} />
+        ) : (
+          <Flex direction="column" align="center" gap={3} my={20}>
+            <Button as={Link} href="/api/paypal/onboard" w={3 / 4}>
+              connect your Paypal account
+            </Button>{" "}
+            <Text>to start selling items on Takeover </Text>
+          </Flex>
+        )}
+      </Flex>
     </Flex>
   );
 };

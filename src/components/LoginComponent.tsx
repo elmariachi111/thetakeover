@@ -1,6 +1,7 @@
-import { Button, Flex, Link } from "@chakra-ui/react";
+import { Button, Flex, Icon, Link } from "@chakra-ui/react";
 import { signIn, useSession } from "next-auth/react";
 import { default as NextLink } from "next/link";
+import { FaRegUserCircle } from "react-icons/fa";
 
 export default function LoginComponent() {
   const { data: session } = useSession();
@@ -9,7 +10,8 @@ export default function LoginComponent() {
     //console.log(session.user);
 
     return (
-      <Flex direction="column" align="center" p={2}>
+      <Flex direction="row" align="center" gap={2}>
+        <Icon as={FaRegUserCircle} />
         <NextLink href="/profile" passHref>
           <Link fontSize="sm" fontWeight="bold" isTruncated>
             {session.user?.name || session.user?.email || session.user?.id}
@@ -19,8 +21,8 @@ export default function LoginComponent() {
     );
   }
   return (
-    <Flex>
-      <Button onClick={() => signIn()}>Sign in</Button>
-    </Flex>
+    <Button onClick={() => signIn()} w={3 / 5}>
+      Sign in
+    </Button>
   );
 }

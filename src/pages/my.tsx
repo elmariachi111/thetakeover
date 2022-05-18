@@ -1,4 +1,5 @@
 import {
+  Collapse,
   Flex,
   Heading,
   Link as ChakraLink,
@@ -8,12 +9,13 @@ import {
   Th,
   Thead,
   Tr,
+  useDisclosure,
   VStack,
 } from "@chakra-ui/react";
 import { PrismaClient } from "@prisma/client";
 import type { InferGetServerSidePropsType } from "next";
 import { getSession } from "next-auth/react";
-import React from "react";
+import React, { useEffect } from "react";
 import { SellerAccountDialog } from "../components/molecules/SellerAccountDialog";
 import { TakeoverCard } from "../components/molecules/TakeoverCard";
 
@@ -90,10 +92,27 @@ function MyTakeOvers({
   payments,
   sellerAccount,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  const { isOpen, onClose } = useDisclosure({
+    defaultIsOpen: true,
+  });
+
+  useEffect(() => {
+    if (sellerAccount) {
+      setTimeout(onClose, 4000);
+    }
+  }, [sellerAccount, onClose]);
+
   return (
     <Flex direction="column" h="full" align="flex-start">
       {links.length > 0 && (
-        <SellerAccountDialog sellerAccount={sellerAccount} />
+        <Flex w="100%">
+          <Collapse in={isOpen} style={{ width: "100%" }}>
+            <SellerAccountDialog
+              sellerAccount={sellerAccount}
+              onClose={onClose}
+            />
+          </Collapse>
+        </Flex>
       )}
       <Heading fontSize="xl" my={5}>
         Your Takeovers
