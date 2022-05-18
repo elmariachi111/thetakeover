@@ -99,8 +99,22 @@ const Navbar = () => {
             align="center"
             height="full"
           >
-            <Flex py={3} justify="center">
+            <Flex
+              py={3}
+              align="center"
+              justify="center"
+              w="100%"
+              position="relative"
+            >
               <LoginComponent />
+              <IconButton
+                position="absolute"
+                right="2px"
+                icon={colorMode === "dark" ? <FaSun /> : <FaMoon />}
+                variant="ghost"
+                aria-label="toggle color mode"
+                onClick={toggleColorMode}
+              />
             </Flex>
             {status === "authenticated" && (
               <Flex
@@ -119,18 +133,23 @@ const Navbar = () => {
               </Flex>
             )}
             <Spacer />
-            <Flex direction="column">
+            <Flex direction="column" w="100%" align="center">
               {status === "authenticated" && (
-                <Button onClick={() => signOut()}>Sign out</Button>
+                <Button onClick={() => signOut()} w={3 / 5}>
+                  Sign out
+                </Button>
               )}
-              <Flex direction="row" my={5} gridGap={6} align="center">
-                <Text>The Takeover</Text>
-                <IconButton
-                  icon={colorMode === "dark" ? <FaSun /> : <FaMoon />}
-                  variant="ghost"
-                  aria-label="toggle color mode"
-                  onClick={toggleColorMode}
-                />
+
+              <Flex direction="row" fontSize="small" gap={3} my={5}>
+                <Link isExternal href="https://the-takeover.com/">
+                  The Takeover
+                </Link>
+                <Link isExternal href="https://the-takeover.com/impressum-to">
+                  Imprint
+                </Link>
+                <Link isExternal href="https://the-takeover.com/datenschutz-to">
+                  Privacy
+                </Link>
               </Flex>
             </Flex>
           </Flex>
