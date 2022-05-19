@@ -1,11 +1,16 @@
 import axios from "axios";
 import * as AxiosLogger from "axios-logger";
-import { ClientCredentials, HateoasResponse } from "../../types/Payment";
+import {
+  ClientCredentials,
+  HateoasResponse,
+  MerchantIntegrationResponse,
+} from "../../types/Payment";
 
-export default function (
+export function sdk(
   sdkEndpoint: string,
   clientId: string,
-  secret: string
+  secret: string,
+  toMerchantId: string
 ) {
   const paypalHttp = axios.create({
     baseURL: sdkEndpoint,
@@ -41,7 +46,6 @@ export default function (
       callbackOnboardedUrl: string
     ): Promise<string | null> => {
       const token = await getBearerToken();
-      //console.log(token);
 
       try {
         const resp: HateoasResponse = await (
@@ -65,7 +69,11 @@ export default function (
                       integration_method: "PAYPAL",
                       integration_type: "THIRD_PARTY",
                       third_party_details: {
-                        features: ["PAYMENT", "REFUND"],
+                        features: [
+                          "PAYMENT",
+                          "PARTNER_FEE",
+                          "ACCESS_MERCHANT_INFORMATION",
+                        ],
                       },
                     },
                   },
@@ -89,15 +97,15 @@ export default function (
         return null;
       }
     },
-    getMerchantInfo: async (userId: string): Promise<HateoasResponse> => {
+    getMerchantInfo: async (
+      merchantId: string
+    ): Promise<MerchantIntegrationResponse> => {
       const token = await getBearerToken();
-      //console.log(token);
-
       try {
-        const resp: HateoasResponse = await (
+        const resp: MerchantIntegrationResponse = await (
           await paypalHttp({
             method: "GET",
-            url: `/v2/customer/partner-referrals/${userId}`,
+            url: `/v1/customer/partners/${toMerchantId}/merchant-integrations/${merchantId}`,
             headers: {
               "content-type": "application/json",
               authorization: `Bearer ${token.access_token}`,
@@ -113,3 +121,12 @@ export default function (
     },
   };
 }
+
+const paypal = sdk(
+  process.env.PAYPAL_SDK_ENDPOINT as string,
+  process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID as string,
+  process.env.PAYPAL_SECRET as string,
+  process.env.PAYPAL_MERCHANT_ID as string
+);
+
+export default paypal;
