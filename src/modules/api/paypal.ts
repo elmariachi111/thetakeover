@@ -1,6 +1,10 @@
 import axios from "axios";
 import * as AxiosLogger from "axios-logger";
-import { ClientCredentials, HateoasResponse } from "../../types/Payment";
+import {
+  ClientCredentials,
+  HateoasResponse,
+  MerchantIntegrationResponse,
+} from "../../types/Payment";
 
 export function sdk(
   sdkEndpoint: string,
@@ -42,7 +46,6 @@ export function sdk(
       callbackOnboardedUrl: string
     ): Promise<string | null> => {
       const token = await getBearerToken();
-      //console.log(token);
 
       try {
         const resp: HateoasResponse = await (
@@ -94,12 +97,12 @@ export function sdk(
         return null;
       }
     },
-    getMerchantInfo: async (merchantId: string): Promise<HateoasResponse> => {
+    getMerchantInfo: async (
+      merchantId: string
+    ): Promise<MerchantIntegrationResponse> => {
       const token = await getBearerToken();
-      //console.log(token);
-
       try {
-        const resp: HateoasResponse = await (
+        const resp: MerchantIntegrationResponse = await (
           await paypalHttp({
             method: "GET",
             url: `/v1/customer/partners/${toMerchantId}/merchant-integrations/${merchantId}`,

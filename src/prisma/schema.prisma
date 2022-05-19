@@ -86,8 +86,13 @@ model SellerAccount {
     productIntentId    String  @map("product_intent_id")
     isEmailConfirmed   Boolean @map("is_email_confirmed")
     riskStatus         String? @map("risk_status")
-    user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    primaryEmail       String? @map("primary_email")
+    userName           String? @map("user_name")
+    paymentsReceivable Boolean @default(true) @map("payments_receivable")
+    country            String  @default("DE")
+    primary_currency   String  @default("EUR")
 
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
     @@index([userId])
 }
 

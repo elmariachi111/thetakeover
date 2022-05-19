@@ -31,3 +31,17 @@ export type HateoasResponse = {
     }
   ];
 };
+
+export type MerchantIntegrationResponse = HateoasResponse & {
+  merchant_id: string;
+  tracking_id: string;
+  given_name?: string;
+  surname?: string;
+  products: any[];
+  payments_receivable: boolean;
+  primary_email?: string;
+  primary_email_confirmed?: boolean;
+  oauth_integrations: any[];
+  primary_currency: string;
+  country?: string;
+};
