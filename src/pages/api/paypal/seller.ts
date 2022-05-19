@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
+import paypal from "../../../modules/api/paypal";
 
 const prisma = new PrismaClient();
 
@@ -14,6 +15,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     permissionsGranted: req.query.permissionsGranted === "true",
     consentStatus: req.query.consentStatus === "true",
   };
+
+  const merchantInfo = await paypal.getMerchantInfo(
+    sellerAccount.merchantIdInPayPal
+  );
 
   await prisma.sellerAccount.create({
     data: {

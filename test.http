@@ -83,12 +83,17 @@ Content-Type: application/json
 }
 
 ### get partner merchant details
-GET https://api-m.sandbox.paypal.com/v1/customer/partners/X4LS5MX6Z2MX2/merchant-integrations/9X4J4F77QWQUU 
+GET {{Paypal}}/v1/customer/partners/X4LS5MX6Z2MX2/merchant-integrations/YJRJHWTGS2EM8 
 Authorization: Bearer {{PaypalAccessToken}}
 Content-Type: application/json
 
+# partner client id AcP4K782w2qGvdAqP8RyLpMHu6QQ7OCc4vuI1exApmbf29vSBNGGLxS_TEHWaixhTgeoYgnT7QjDeI2e
+# merchant client id AYjudzAPBnSrNxaboRKkaoVPGdmdj_nMjh5Tk6GCFpa-29oGUMT6tRHscE9pXT7-Z_-03RCT7-otLMq9
+
 ### 
 
-GET {{Paypal}}/v2/customer/partner-referrals/9X4J4F77QWQUU
+#N2E1ZDNjNTItMTU3MC00MzM5LTkyOTctN2Y5YmY3NTM2ZWMzVjgzSDFSTkM2RHRWY0xiWkx3U3F6blYxZ3d1RUlrdUpKMmVzQkdsZmhQTT12Mg==
+
+GET {{Paypal}}/v2/customer/partner-referrals/N2E1ZDNjNTItMTU3MC00MzM5LTkyOTctN2Y5YmY3NTM2ZWMzVjgzSDFSTkM2RHRWY0xiWkx3U3F6blYxZ3d1RUlrdUpKMmVzQkdsZmhQTT12Mg==
 Authorization: Bearer {{PaypalAccessToken}}
 Content-Type: application/json
