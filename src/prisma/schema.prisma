@@ -29,6 +29,7 @@ model Link {
     saleStatus SaleStatus @default(ON_SALE) @map("sale_status")
     createdAt  DateTime   @default(now())
 
+    UserReport UserReport[]
     @@index([hash, originUri])
     @@index([creatorId])
 }
@@ -42,6 +43,32 @@ model Metadata {
     embed        String? @db.MediumText
 
     @@index([linkHash])
+}
+
+enum UserReportState {
+    NEW
+    REJECTED
+    ACCEPTED
+}
+
+enum UserReportReason {
+    COPYRIGHT_INFRINGEMENT
+    HARRASSMENT
+    OTHER
+}
+
+model UserReport {
+    linkHash   String           @map("link_hash")
+    reporterId String           @map("reporter_id")
+    createdAt  DateTime         @default(now())
+    reason     UserReportReason @default(OTHER)
+    state      UserReportState  @default(NEW)
+    message    String           @db.LongText
+
+    link     Link @relation(fields: [linkHash], references: [hash])
+    reporter User @relation(fields: [reporterId], references: [id])
+
+    @@id([linkHash, reporterId])
 }
 
 enum PaymentIntent {
@@ -139,6 +166,7 @@ model User {
     links         Link[]
     payments      Payment[]
     sellerAccount SellerAccount?
+    UserReport    UserReport[]
 }
 
 model VerificationToken {
