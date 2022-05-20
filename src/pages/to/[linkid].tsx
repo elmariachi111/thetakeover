@@ -21,8 +21,10 @@ import { ReactElement } from "react";
 import { FiEdit2 } from "react-icons/fi";
 import Iframe from "react-iframe";
 import { ToLogo } from "../../components/atoms/ToLogo";
+import { ReportContent } from "../../components/molecules/ReportContent";
 import { findLink } from "../../modules/api/findLink";
 import { extractEmbedUrl } from "../../modules/fixEmbed";
+import { XLink } from "../../types/Link";
 import { XPayment } from "../../types/Payment";
 
 const redirectToPayment = (linkId: string) => {
@@ -41,8 +43,6 @@ const redirectToPayment = (linkId: string) => {
 //     return link.originUri;
 //   }
 // };
-
-type XLink = Link & { metadata: Metadata; creator: User };
 
 export const getServerSideProps: GetServerSideProps<{
   link: XLink;
@@ -149,13 +149,14 @@ function ToView({
       <Flex position="absolute" left={12} top={12}>
         <ToLogo />
       </Flex>
-      {session?.user?.id === link.creatorId && (
-        <Flex position="absolute" right={2} top={2}>
+      <Flex position="absolute" right={2} top={2}>
+        {session?.user?.id === link.creatorId && (
           <NextLink href={`/to/edit/${link.hash}`} passHref>
             <IconButton aria-label="edit" icon={<FiEdit2 />} />
           </NextLink>
-        </Flex>
-      )}
+        )}
+        {session?.user?.id !== link.creatorId && <ReportContent link={link} />}
+      </Flex>
       <Flex
         position="absolute"
         bottom={5}

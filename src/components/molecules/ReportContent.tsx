@@ -1,5 +1,6 @@
 import {
   Button,
+  ButtonProps,
   Flex,
   FormControl,
   FormLabel,
@@ -26,7 +27,7 @@ import axios from "axios";
 import { useSession } from "next-auth/react";
 import React, { useMemo, useState } from "react";
 import { FaFlag } from "react-icons/fa";
-import { DisplayableLink } from "../../types/Link";
+import { DisplayableLink, XLink } from "../../types/Link";
 import { Report } from "../../types/Report";
 import { FiCheckCircle } from "react-icons/fi";
 
@@ -35,7 +36,7 @@ const ReportModalDialog = ({
   setSubmitted,
   onError,
 }: {
-  link: DisplayableLink;
+  link: XLink;
   setSubmitted: (submitted: boolean) => void;
   onError: () => void;
 }) => {
@@ -135,7 +136,9 @@ const ReportModalDialog = ({
     </>
   );
 };
-export const ReportContent = ({ link }: { link: DisplayableLink }) => {
+export const ReportContent = (props: { link: XLink } & ButtonProps) => {
+  const { link, ...buttonProps } = props;
+
   const { status: sessionStatus, data: sessionData } = useSession();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -148,13 +151,10 @@ export const ReportContent = ({ link }: { link: DisplayableLink }) => {
   return (
     <>
       <IconButton
-        variant="ghost"
-        size="xs"
         aria-label="report"
         icon={<FaFlag />}
-        right={1}
-        top={1}
         onClick={onOpen}
+        {...buttonProps}
       />
       <Modal
         isOpen={isOpen}
