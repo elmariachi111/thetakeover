@@ -19,14 +19,22 @@ export const findOrCreateAndAttachPaypalAccount = async (
   if (account) return account as DefaultAccount;
 
   const adapter = PrismaAdapter(prisma);
-  const newAccount = await adapter.linkAccount({
-    userId,
-    provider: "paypal",
-    type: "credentials",
-    providerAccountId: payerId,
-  });
-  if (!newAccount) throw "couldnt link paypal account";
-  return newAccount;
+  try {
+    const newAccount = await adapter.linkAccount({
+      userId,
+      provider: "paypal",
+      type: "credentials",
+      providerAccountId: payerId,
+    });
+    if (!newAccount)
+      throw new Error(
+        `couldnt link paypal account for user [${userId}], paypal payer [${payerId}]`
+      );
+    return newAccount;
+  } catch (e: any) {
+    console.error(e);
+    throw e;
+  }
 };
 
 export const findOrCreateUser = async (

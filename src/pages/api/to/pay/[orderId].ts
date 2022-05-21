@@ -63,13 +63,30 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       `${order.payer.name.given_name} ${order.payer.name.surname}`,
       session?.user
     );
-
-    await findOrCreateAndAttachPaypalAccount(
-      prisma,
+    console.log(
+      "user %s found or created from payment email address %s",
       user.id,
-      order.payer.payer_id
+      order.payer.address
     );
 
+    try {
+      await findOrCreateAndAttachPaypalAccount(
+        prisma,
+        user.id,
+        order.payer.payer_id
+      );
+      console.log(
+        "found or created paypal account for user %s / payer %s",
+        user.id,
+        order.payer.payer_id
+      );
+    } catch (e: any) {
+      console.error(
+        "the paypal account of [%s] has been attached to another user [%s]",
+        order.payer.email_address,
+        user.id
+      );
+    }
     const sessionCookies = await loginPayer(req, user);
     sessionCookies.forEach((cookie) => setCookie(res, cookie));
   }
