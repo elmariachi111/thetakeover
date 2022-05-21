@@ -14,13 +14,10 @@ import type {
 } from "@paypal/paypal-js";
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
 import {
-  Link,
-  Metadata,
   Payment,
   PaymentStatus,
   PrismaClient,
   SellerAccount,
-  User,
 } from "@prisma/client";
 import axios from "axios";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
@@ -28,11 +25,13 @@ import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { useMemo, useState } from "react";
 import { GeneralAlert } from "../../../components/atoms/GeneralAlert";
+import { ReportContent } from "../../../components/molecules/ReportContent";
 import { SellerNotConnectedAlert } from "../../../components/molecules/SellerNotConnectedAlert";
 import { findLink } from "../../../modules/api/findLink";
+import { DisplayableLink } from "../../../types/Link";
 
 export const getServerSideProps: GetServerSideProps<{
-  link: Link & { metadata: Metadata; creator: User; price: number };
+  link: DisplayableLink;
   seller: SellerAccount;
 }> = async (context) => {
   const linkid: string = context.params?.linkid as string;
@@ -163,13 +162,21 @@ function ToPay({
 
   return (
     <Flex direction="column">
-      <Flex my={5} direction="column">
-        <Heading size="lg" color="gray.500">
-          {link.creator.name}
-        </Heading>
-        <Heading size="md">{link.metadata.title}</Heading>
+      <Flex my={5} direction="row" justify="space-between">
+        <Flex direction="column">
+          <Heading size="lg" color="gray.500">
+            {link.creator.name}
+          </Heading>
+          <Heading size="md">{link.metadata.title}</Heading>
+        </Flex>
+        <ReportContent link={link} size="xs" variant="ghost" />
       </Flex>
-      <Image src={link.metadata.previewImage} mt={2} />
+      <Image
+        src={link.metadata.previewImage}
+        mt={2}
+        width="100%"
+        alt={link.metadata.title}
+      />
       <Text my={5} fontSize="sm">
         {link.metadata.description}
       </Text>

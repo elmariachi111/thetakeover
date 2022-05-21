@@ -177,7 +177,9 @@ const Profile = ({
 
   return (
     <Flex direction="column">
-      <Heading my={6}>Your Profile</Heading>
+      <Heading my={6} title={user.id}>
+        Your Profile
+      </Heading>
       <Formik
         initialValues={user}
         onSubmit={(values) => {
