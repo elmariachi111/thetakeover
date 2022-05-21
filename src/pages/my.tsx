@@ -13,6 +13,7 @@ import { getSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import { SellerAccountDialog } from "../components/molecules/SellerAccountDialog";
 import { TakeoverCard } from "../components/molecules/TakeoverCard";
+import { BundleCreator } from "../components/organisms/BundleCreator";
 import { MyPaymentsView } from "../components/organisms/MyPaymentsView";
 
 export async function getServerSideProps(context) {
@@ -93,6 +94,7 @@ function MyTakeOvers({
   });
 
   const [selected, setSelected] = useState<string[]>([]);
+  const [createBundle, setCreateBundle] = useState<boolean>(false);
 
   const toggleInBundle = (hash: string) => {
     if (selected.includes(hash)) {
@@ -125,17 +127,26 @@ function MyTakeOvers({
           Your Takeovers
         </Heading>
         <Spacer />
-        {selected.length > 1 && <Button size="xs">create a bundle</Button>}
+        {selected.length > 1 && (
+          <Button size="xs" onClick={() => setCreateBundle(!createBundle)}>
+            {createBundle ? "cancel" : "create a bundle"}
+          </Button>
+        )}
       </Flex>
+      {createBundle && (
+        <BundleCreator items={links.filter((l) => selected.includes(l.hash))} />
+      )}
       <VStack gap={3} align="left" w="full">
-        {links?.map((link) => (
-          <TakeoverCard
-            link={link}
-            key={link.hash}
-            isSelected={selected.includes(link.hash)}
-            onSelect={toggleInBundle}
-          />
-        ))}
+        {links
+          .filter((l) => (createBundle ? selected.includes(l.hash) : true))
+          .map((link) => (
+            <TakeoverCard
+              link={link}
+              key={link.hash}
+              isSelected={selected.includes(link.hash)}
+              onSelect={toggleInBundle}
+            />
+          ))}
       </VStack>
 
       <MyPaymentsView payments={payments} />
