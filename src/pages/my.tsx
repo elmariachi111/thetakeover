@@ -18,6 +18,7 @@ import { getSession } from "next-auth/react";
 import React, { useEffect } from "react";
 import { SellerAccountDialog } from "../components/molecules/SellerAccountDialog";
 import { TakeoverCard } from "../components/molecules/TakeoverCard";
+import { MyPaymentsView } from "../components/organisms/MyPaymentsView";
 
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
@@ -123,34 +124,8 @@ function MyTakeOvers({
           <TakeoverCard link={link} key={link.hash} />
         ))}
       </VStack>
-      {payments?.length > 0 && (
-        <>
-          <Heading fontSize="xl" mt={12} mb={6}>
-            Purchases
-          </Heading>
 
-          <Table>
-            <Thead>
-              <Tr>
-                <Th>Link</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {payments?.map((payment) => (
-                <Tr key={payment.id}>
-                  <Td>
-                    <ChakraLink isExternal href={`/to/${payment.link.hash}`}>
-                      {payment.link.metadata
-                        ? payment.link.metadata.title
-                        : payment.link.hash}
-                    </ChakraLink>
-                  </Td>
-                </Tr>
-              ))}
-            </Tbody>
-          </Table>
-        </>
-      )}
+      <MyPaymentsView payments={payments} />
     </Flex>
   );
 }
