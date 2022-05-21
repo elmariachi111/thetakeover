@@ -88,8 +88,8 @@ const ReportModalDialog = ({
       <ModalBody>
         <Text>
           You&apos;re about to report <em>{link.metadata.title}</em> by{" "}
-          <em>{link.creator.name}</em>. The creator won't be alerted. Your user
-          id will be tracked.
+          <em>{link.creator.name}</em>. The creator won&apos;t be alerted. Your
+          user id will be tracked.
         </Text>
         <Spacer my={6} />
         <form onSubmit={reportContent}>
@@ -173,7 +173,8 @@ export const ReportContent = (props: { link: XLink } & ButtonProps) => {
                 <Flex direction="column" align="center" gap={6}>
                   <Icon as={FiCheckCircle} w={20} h={20} />
                   <Text>
-                    Thank you for your report. We're checking the content now.
+                    Thank you for your report. We&apos;re checking the content
+                    now.
                   </Text>
                 </Flex>
               </ModalBody>

@@ -1,0 +1,50 @@
+name: build app 
+
+on:
+  push:
+    branches:
+      - "**"
+      - "!dependabot/**"
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - name: cache dependencies
+        uses: actions/cache@v3
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: cache next
+        uses: actions/cache@v3
+        id: next-cache
+        with:
+          path: | 
+            ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+          # If source files changed but packages didn't, rebuild from a prior cache.
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/yarn.lock') }}-
+
+      - name: Install dependencies
+        run: yarn --frozen-lockfile
+      - name: Build 
+        run: yarn build    
+      - name: Run Jest
+        run: yarn jest --ci
+    
