@@ -134,7 +134,11 @@ function MyTakeOvers({
         )}
       </Flex>
       {createBundle && (
-        <BundleCreator items={links.filter((l) => selected.includes(l.hash))} />
+        <Flex mt={6} mb={12} w="100%">
+          <BundleCreator
+            items={links.filter((l) => selected.includes(l.hash))}
+          />
+        </Flex>
       )}
       <VStack gap={3} align="left" w="full">
         {links

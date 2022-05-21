@@ -1,4 +1,5 @@
 import {
+  Button,
   Flex,
   FormControl,
   FormErrorMessage,
@@ -6,19 +7,27 @@ import {
   Heading,
   Input,
   Textarea,
+  VStack,
 } from "@chakra-ui/react";
 import { Field, Form, Formik } from "formik";
 import React from "react";
 import { IoTerminalSharp } from "react-icons/io5";
-import { DisplayableLink, XLink } from "../../types/Link";
+import { XLink } from "../../types/Link";
 import { MetadataEditor } from "../molecules/MetadataEditor";
 
-export const BundleCreator = (props: { items: Partial<DisplayableLink>[] }) => {
+export const BundleCreator = (props: {
+  items: Array<XLink & { price: string }>;
+}) => {
   const { items } = props;
-  const aggregatedPrice = items.reduce((p, c) => p + (c.price || 0), 0);
+  const aggregatedPrice = items.reduce(
+    (p, c) => p + (parseFloat(c.price) || 0),
+    0
+  );
   const initialValues = {
-    title: "Bundle of",
-    description: "this bundle contains",
+    title: `Bundle of ${items.length} items`,
+    description:
+      "# this bundle contains\n" +
+      items.map((i) => `## ${i.metadata.title}  `).join("\n"),
     price: aggregatedPrice,
   };
 
@@ -27,34 +36,51 @@ export const BundleCreator = (props: { items: Partial<DisplayableLink>[] }) => {
   };
 
   return (
-    <Flex width="100%">
-      <Heading size="sm">Create a bundle ({items.length})</Heading>
+    <Flex direction="column" width="100%">
+      <Heading size="sm" my={3}>
+        {" "}
+        Create a bundle({items.length})
+      </Heading>
+
       <Formik
         initialValues={initialValues}
         onSubmit={(values) => createBundle(values)}
       >
         {({ errors, values }) => (
           <Form id="bundle-form">
-            <FormControl>
-              <FormLabel>title</FormLabel>
-              <Field name="title" type="text" as={Input} />
-              <FormErrorMessage>{errors.title}</FormErrorMessage>
-            </FormControl>
+            <VStack gap={6} borderLeftWidth={3} pl={4}>
+              <FormControl>
+                <FormLabel>title</FormLabel>
+                <Field name="title" type="text" as={Input} />
+                <FormErrorMessage>{errors.title}</FormErrorMessage>
+              </FormControl>
 
-            <FormControl>
-              <Flex direction="column">
-                <FormLabel>description</FormLabel>
-                <Field name="description" type="text" as={Textarea} />
-                <FormErrorMessage>{errors.description}</FormErrorMessage>
-              </Flex>
-            </FormControl>
-            <FormControl isInvalid={!!errors.price}>
-              <Flex direction="row" align="center">
-                <FormLabel flex={2}>Price (EUR)</FormLabel>
-                <Field name="price" type="text" as={Input} flex={6} />
-              </Flex>
-              <FormErrorMessage>{errors.price}</FormErrorMessage>
-            </FormControl>
+              <FormControl>
+                <Flex direction="column">
+                  <FormLabel>description</FormLabel>
+                  <Field
+                    name="description"
+                    type="text"
+                    as={Textarea}
+                    resize="vertical"
+                    variant="filled"
+                    rows={12}
+                  />
+                  <FormErrorMessage>{errors.description}</FormErrorMessage>
+                </Flex>
+              </FormControl>
+
+              <FormControl isInvalid={!!errors.price}>
+                <Flex direction="row" align="center">
+                  <FormLabel flex={2}>Price (EUR)</FormLabel>
+                  <Field name="price" type="text" as={Input} flex={6} />
+                </Flex>
+                <FormErrorMessage>{errors.price}</FormErrorMessage>
+              </FormControl>
+            </VStack>
+            <Button type="submit" form="bundle-form" w="100%" my={3}>
+              Create bundle
+            </Button>
           </Form>
         )}
       </Formik>
