@@ -1,21 +1,16 @@
 import {
+  Button,
   Collapse,
   Flex,
   Heading,
-  Link as ChakraLink,
-  Table,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
+  Spacer,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
 import { PrismaClient } from "@prisma/client";
 import type { InferGetServerSidePropsType } from "next";
 import { getSession } from "next-auth/react";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { SellerAccountDialog } from "../components/molecules/SellerAccountDialog";
 import { TakeoverCard } from "../components/molecules/TakeoverCard";
 import { MyPaymentsView } from "../components/organisms/MyPaymentsView";
@@ -97,6 +92,16 @@ function MyTakeOvers({
     defaultIsOpen: true,
   });
 
+  const [selected, setSelected] = useState<string[]>([]);
+
+  const toggleInBundle = (hash: string) => {
+    if (selected.includes(hash)) {
+      setSelected((old) => old.filter((s) => s !== hash));
+    } else {
+      setSelected((old) => [...old, hash]);
+    }
+  };
+
   useEffect(() => {
     if (sellerAccount) {
       setTimeout(onClose, 4000);
@@ -115,13 +120,21 @@ function MyTakeOvers({
           </Collapse>
         </Flex>
       )}
-      <Heading fontSize="xl" my={5}>
-        Your Takeovers
-      </Heading>
-
+      <Flex justify="space-between" align="center" width="100%">
+        <Heading fontSize="xl" my={5}>
+          Your Takeovers
+        </Heading>
+        <Spacer />
+        {selected.length > 1 && <Button size="xs">create a bundle</Button>}
+      </Flex>
       <VStack gap={3} align="left" w="full">
         {links?.map((link) => (
-          <TakeoverCard link={link} key={link.hash} />
+          <TakeoverCard
+            link={link}
+            key={link.hash}
+            isSelected={selected.includes(link.hash)}
+            onSelect={toggleInBundle}
+          />
         ))}
       </VStack>
 

@@ -12,6 +12,7 @@ import { Link } from "@prisma/client";
 import { default as NextLink } from "next/link";
 import { FiEdit2, FiExternalLink, FiPause } from "react-icons/fi";
 import { XLink } from "../../types/Payment";
+import { BundleSelect } from "../atoms/BundleSelect";
 
 type XXLink = XLink & Link;
 type ToCardLink = XXLink & {
@@ -20,8 +21,13 @@ type ToCardLink = XXLink & {
   };
 };
 
-const TakeoverCard = (props: { link: ToCardLink }) => {
-  const { link } = props;
+const TakeoverCard = (props: {
+  link: ToCardLink;
+  onSelect: (hash: string) => void;
+  isSelected: boolean;
+}) => {
+  const { link, onSelect, isSelected } = props;
+
   return (
     <LinkBox
       minH={275}
@@ -59,16 +65,28 @@ const TakeoverCard = (props: { link: ToCardLink }) => {
             {link.metadata ? link.metadata.title : link.hash}
           </Text>
           <Spacer />
-          <Flex direction="row" justify="space-between">
-            <NextLink href={`/to/edit/${link.hash}`} passHref>
-              <IconButton aria-label="edit" icon={<FiEdit2 />} />
-            </NextLink>
-            <ChakraLink isExternal href={link.originUri}>
-              <IconButton aria-label="visit" icon={<FiExternalLink />} />
-            </ChakraLink>
-          </Flex>
         </Flex>
       </LinkOverlay>
+      <Flex
+        direction="row"
+        justify="space-between"
+        position="absolute"
+        right="0"
+        top={2}
+      >
+        <NextLink href={`/to/edit/${link.hash}`} passHref>
+          <IconButton aria-label="edit" icon={<FiEdit2 />} />
+        </NextLink>
+        <ChakraLink isExternal href={link.originUri}>
+          <IconButton aria-label="visit" icon={<FiExternalLink />} />
+        </ChakraLink>
+        <BundleSelect
+          id={link.hash}
+          isSelected={isSelected}
+          select={onSelect}
+        />
+      </Flex>
+
       <Flex direction="row" position="absolute" right={0} bottom={0}>
         {/* <Image src={} fit="contain" maxW="300" /> */}
         <Flex background="gray.900" color="white" py={2} px={4}>
