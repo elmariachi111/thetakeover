@@ -19,17 +19,19 @@ enum SaleStatus {
 }
 
 model Link {
-    hash       String     @id
-    originUri  String     @map("origin_uri")
+    hash       String       @id
+    originUri  String?      @map("origin_uri")
     price      Decimal
-    creatorId  String     @map("creator_id")
-    creator    User       @relation(fields: [creatorId], references: [id])
+    creatorId  String       @map("creator_id")
+    creator    User         @relation(fields: [creatorId], references: [id])
     payments   Payment[]
     metadata   Metadata?
-    saleStatus SaleStatus @default(ON_SALE) @map("sale_status")
-    createdAt  DateTime   @default(now())
-
+    saleStatus SaleStatus   @default(ON_SALE) @map("sale_status")
+    createdAt  DateTime     @default(now())
+    bundles    Link[]       @relation("BundleItems", references: [hash])
+    bundledIn  Link[]       @relation("BundleItems", references: [hash])
     UserReport UserReport[]
+
     @@index([hash, originUri])
     @@index([creatorId])
 }

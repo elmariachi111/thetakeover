@@ -9,20 +9,19 @@ import {
   Textarea,
   VStack,
 } from "@chakra-ui/react";
+import axios from "axios";
 import { Field, Form, Formik } from "formik";
 import React from "react";
-import { IoTerminalSharp } from "react-icons/io5";
 import { XLink } from "../../types/Link";
-import { MetadataEditor } from "../molecules/MetadataEditor";
+import { BundleInput } from "../../types/LinkInput";
 
 export const BundleCreator = (props: {
   items: Array<XLink & { price: string }>;
 }) => {
   const { items } = props;
-  const aggregatedPrice = items.reduce(
-    (p, c) => p + (parseFloat(c.price) || 0),
-    0
-  );
+  const aggregatedPrice = items
+    .reduce((p, c) => p + (parseFloat(c.price) || 0), 0)
+    .toFixed(2);
   const initialValues = {
     title: `Bundle of ${items.length} items`,
     description:
@@ -32,7 +31,14 @@ export const BundleCreator = (props: {
   };
 
   const createBundle = async (values) => {
-    console.log(values);
+    const payload: BundleInput = {
+      ...values,
+      previewImage: items[0].metadata.previewImage,
+      members: items.map((i) => i.hash),
+    };
+
+    const res = await axios.post("/api/links/bundle", payload);
+    console.log(res);
   };
 
   return (

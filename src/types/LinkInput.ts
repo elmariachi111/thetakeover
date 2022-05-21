@@ -9,3 +9,12 @@ export type LinkInput = {
   embed: string;
   salesActive?: SaleStatus;
 };
+
+export type BundleInput = {
+  title: string;
+  description: string;
+  price: number;
+  previewImage: string;
+  salesActive?: SaleStatus;
+  members: string[];
+};
