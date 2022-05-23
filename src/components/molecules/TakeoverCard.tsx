@@ -77,9 +77,11 @@ const TakeoverCard = (props: {
         <NextLink href={`/to/edit/${link.hash}`} passHref>
           <IconButton aria-label="edit" icon={<FiEdit2 />} />
         </NextLink>
-        <ChakraLink isExternal href={link.originUri}>
-          <IconButton aria-label="visit" icon={<FiExternalLink />} />
-        </ChakraLink>
+        {link.originUri && (
+          <ChakraLink isExternal href={link.originUri}>
+            <IconButton aria-label="visit" icon={<FiExternalLink />} />
+          </ChakraLink>
+        )}
         <BundleSelect
           id={link.hash}
           isSelected={isSelected}

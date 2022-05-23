@@ -83,7 +83,7 @@ function ToEdit({
   };
 
   const initialValues: LinkInput = {
-    url: link.originUri,
+    url: link.originUri || "",
     price: link.price as unknown as number,
     title: link.metadata.title,
     previewImage: link.metadata.previewImage,
