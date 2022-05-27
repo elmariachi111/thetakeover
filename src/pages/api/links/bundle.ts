@@ -2,35 +2,38 @@ import { nanoid } from "nanoid/async";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import { adapterClient } from "../../../modules/api/adapter";
-import { LinkInput } from "../../../types/LinkInput";
+import { BundleInput } from "../../../types/LinkInput";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const payload: LinkInput = req.body;
+  const payload: BundleInput = req.body;
   const session = await getSession({ req });
   if (!session?.user) {
     return res.status(401).send("Unauthorized");
   }
 
-  const hash = await nanoid();
+  console.debug(payload);
 
-  console.log(payload);
+  const hash = await nanoid();
 
   const newLink = await adapterClient.link.create({
     data: {
       hash,
-      originUri: payload.url,
       price: payload.price,
-      creatorId: session.user.id,
-    },
-  });
-
-  const md = await adapterClient.metadata.create({
-    data: {
-      description: payload.description,
-      title: payload.title,
-      previewImage: payload.previewImage,
-      embed: payload.embed,
-      linkHash: hash,
+      creator: {
+        connect: {
+          id: session.user.id,
+        },
+      },
+      bundles: {
+        connect: payload.members.map((m) => ({ hash: m })),
+      },
+      metadata: {
+        create: {
+          description: payload.description,
+          title: payload.title,
+          previewImage: payload.previewImage,
+        },
+      },
     },
   });
 

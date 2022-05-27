@@ -1,23 +1,21 @@
 import {
+  Button,
   Collapse,
   Flex,
   Heading,
-  Link as ChakraLink,
-  Table,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
+  Spacer,
   useDisclosure,
   VStack,
 } from "@chakra-ui/react";
 import { PrismaClient } from "@prisma/client";
 import type { InferGetServerSidePropsType } from "next";
 import { getSession } from "next-auth/react";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { SellerAccountDialog } from "../components/molecules/SellerAccountDialog";
 import { TakeoverCard } from "../components/molecules/TakeoverCard";
+import { ToSuccessOverlay } from "../components/molecules/ToSuccessOverlay";
+import { BundleCreator } from "../components/organisms/BundleCreator";
+import { MyPaymentsView } from "../components/organisms/MyPaymentsView";
 
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
@@ -51,6 +49,17 @@ export async function getServerSideProps(context) {
       price: true,
       originUri: true,
       saleStatus: true,
+      bundles: {
+        select: {
+          hash: true,
+          metadata: {
+            select: {
+              title: true,
+              previewImage: true,
+            },
+          },
+        },
+      },
       metadata: {
         select: {
           title: true,
@@ -96,6 +105,18 @@ function MyTakeOvers({
     defaultIsOpen: true,
   });
 
+  const [selected, setSelected] = useState<string[]>([]);
+  const [createBundle, setCreateBundle] = useState<boolean>(false);
+  const [newBundleUrl, setNewBundleUrl] = useState<string>();
+
+  const toggleInBundle = (hash: string) => {
+    if (selected.includes(hash)) {
+      setSelected((old) => old.filter((s) => s !== hash));
+    } else {
+      setSelected((old) => [...old, hash]);
+    }
+  };
+
   useEffect(() => {
     if (sellerAccount) {
       setTimeout(onClose, 4000);
@@ -114,43 +135,54 @@ function MyTakeOvers({
           </Collapse>
         </Flex>
       )}
-      <Heading fontSize="xl" my={5}>
-        Your Takeovers
-      </Heading>
-
-      <VStack gap={3} align="left" w="full">
-        {links?.map((link) => (
-          <TakeoverCard link={link} key={link.hash} />
-        ))}
-      </VStack>
-      {payments?.length > 0 && (
-        <>
-          <Heading fontSize="xl" mt={12} mb={6}>
-            Purchases
+      {links.length > 0 && (
+        <Flex justify="space-between" align="center" width="100%">
+          <Heading fontSize="xl" my={5}>
+            Your Takeovers
           </Heading>
-
-          <Table>
-            <Thead>
-              <Tr>
-                <Th>Link</Th>
-              </Tr>
-            </Thead>
-            <Tbody>
-              {payments?.map((payment) => (
-                <Tr key={payment.id}>
-                  <Td>
-                    <ChakraLink isExternal href={`/to/${payment.link.hash}`}>
-                      {payment.link.metadata
-                        ? payment.link.metadata.title
-                        : payment.link.hash}
-                    </ChakraLink>
-                  </Td>
-                </Tr>
-              ))}
-            </Tbody>
-          </Table>
-        </>
+          <Spacer />
+          {selected.length > 1 && (
+            <Button size="xs" onClick={() => setCreateBundle(!createBundle)}>
+              {createBundle ? "cancel" : "create a bundle"}
+            </Button>
+          )}
+        </Flex>
       )}
+      {createBundle && (
+        <Flex mt={6} mb={12} w="100%">
+          <BundleCreator
+            onCreated={(url: string) => {
+              setSelected([]);
+              setNewBundleUrl(url);
+              setCreateBundle(false);
+            }}
+            items={links.filter((l) => selected.includes(l.hash))}
+          />
+        </Flex>
+      )}
+      {newBundleUrl && (
+        <ToSuccessOverlay
+          title="Your Takeover is ready"
+          createdLink={newBundleUrl}
+          onClose={() => {
+            setNewBundleUrl(undefined);
+          }}
+        />
+      )}
+      <VStack gap={3} align="left" w="full">
+        {links
+          .filter((l) => (createBundle ? selected.includes(l.hash) : true))
+          .map((link) => (
+            <TakeoverCard
+              link={link}
+              key={link.hash}
+              isSelected={selected.includes(link.hash)}
+              onSelect={toggleInBundle}
+            />
+          ))}
+      </VStack>
+
+      <MyPaymentsView payments={payments} />
     </Flex>
   );
 }
