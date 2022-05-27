@@ -25,6 +25,8 @@ import { SellerNotConnectedAlert } from "../../../components/molecules/SellerNot
 import { adapterClient } from "../../../modules/api/adapter";
 import { findLink } from "../../../modules/api/findLink";
 import { DisplayableLink } from "../../../types/Link";
+import ReactMarkdown from "react-markdown";
+import ChakraUIRenderer from "chakra-ui-markdown-renderer";
 
 export const getServerSideProps: GetServerSideProps<{
   link: DisplayableLink;
@@ -171,9 +173,13 @@ function ToPay({
         width="100%"
         alt={link.metadata.title}
       />
-      <Text my={5} fontSize="sm">
-        {link.metadata.description}
-      </Text>
+      <ReactMarkdown
+        components={ChakraUIRenderer()}
+        // eslint-disable-next-line react/no-children-prop
+        children={link.metadata.description}
+        skipHtml
+      />
+
       {link.saleStatus === "ON_SALE" ? (
         <>
           <Flex direction="row" my={6} justify="space-between">

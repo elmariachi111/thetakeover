@@ -135,17 +135,19 @@ function MyTakeOvers({
           </Collapse>
         </Flex>
       )}
-      <Flex justify="space-between" align="center" width="100%">
-        <Heading fontSize="xl" my={5}>
-          Your Takeovers
-        </Heading>
-        <Spacer />
-        {selected.length > 1 && (
-          <Button size="xs" onClick={() => setCreateBundle(!createBundle)}>
-            {createBundle ? "cancel" : "create a bundle"}
-          </Button>
-        )}
-      </Flex>
+      {links.length > 0 && (
+        <Flex justify="space-between" align="center" width="100%">
+          <Heading fontSize="xl" my={5}>
+            Your Takeovers
+          </Heading>
+          <Spacer />
+          {selected.length > 1 && (
+            <Button size="xs" onClick={() => setCreateBundle(!createBundle)}>
+              {createBundle ? "cancel" : "create a bundle"}
+            </Button>
+          )}
+        </Flex>
+      )}
       {createBundle && (
         <Flex mt={6} mb={12} w="100%">
           <BundleCreator
