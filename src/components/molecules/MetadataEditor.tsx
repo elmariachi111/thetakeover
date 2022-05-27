@@ -37,6 +37,8 @@ const LinkSchema = Yup.object().shape({
     .required("needs a preview image"),
 });
 
+const BundleSchema = LinkSchema.omit(["url"]);
+
 const MetadataEditor = (props: {
   isDisabled?: boolean;
   initialValues?: LinkInput;
@@ -158,4 +160,4 @@ const MetadataEditor = (props: {
   );
 };
 
-export { MetadataEditor, LinkSchema };
+export { MetadataEditor, LinkSchema, BundleSchema };

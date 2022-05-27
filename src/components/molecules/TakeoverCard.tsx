@@ -19,6 +19,7 @@ type ToCardLink = XXLink & {
   _count: {
     payments: number;
   };
+  bundles: Partial<XXLink>[];
 };
 
 const TakeoverCard = (props: {
@@ -82,11 +83,13 @@ const TakeoverCard = (props: {
             <IconButton aria-label="visit" icon={<FiExternalLink />} />
           </ChakraLink>
         )}
-        <BundleSelect
-          id={link.hash}
-          isSelected={isSelected}
-          select={onSelect}
-        />
+        {link.bundles.length === 0 && (
+          <BundleSelect
+            id={link.hash}
+            isSelected={isSelected}
+            select={onSelect}
+          />
+        )}
       </Flex>
 
       <Flex direction="row" position="absolute" right={0} bottom={0}>

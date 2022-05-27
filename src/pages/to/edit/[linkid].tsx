@@ -1,12 +1,17 @@
 import {
+  Avatar,
   Button,
   Flex,
   FormControl,
   FormErrorMessage,
   FormLabel,
+  Heading,
   Input,
   Link as ChakraLink,
   Spinner,
+  Tag,
+  TagLabel,
+  Text,
   useBoolean,
 } from "@chakra-ui/react";
 import { Link, Metadata, PrismaClient, User } from "@prisma/client";
@@ -14,10 +19,12 @@ import axios from "axios";
 import { Field, Form, Formik } from "formik";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { getSession, useSession } from "next-auth/react";
+
 import NextLink from "next/link";
 import React from "react";
 import { FormikChakraSwitch } from "../../../components/molecules/FormikChakraSwitch";
 import {
+  BundleSchema,
   LinkSchema,
   MetadataEditor,
 } from "../../../components/molecules/MetadataEditor";
@@ -25,7 +32,17 @@ import { findLink } from "../../../modules/api/findLink";
 import { LinkInput } from "../../../types/LinkInput";
 
 export const getServerSideProps: GetServerSideProps<{
-  link: Link & { metadata: Metadata; creator: User };
+  link: Link & {
+    metadata: Metadata;
+    creator: User;
+    bundles: Array<{
+      hash: string;
+      metadata: {
+        title: string;
+        previewImage: string;
+      };
+    }>;
+  };
 }> = async (context) => {
   const linkid: string = context.params?.linkid as string;
   const prisma = new PrismaClient();
@@ -77,6 +94,7 @@ function ToEdit({
   const [busy, setBusy] = useBoolean(false);
   const onSubmit = async (values) => {
     setBusy.on();
+
     await axios.post(`/api/to/${link.hash}`, { link: values });
     setBusy.off();
     return false;
@@ -92,10 +110,13 @@ function ToEdit({
     salesActive: link.saleStatus,
   };
 
+  const isBundle = link.bundles.length > 0;
+
   return (
     <Formik
       initialValues={initialValues}
-      validationSchema={LinkSchema}
+      enableReinitialize
+      validationSchema={isBundle ? BundleSchema : LinkSchema}
       onSubmit={(values) => {
         onSubmit(values);
         return;
@@ -104,10 +125,40 @@ function ToEdit({
       {({ errors, values }) => (
         <Form id="newlink-form">
           <Flex direction="column" gridGap={6}>
-            <FormControl isInvalid={!!errors.url}>
-              <FormLabel>link</FormLabel>
-              <Field name="url" disabled={true} type="text" as={Input} />
-            </FormControl>
+            {isBundle ? (
+              <>
+                <Heading size="md">
+                  Bundle of {link.bundles.length} items
+                </Heading>
+                <Flex direction="row" wrap="wrap" gridGap={2}>
+                  {link.bundles.map((b) => (
+                    <Tag
+                      key={b.hash}
+                      colorScheme="blue"
+                      borderRadius="full"
+                      size="lg"
+                      variant="solid"
+                    >
+                      <Avatar
+                        src={b.metadata.previewImage}
+                        size="xs"
+                        name={b.metadata.title}
+                        ml={-1}
+                        mr={2}
+                      />
+                      <ChakraLink href={`/to/edit/${b.hash}`}>
+                        <TagLabel>{b.metadata.title}</TagLabel>
+                      </ChakraLink>
+                    </Tag>
+                  ))}
+                </Flex>
+              </>
+            ) : (
+              <FormControl isInvalid={!!errors.url}>
+                <FormLabel>link</FormLabel>
+                <Field name="url" disabled={true} type="text" as={Input} />
+              </FormControl>
+            )}
 
             <MetadataEditor isDisabled={busy} initialValues={initialValues} />
 

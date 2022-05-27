@@ -13,6 +13,7 @@ import { getSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import { SellerAccountDialog } from "../components/molecules/SellerAccountDialog";
 import { TakeoverCard } from "../components/molecules/TakeoverCard";
+import { ToSuccessOverlay } from "../components/molecules/ToSuccessOverlay";
 import { BundleCreator } from "../components/organisms/BundleCreator";
 import { MyPaymentsView } from "../components/organisms/MyPaymentsView";
 
@@ -48,6 +49,17 @@ export async function getServerSideProps(context) {
       price: true,
       originUri: true,
       saleStatus: true,
+      bundles: {
+        select: {
+          hash: true,
+          metadata: {
+            select: {
+              title: true,
+              previewImage: true,
+            },
+          },
+        },
+      },
       metadata: {
         select: {
           title: true,
@@ -95,6 +107,7 @@ function MyTakeOvers({
 
   const [selected, setSelected] = useState<string[]>([]);
   const [createBundle, setCreateBundle] = useState<boolean>(false);
+  const [newBundleUrl, setNewBundleUrl] = useState<string>();
 
   const toggleInBundle = (hash: string) => {
     if (selected.includes(hash)) {
@@ -136,9 +149,23 @@ function MyTakeOvers({
       {createBundle && (
         <Flex mt={6} mb={12} w="100%">
           <BundleCreator
+            onCreated={(url: string) => {
+              setSelected([]);
+              setNewBundleUrl(url);
+              setCreateBundle(false);
+            }}
             items={links.filter((l) => selected.includes(l.hash))}
           />
         </Flex>
+      )}
+      {newBundleUrl && (
+        <ToSuccessOverlay
+          title="Your Takeover is ready"
+          createdLink={newBundleUrl}
+          onClose={() => {
+            setNewBundleUrl(undefined);
+          }}
+        />
       )}
       <VStack gap={3} align="left" w="full">
         {links

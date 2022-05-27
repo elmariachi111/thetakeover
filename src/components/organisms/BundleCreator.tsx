@@ -17,8 +17,9 @@ import { BundleInput } from "../../types/LinkInput";
 
 export const BundleCreator = (props: {
   items: Array<XLink & { price: string }>;
+  onCreated: (url: string) => void;
 }) => {
-  const { items } = props;
+  const { items, onCreated } = props;
   const aggregatedPrice = items
     .reduce((p, c) => p + (parseFloat(c.price) || 0), 0)
     .toFixed(2);
@@ -37,8 +38,10 @@ export const BundleCreator = (props: {
       members: items.map((i) => i.hash),
     };
 
-    const res = await axios.post("/api/links/bundle", payload);
-    console.log(res);
+    const res = (await axios.post("/api/links/bundle", payload)).data;
+    const { hash, newUrl } = res;
+
+    onCreated(newUrl);
   };
 
   return (
