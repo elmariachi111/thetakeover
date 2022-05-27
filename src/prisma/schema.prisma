@@ -38,7 +38,7 @@ model Link {
 
 model Metadata {
     linkHash     String  @id @map("link_hash")
-    link         Link    @relation(fields: [linkHash], references: [hash])
+    link         Link    @relation(fields: [linkHash], references: [hash], onDelete: Cascade)
     title        String
     description  String  @db.LongText
     previewImage String  @map("preview_image") @db.MediumText
@@ -67,7 +67,7 @@ model UserReport {
     state      UserReportState  @default(NEW)
     message    String           @db.LongText
 
-    link     Link @relation(fields: [linkHash], references: [hash])
+    link     Link @relation(fields: [linkHash], references: [hash], onDelete: Cascade)
     reporter User @relation(fields: [reporterId], references: [id])
 
     @@id([linkHash, reporterId])
