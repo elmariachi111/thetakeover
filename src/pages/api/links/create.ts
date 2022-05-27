@@ -1,10 +1,9 @@
-import { PrismaClient } from "@prisma/client";
 import { nanoid } from "nanoid/async";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
+import { adapterClient } from "../../../modules/api/adapter";
 import { LinkInput } from "../../../types/LinkInput";
 
-const prisma = new PrismaClient();
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const payload: LinkInput = req.body;
   const session = await getSession({ req });
@@ -16,7 +15,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   console.log(payload);
 
-  const newLink = await prisma.link.create({
+  const newLink = await adapterClient.link.create({
     data: {
       hash,
       originUri: payload.url,
@@ -25,7 +24,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     },
   });
 
-  const md = await prisma.metadata.create({
+  const md = await adapterClient.metadata.create({
     data: {
       description: payload.description,
       title: payload.title,

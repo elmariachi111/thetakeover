@@ -13,12 +13,7 @@ import type {
   OnApproveData,
 } from "@paypal/paypal-js";
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
-import {
-  Payment,
-  PaymentStatus,
-  PrismaClient,
-  SellerAccount,
-} from "@prisma/client";
+import { Payment, PaymentStatus, SellerAccount } from "@prisma/client";
 import axios from "axios";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { getSession, useSession } from "next-auth/react";
@@ -27,6 +22,7 @@ import React, { useMemo, useState } from "react";
 import { GeneralAlert } from "../../../components/atoms/GeneralAlert";
 import { ReportContent } from "../../../components/molecules/ReportContent";
 import { SellerNotConnectedAlert } from "../../../components/molecules/SellerNotConnectedAlert";
+import { adapterClient } from "../../../modules/api/adapter";
 import { findLink } from "../../../modules/api/findLink";
 import { DisplayableLink } from "../../../types/Link";
 
@@ -37,9 +33,7 @@ export const getServerSideProps: GetServerSideProps<{
   const linkid: string = context.params?.linkid as string;
   if (!linkid) return { notFound: true };
 
-  const prisma = new PrismaClient();
-
-  const link = await findLink(prisma, linkid);
+  const link = await findLink(linkid);
   if (!link) {
     return {
       notFound: true,
@@ -48,7 +42,7 @@ export const getServerSideProps: GetServerSideProps<{
 
   const session = await getSession(context);
   if (session && session.user?.id) {
-    const payment = await prisma.payment.findFirst({
+    const payment = await adapterClient.payment.findFirst({
       where: {
         linkHash: linkid,
         userId: session.user.id,
@@ -64,7 +58,7 @@ export const getServerSideProps: GetServerSideProps<{
       };
     }
   }
-  const seller = await prisma.sellerAccount.findFirst({
+  const seller = await adapterClient.sellerAccount.findFirst({
     where: {
       userId: link.creatorId,
     },

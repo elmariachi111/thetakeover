@@ -45,9 +45,8 @@ export const getServerSideProps: GetServerSideProps<{
   };
 }> = async (context) => {
   const linkid: string = context.params?.linkid as string;
-  const prisma = new PrismaClient();
 
-  const link = linkid ? await findLink(prisma, linkid) : null;
+  const link = linkid ? await findLink(linkid) : null;
   if (!link) {
     return {
       notFound: true,

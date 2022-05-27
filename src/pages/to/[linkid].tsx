@@ -1,32 +1,20 @@
-import {
-  Button,
-  Flex,
-  Heading,
-  IconButton,
-  Image,
-  Link as ChakraLink,
-} from "@chakra-ui/react";
-import {
-  Link,
-  Metadata,
-  Payment,
-  PaymentStatus,
-  PrismaClient,
-  User,
-} from "@prisma/client";
+import { Flex, IconButton } from "@chakra-ui/react";
+import { Payment, PaymentStatus } from "@prisma/client";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { getSession, useSession } from "next-auth/react";
 import { default as NextLink } from "next/link";
 import { ReactElement } from "react";
 import { FiEdit2 } from "react-icons/fi";
-import Iframe from "react-iframe";
 import { ToLogo } from "../../components/atoms/ToLogo";
 import { ReportContent } from "../../components/molecules/ReportContent";
-import { findLink } from "../../modules/api/findLink";
+import { ViewBundle } from "../../components/molecules/to/ViewBundle";
+import { ViewEmbed } from "../../components/molecules/to/ViewEmbed";
+import { ViewExternal } from "../../components/molecules/to/ViewExternal";
+import { adapterClient } from "../../modules/api/adapter";
+import { findLink, findLinks } from "../../modules/api/findLink";
 import { extractEmbedUrl } from "../../modules/fixEmbed";
 import { XLink } from "../../types/Link";
 import { XPayment } from "../../types/Payment";
-
 const redirectToPayment = (linkId: string) => {
   return {
     redirect: {
@@ -47,13 +35,12 @@ const redirectToPayment = (linkId: string) => {
 export const getServerSideProps: GetServerSideProps<{
   link: XLink;
   payment: XPayment;
-  embed: string | null;
+  bundleItems: XLink[];
 }> = async (context) => {
   const linkid: string = context.params?.linkid as string;
   if (!linkid) return { notFound: true };
 
-  const prisma = new PrismaClient();
-  const link = await findLink(prisma, linkid);
+  const link = await findLink(linkid);
   if (!link) {
     return {
       notFound: true,
@@ -72,7 +59,7 @@ export const getServerSideProps: GetServerSideProps<{
   if (user.id === link.creatorId) {
     payment = null;
   } else {
-    payment = await prisma.payment.findFirst({
+    payment = await adapterClient.payment.findFirst({
       where: {
         linkHash: linkid,
         userId: user.id,
@@ -83,73 +70,50 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
+  let bundleItems;
+  if (link.bundles.length > 0) {
+    const bundleIds = link.bundles.map((b) => b.hash);
+    bundleItems = await findLinks(bundleIds);
+  } else {
+    bundleItems = [];
+  }
+
   return {
     props: {
       link: JSON.parse(JSON.stringify(link)),
       payment: JSON.parse(JSON.stringify(payment)),
-      embed: extractEmbedUrl(link.metadata?.embed),
+      bundleItems: JSON.parse(JSON.stringify(bundleItems)),
     },
   };
-};
-
-const TitleAndCreator = (props: { link: XLink; color?: string }) => {
-  const { link, color } = props;
-  return (
-    <Flex direction="column" align="center">
-      <Heading size="lg" color={color}>
-        {link.creator.name}
-      </Heading>
-      <Heading size="md" color={color}>
-        {link.metadata.title}
-      </Heading>
-    </Flex>
-  );
 };
 
 function ToView({
   link,
   payment,
-  embed,
+  bundleItems,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { data: session } = useSession({
     required: false,
   });
 
-  if (!embed)
-    return (
-      <Flex
-        direction="column"
-        h="100vh"
-        w="container.lg"
-        justify="center"
-        margin="0 auto"
-        gridGap={6}
-        px={[2, 2, null]}
-      >
-        <TitleAndCreator link={link} />
-        {link.metadata.previewImage && (
-          <Image src={link.metadata.previewImage} />
-        )}
-        <Button as={ChakraLink} href={link.originUri}>
-          proceed to content
-        </Button>
-      </Flex>
-    );
+  let view;
+  if (bundleItems.length > 0) {
+    view = <ViewBundle link={link} items={bundleItems} />;
+  } else {
+    const embed = extractEmbedUrl(link.metadata.embed);
+    if (!embed) {
+      view = <ViewExternal link={link} />;
+    } else {
+      view = <ViewEmbed link={link} />;
+    }
+  }
 
   return (
-    <Flex direction="column" w="100%" h="100%">
-      <Flex w="100%" h="100%">
-        <Iframe
-          url={embed}
-          allowFullScreen
-          width="100%"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        />
-      </Flex>
+    <Flex w="100%">
       <Flex position="absolute" left={12} top={12}>
         <ToLogo />
       </Flex>
-      <Flex position="absolute" right={2} top={2}>
+      <Flex position="fixed" right={2} top={2}>
         {session?.user?.id === link.creatorId && (
           <NextLink href={`/to/edit/${link.hash}`} passHref>
             <IconButton aria-label="edit" icon={<FiEdit2 />} />
@@ -157,21 +121,13 @@ function ToView({
         )}
         {session?.user?.id !== link.creatorId && <ReportContent link={link} />}
       </Flex>
-      <Flex
-        position="absolute"
-        bottom={5}
-        alignSelf="center"
-        alignItems="center"
-        direction="column"
-      >
-        <TitleAndCreator link={link} color="white" />
-      </Flex>
+      <Flex margin="0 auto">{view}</Flex>
     </Flex>
   );
 }
 
 ToView.getLayout = function (page: ReactElement) {
-  return <Flex h="100vh">{page}</Flex>;
+  return <Flex>{page}</Flex>;
 };
 
 export default ToView;

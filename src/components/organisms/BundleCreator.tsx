@@ -26,8 +26,8 @@ export const BundleCreator = (props: {
   const initialValues = {
     title: `Bundle of ${items.length} items`,
     description:
-      "# this bundle contains\n" +
-      items.map((i) => `## ${i.metadata.title}  `).join("\n"),
+      "### this bundle contains\n" +
+      items.map((i) => `- ${i.metadata.title}  `).join("\n"),
     price: aggregatedPrice,
   };
 
