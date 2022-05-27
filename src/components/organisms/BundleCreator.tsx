@@ -1,5 +1,6 @@
 import {
   Button,
+  CloseButton,
   Flex,
   FormControl,
   FormErrorMessage,
@@ -7,6 +8,7 @@ import {
   Heading,
   Input,
   Textarea,
+  useToast,
   VStack,
 } from "@chakra-ui/react";
 import axios from "axios";
@@ -18,8 +20,10 @@ import { BundleInput } from "../../types/LinkInput";
 export const BundleCreator = (props: {
   items: Array<XLink & { price: string }>;
   onCreated: (url: string) => void;
+  onCancel: () => void;
 }) => {
-  const { items, onCreated } = props;
+  const { items, onCreated, onCancel } = props;
+  const toast = useToast();
   const aggregatedPrice = items
     .reduce((p, c) => p + (parseFloat(c.price) || 0), 0)
     .toFixed(2);
@@ -38,19 +42,29 @@ export const BundleCreator = (props: {
       members: items.map((i) => i.hash),
     };
 
-    const res = (await axios.post("/api/links/bundle", payload)).data;
-    const { hash, newUrl } = res;
-
-    onCreated(newUrl);
+    try {
+      const res = (await axios.post("/api/links/bundle", payload)).data;
+      console.log(res);
+      const { hash, newUrl } = res;
+      onCreated(newUrl);
+    } catch (e: any) {
+      toast({
+        status: "error",
+        title: "Couldn't create bundle",
+        description: e.response.data.message,
+      });
+    }
   };
 
   return (
     <Flex direction="column" width="100%">
-      <Heading size="sm" my={3}>
-        {" "}
-        Create a bundle({items.length})
-      </Heading>
-
+      <Flex direction="row" align="center" justify="space-between">
+        <Heading size="sm" my={3}>
+          {" "}
+          Create a bundle({items.length})
+        </Heading>
+        <CloseButton onClick={onCancel} />
+      </Flex>
       <Formik
         initialValues={initialValues}
         onSubmit={(values) => createBundle(values)}

@@ -156,6 +156,10 @@ function MyTakeOvers({
               setNewBundleUrl(url);
               setCreateBundle(false);
             }}
+            onCancel={() => {
+              setCreateBundle(false);
+              setSelected([]);
+            }}
             items={links.filter((l) => selected.includes(l.hash))}
           />
         </Flex>
