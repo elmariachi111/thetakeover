@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
+import DiscordProvider from "next-auth/providers/discord";
 import { adapterClient, prismaAdapter } from "../../../modules/api/adapter";
 import { emailProvider } from "../../../modules/api/emailProvider";
 import { ethereumProvider } from "../../../modules/api/ethereumProvider";
@@ -16,6 +17,12 @@ const defaultProviders = [
     clientId: process.env.GOOGLE_CLIENT_ID as string,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
   }),
+  DiscordProvider({
+    clientId: process.env.DISCORD_APP_ID as string,
+    clientSecret: process.env.DISCORD_APP_SECRET as string,
+    // authorization:
+    //   "https://discord.com/api/oauth2/authorize?scope=identify+email",
+  }),
 ];
 
 export default async function auth(req, res) {
@@ -27,6 +34,7 @@ export default async function auth(req, res) {
     secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
       jwt: async ({ user, token }) => {
+        console.log("JWT", user);
         if (user) {
           token.uid = user.id;
           token.name = user.name;

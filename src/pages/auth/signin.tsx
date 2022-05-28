@@ -201,7 +201,7 @@ export async function getServerSideProps(context) {
       providers,
       accounts,
       csrfToken: await getCsrfToken(context),
-      callbackUrl: context.query.callbackUrl,
+      callbackUrl: context.query.callbackUrl || "/",
     },
   };
 }
