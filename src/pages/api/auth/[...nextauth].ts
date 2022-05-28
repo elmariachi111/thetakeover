@@ -34,7 +34,6 @@ export default async function auth(req, res) {
     secret: process.env.NEXTAUTH_SECRET,
     callbacks: {
       jwt: async ({ user, token }) => {
-        console.log("JWT", user);
         if (user) {
           token.uid = user.id;
           token.name = user.name;

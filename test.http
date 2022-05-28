@@ -25,11 +25,12 @@ GET  http://localhost:3000/api/to/MZAP3AZS8427pm4LBzJDG
 
 ### PAYMENTS
 
-@Paypal = https://api-m.sandbox.paypal.com
+@Paypal = {{$dotenv PAYPAL_SDK_ENDPOINT}}
 @PaypalClientId = {{$dotenv NEXT_PUBLIC_PAYPAL_CLIENT_ID}}
 @PaypalSecret = {{$dotenv PAYPAL_SECRET}}
 
 @PaypalAccessToken = {{$dotenv PAYPAL_CLIENT_TOKEN}}
+
 ### Get token
 
 POST {{Paypal}}/v1/oauth2/token
@@ -42,8 +43,8 @@ grant_type=client_credentials
 ###
 #57595573V1292361Y
 
-GET {{Paypal}}/v2/payments/captures/65584464KC2628155
-#GET {{Paypal}}/v2/checkout/orders/57595573V1292361Y
+#GET {{Paypal}}/v2/payments/captures/23M80733A88474749
+GET {{Paypal}}/v2/checkout/orders/83S214797E125715K
 Authorization: Bearer {{PaypalAccessToken}}
 Content-Type: application/json
 
