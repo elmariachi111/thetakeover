@@ -27,6 +27,7 @@ import { findLink } from "../../../modules/api/findLink";
 import { DisplayableLink } from "../../../types/Link";
 import ReactMarkdown from "react-markdown";
 import ChakraUIRenderer from "chakra-ui-markdown-renderer";
+import { findSettledPayment } from "../../../modules/api/findPayment";
 
 export const getServerSideProps: GetServerSideProps<{
   link: DisplayableLink;
@@ -44,14 +45,10 @@ export const getServerSideProps: GetServerSideProps<{
 
   const session = await getSession(context);
   if (session && session.user?.id) {
-    const payment = await adapterClient.payment.findFirst({
-      where: {
-        linkHash: linkid,
-        userId: session.user.id,
-      },
-    });
+    const payment = await findSettledPayment(linkid, session.user.id);
+
     //console.log("payment", session, payment);
-    if (payment && payment.paymentStatus === PaymentStatus.COMPLETED) {
+    if (payment) {
       return {
         redirect: {
           destination: `/to/${linkid}`,
@@ -63,6 +60,7 @@ export const getServerSideProps: GetServerSideProps<{
   const seller = await adapterClient.sellerAccount.findFirst({
     where: {
       userId: link.creatorId,
+      isActive: true,
     },
   });
 

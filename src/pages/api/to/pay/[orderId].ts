@@ -10,6 +10,7 @@ import {
 } from "../../../../modules/api/findOrCreateUser";
 import { loginPayer } from "../../../../modules/api/loginPayer";
 import { sendPurchaseConfirmations } from "../../../../modules/api/sendPurchaseConfirmation";
+import { paypalNameObjectToString } from "../../../../modules/strings";
 
 const prisma = new PrismaClient();
 const paypalEnv = new Paypal.SandboxEnvironment(
@@ -54,13 +55,22 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(403).send("item is not on sale");
   }
 
+  const sellerAccount = await prisma.sellerAccount.findFirst({
+    where: {
+      userId: link.creatorId,
+    },
+  });
+
+  if (!sellerAccount || !sellerAccount.isActive) {
+    return res.status(403).send("seller is not onboarded");
+  }
+
   let user;
   if (order.payer) {
     user = await findOrCreateUser(
       prisma,
       order.payer.email_address,
-      //`${order.payer.name.prefix} ${order.payer.name.given_name} ${order.payer.name.middle_name} ${order.payer.name.surname} ${order.payer.name.suffix}`,
-      `${order.payer.name.given_name} ${order.payer.name.surname}`,
+      paypalNameObjectToString(order.payer.name),
       session?.user
     );
     console.log(

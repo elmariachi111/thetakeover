@@ -118,7 +118,7 @@ function MyTakeOvers({
   };
 
   useEffect(() => {
-    if (sellerAccount) {
+    if (sellerAccount?.isActive) {
       setTimeout(onClose, 4000);
     }
   }, [sellerAccount, onClose]);

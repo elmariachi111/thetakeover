@@ -120,8 +120,9 @@ model SellerAccount {
     paymentsReceivable Boolean @default(true) @map("payments_receivable")
     country            String  @default("DE")
     primary_currency   String  @default("EUR")
+    isActive           Boolean @default(false)
+    user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
     @@index([userId])
 }
 

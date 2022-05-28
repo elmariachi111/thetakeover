@@ -35,21 +35,28 @@ export const SellerAccountView = ({
   sellerAccount: SellerAccount;
 }) => {
   return (
-    <VStack gap={6}>
+    <VStack gap={3}>
       <TableItem
         label="Paypal Merchant Id"
         value={sellerAccount.merchantIdInPayPal}
       />
       <TableItem
-        label="Permission Granted"
+        label="Paypal account Status"
+        value={sellerAccount.accountStatus}
+      />
+      <TableItem
+        label="Paypal permissions granted"
         value={sellerAccount.permissionsGranted}
       />
-      <TableItem label="Account Status" value={sellerAccount.accountStatus} />
-      <TableItem label="Consent given?" value={sellerAccount.consentStatus} />
       <TableItem
-        label="email confirmed"
+        label="Paypal Consent given"
+        value={sellerAccount.consentStatus}
+      />
+      <TableItem
+        label="Email confirmed"
         value={sellerAccount.isEmailConfirmed}
       />
+      <TableItem label="Account verified" value={sellerAccount.isActive} />
     </VStack>
   );
 };

@@ -1,5 +1,5 @@
 import { Flex, IconButton } from "@chakra-ui/react";
-import { Payment, PaymentStatus } from "@prisma/client";
+import { Payment } from "@prisma/client";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { getSession, useSession } from "next-auth/react";
 import { default as NextLink } from "next/link";
@@ -10,8 +10,8 @@ import { ReportContent } from "../../components/molecules/ReportContent";
 import { ViewBundle } from "../../components/molecules/to/ViewBundle";
 import { ViewEmbed } from "../../components/molecules/to/ViewEmbed";
 import { ViewExternal } from "../../components/molecules/to/ViewExternal";
-import { adapterClient } from "../../modules/api/adapter";
 import { findLink, findLinks } from "../../modules/api/findLink";
+import { findSettledPayment } from "../../modules/api/findPayment";
 import { extractEmbedUrl } from "../../modules/fixEmbed";
 import { XLink } from "../../types/Link";
 import { XPayment } from "../../types/Payment";
@@ -60,32 +60,7 @@ export const getServerSideProps: GetServerSideProps<{
   if (user.id === link.creatorId) {
     payment = null;
   } else {
-    payment = await adapterClient.payment.findFirst({
-      where: {
-        linkHash: linkid,
-        userId: user.id,
-        paymentStatus: "COMPLETED",
-      },
-    });
-    if (!payment) {
-      payment = await adapterClient.payment.findFirst({
-        where: {
-          link: {
-            bundles: {
-              some: {
-                hash: linkid,
-              },
-            },
-            payments: {
-              some: {
-                userId: user.id,
-                paymentStatus: "COMPLETED",
-              },
-            },
-          },
-        },
-      });
-    }
+    payment = await findSettledPayment(linkid, user.id);
 
     if (!payment) {
       return redirectToPayment(linkid);

@@ -16,7 +16,7 @@ const SellerAccountDialog = (props: {
 }) => {
   const { sellerAccount, onClose } = props;
 
-  return sellerAccount ? (
+  return sellerAccount?.isActive ? (
     <Alert status="success">
       <AlertIcon />
       <Flex direction="column">
@@ -36,16 +36,22 @@ const SellerAccountDialog = (props: {
     <Alert status="warning">
       <AlertIcon />
       <Flex direction="column">
-        <AlertTitle mr={2} textTransform="uppercase">
-          Sales is not active
-        </AlertTitle>
-        <AlertDescription fontSize="sm">
-          please{" "}
-          <Link href="/api/paypal/onboard" textTransform="none">
-            connect a Paypal business account
-          </Link>{" "}
-          to start selling
-        </AlertDescription>
+        <AlertTitle mr={2}>Sales is not active</AlertTitle>
+        {!sellerAccount ? (
+          <AlertDescription fontSize="sm">
+            please{" "}
+            <Link href="/api/paypal/onboard" textTransform="none">
+              connect a Paypal business account
+            </Link>{" "}
+            to start selling
+          </AlertDescription>
+        ) : (
+          sellerAccount.isActive === false && (
+            <AlertDescription fontSize="sm">
+              Your account is not activated yet.
+            </AlertDescription>
+          )
+        )}
       </Flex>
       <CloseButton
         position="absolute"
