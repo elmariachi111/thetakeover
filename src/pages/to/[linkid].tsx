@@ -15,6 +15,7 @@ import { findLink, findLinks } from "../../modules/api/findLink";
 import { extractEmbedUrl } from "../../modules/fixEmbed";
 import { XLink } from "../../types/Link";
 import { XPayment } from "../../types/Payment";
+
 const redirectToPayment = (linkId: string) => {
   return {
     redirect: {
@@ -63,9 +64,30 @@ export const getServerSideProps: GetServerSideProps<{
       where: {
         linkHash: linkid,
         userId: user.id,
+        paymentStatus: "COMPLETED",
       },
     });
-    if (!payment || payment.paymentStatus !== PaymentStatus.COMPLETED) {
+    if (!payment) {
+      payment = await adapterClient.payment.findFirst({
+        where: {
+          link: {
+            bundles: {
+              some: {
+                hash: linkid,
+              },
+            },
+            payments: {
+              some: {
+                userId: user.id,
+                paymentStatus: "COMPLETED",
+              },
+            },
+          },
+        },
+      });
+    }
+
+    if (!payment) {
       return redirectToPayment(linkid);
     }
   }
