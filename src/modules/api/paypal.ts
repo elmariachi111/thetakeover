@@ -5,6 +5,7 @@ import {
   HateoasResponse,
   MerchantIntegrationResponse,
 } from "../../types/Payment";
+import { adapterClient } from "./adapter";
 
 export function sdk(
   sdkEndpoint: string,
@@ -15,28 +16,74 @@ export function sdk(
   const paypalHttp = axios.create({
     baseURL: sdkEndpoint,
   });
+  paypalHttp.interceptors.request.use(async (config) => {
+    const token = await getBearerToken();
+    config.headers = {
+      "content-type": "application/json",
+      authorization: `Bearer ${token.access_token}`,
+    };
+    return config;
+  });
+
   paypalHttp.interceptors.request.use(AxiosLogger.requestLogger);
 
   let token: ClientCredentials;
+  const acquireBearerToken = async (): Promise<ClientCredentials> => {
+    return (
+      await axios({
+        method: "POST",
+        baseURL: sdkEndpoint,
+        url: "/v1/oauth2/token",
+        headers: {
+          "content-type": "x-www-form-urlencoded",
+        },
+        auth: {
+          username: clientId,
+          password: secret,
+        },
+        data: `grant_type=client_credentials`,
+      })
+    ).data;
+  };
 
-  const getBearerToken = async () => {
+  const getBearerToken = async (): Promise<ClientCredentials> => {
     if (!token) {
-      token = await (
-        await paypalHttp({
-          method: "POST",
-          url: "/v1/oauth2/token",
-          headers: {
-            "content-type": "x-www-form-urlencoded",
-          },
-          auth: {
-            username: clientId,
-            password: secret,
-          },
-          data: `grant_type=client_credentials`,
-        })
-      ).data;
-    }
+      const cachedToken = await adapterClient.clientToken.findFirst({
+        where: {
+          type: "PAYPAL",
+        },
+      });
 
+      if (!cachedToken || cachedToken.expires <= new Date()) {
+        if (cachedToken) {
+          await adapterClient.clientToken.delete({
+            where: {
+              id: cachedToken.id,
+            },
+          });
+        }
+        token = await acquireBearerToken();
+
+        await adapterClient.clientToken.create({
+          data: {
+            id: token.nonce,
+            expires: new Date(Date.now() + token.expires_in * 1000),
+            type: "PAYPAL",
+            value: token.access_token,
+            appId: token.app_id,
+          },
+        });
+      } else {
+        token = {
+          access_token: cachedToken.value,
+          nonce: cachedToken.id,
+          token_type: "Bearer",
+          app_id: cachedToken.appId,
+          expires_in: cachedToken.expires.getTime() - Date.now(),
+          scope: "",
+        };
+      }
+    }
     return token;
   };
 
@@ -45,17 +92,11 @@ export function sdk(
       userId: string,
       callbackOnboardedUrl: string
     ): Promise<string | null> => {
-      const token = await getBearerToken();
-
       try {
         const resp: HateoasResponse = await (
           await paypalHttp({
             method: "POST",
             url: "/v2/customer/partner-referrals",
-            headers: {
-              "content-type": "application/json",
-              authorization: `Bearer ${token.access_token}`,
-            },
             data: {
               tracking_id: userId,
               partner_config_override: {
@@ -97,23 +138,34 @@ export function sdk(
         return null;
       }
     },
+
     getMerchantInfo: async (
       merchantId: string
     ): Promise<MerchantIntegrationResponse> => {
-      const token = await getBearerToken();
       try {
         const resp: MerchantIntegrationResponse = await (
           await paypalHttp({
             method: "GET",
             url: `/v1/customer/partners/${toMerchantId}/merchant-integrations/${merchantId}`,
-            headers: {
-              "content-type": "application/json",
-              authorization: `Bearer ${token.access_token}`,
-            },
           })
         ).data;
 
         return resp;
+      } catch (e: any) {
+        console.error(e);
+        throw e;
+      }
+    },
+
+    getOrderInfo: async (orderId: string): Promise<any> => {
+      try {
+        const order = (
+          await paypalHttp({
+            method: "GET",
+            url: `/v2/checkout/orders/${orderId}`,
+          })
+        ).data;
+        return order;
       } catch (e: any) {
         console.error(e);
         throw e;

@@ -1,4 +1,6 @@
-type PaypalNameObject = {
+import { CurrencyAmount } from "../types/Payment";
+
+export type PaypalNameObject = {
   prefix?: string;
   given_name?: string;
   middle_name?: string;
@@ -15,4 +17,8 @@ export const paypalNameObjectToString = (nameObject: PaypalNameObject) => {
       .filter((c) => !!c)
       .join(" ")
   );
+};
+
+export const paypalAmountObjectToString = (amtObject: CurrencyAmount) => {
+  return `${amtObject.value} ${amtObject.currency_code}`;
 };

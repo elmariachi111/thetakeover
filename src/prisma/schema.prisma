@@ -179,3 +179,15 @@ model VerificationToken {
 
     @@unique([identifier, token])
 }
+
+enum ClientTokenType {
+    PAYPAL
+}
+
+model ClientToken {
+    id      String          @id @default(cuid())
+    type    ClientTokenType
+    value   String          @db.MediumText
+    expires DateTime
+    appId   String
+}
