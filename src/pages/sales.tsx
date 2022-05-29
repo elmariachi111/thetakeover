@@ -17,7 +17,6 @@ import { adapterClient } from "../modules/api/adapter";
 import { XSalesPayment } from "../types/Payment";
 
 export const getServerSideProps: GetServerSideProps<{
-  sellerAccount: SellerAccount | null;
   payments: XSalesPayment[];
 }> = async (context) => {
   const session = await getSession(context);
@@ -42,6 +41,9 @@ export const getServerSideProps: GetServerSideProps<{
       redirect: {
         destination: "/my",
       },
+      props: {
+        payments: [],
+      },
     };
   }
 
@@ -65,14 +67,12 @@ export const getServerSideProps: GetServerSideProps<{
 
   return {
     props: {
-      sellerAccount,
       payments: JSON.parse(JSON.stringify(payments)),
     },
   };
 };
 
 const Sales = ({
-  sellerAccount,
   payments,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   return (
