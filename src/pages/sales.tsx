@@ -79,6 +79,7 @@ const Sales = ({
               <Th>link</Th>
               <Th>user</Th>
               <Th>price</Th>
+              <Th></Th>
             </Tr>
           </Thead>
           <Tbody>

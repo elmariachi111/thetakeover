@@ -22,3 +22,8 @@ export const paypalNameObjectToString = (nameObject: PaypalNameObject) => {
 export const paypalAmountObjectToString = (amtObject: CurrencyAmount) => {
   return `${amtObject.value} ${amtObject.currency_code}`;
 };
+
+export const formatTime = (utcTime: string) => {
+  const d = new Date(utcTime);
+  return d.toLocaleString();
+};

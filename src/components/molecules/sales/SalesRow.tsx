@@ -1,9 +1,22 @@
-import { Td, Tr, useColorModeValue, VStack } from "@chakra-ui/react";
+import {
+  Icon,
+  Link,
+  Td,
+  Text,
+  Tr,
+  useColorModeValue,
+  VStack,
+} from "@chakra-ui/react";
 import axios from "axios";
 import React, { useMemo, useState } from "react";
-import { paypalAmountObjectToString } from "../../../modules/strings";
+import { FaCaretDown, FaCaretUp } from "react-icons/fa";
+import {
+  formatTime,
+  paypalAmountObjectToString,
+} from "../../../modules/strings";
 import { OrderDetailsResponse, XSalesPayment } from "../../../types/Payment";
 import { TableItem } from "../../atoms/TableItem";
+import { default as NextLink } from "next/link";
 
 type SalesRowDetails = { type: string; amount: string; negative?: boolean };
 export const SalesRow = ({ payment }: { payment: XSalesPayment }) => {
@@ -51,11 +64,32 @@ export const SalesRow = ({ payment }: { payment: XSalesPayment }) => {
 
   return (
     <>
-      <Tr onClick={() => fetchOrderDetails(payment.id)}>
-        <Td>{payment.initiatedAt}</Td>
-        <Td title={payment.link.hash}>{payment.link.metadata?.title}</Td>
-        <Td>{payment.user.id}</Td>
+      <Tr>
+        <Td>{formatTime(payment.initiatedAt)}</Td>
+        <Td title={payment.link.hash}>
+          <NextLink href={`/to/${payment.link.hash}`} passHref>
+            <Link>{payment.link.metadata?.title}</Link>
+          </NextLink>
+        </Td>
+        <Td>
+          <Text isTruncated>{payment.user.id}</Text>
+        </Td>
         <Td>{payment.link.price}</Td>
+        <Td>
+          {orderDetails ? (
+            <Icon
+              sx={{ cursor: "pointer" }}
+              as={FaCaretUp}
+              onClick={() => setOrderDetails(undefined)}
+            />
+          ) : (
+            <Icon
+              sx={{ cursor: "pointer" }}
+              as={FaCaretDown}
+              onClick={() => fetchOrderDetails(payment.id)}
+            />
+          )}
+        </Td>
       </Tr>
       {orderDetails && (
         <Tr fontSize="sm" background={detailsBg}>
@@ -68,7 +102,7 @@ export const SalesRow = ({ payment }: { payment: XSalesPayment }) => {
               />
               {fees.map((f) => (
                 <TableItem
-                  key={`cap-${orderDetails.id}-${f}`}
+                  key={`cap-${orderDetails.id}-${f.type}`}
                   label={f.type}
                   value={f.amount}
                   negative={f.negative}
