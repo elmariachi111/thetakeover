@@ -12,17 +12,13 @@ import {
   useColorMode,
   useDisclosure,
 } from "@chakra-ui/react";
-import { useSession, signOut } from "next-auth/react";
-
+import { signOut, useSession } from "next-auth/react";
 import { default as NextLink } from "next/link";
 import React from "react";
-import { FaSun, FaMoon } from "react-icons/fa";
+import { FaMoon, FaSun } from "react-icons/fa";
 import { FiPlusSquare } from "react-icons/fi";
-
 import { HiDotsVertical } from "react-icons/hi";
-
 import { ToLogo } from "../atoms/ToLogo";
-
 import LoginComponent from "../LoginComponent";
 
 const Navlink = (props: {
@@ -127,6 +123,7 @@ const Navbar = () => {
                 <Navlink onClose={onClose} href="/my">
                   Your Takeovers
                 </Navlink>
+
                 <Navlink onClose={onClose} href="/create">
                   Create a Takeover
                 </Navlink>

@@ -22,6 +22,7 @@ import { FiCheckCircle } from "react-icons/fi";
 import { SiweButton } from "../components/atoms/SiweButton";
 import { SellerAccountView } from "../components/molecules/SellerDetails";
 import { adapterClient } from "../modules/api/adapter";
+import { default as NextLink } from "next/link";
 
 type XUser = Omit<User, "emailVerified"> & {
   emailVerified: string | null;
@@ -202,7 +203,14 @@ const Profile = ({
       </Formik>
 
       <Flex mt={12} direction="column">
-        <Heading my={6}>Sales Settings</Heading>
+        <Flex align="center" justify="space-between">
+          <Heading my={6}>Sales Settings</Heading>
+          {sellerAccount && (
+            <NextLink href="/sales" passHref>
+              <Link>Sales Overview</Link>
+            </NextLink>
+          )}
+        </Flex>
         {sellerAccount ? (
           <SellerAccountView sellerAccount={sellerAccount} />
         ) : (

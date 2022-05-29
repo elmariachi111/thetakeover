@@ -98,30 +98,38 @@ model Payment {
     initiatedAt   DateTime        @default(now()) @map("initiated_at")
     paidAt        DateTime?       @map("paid_at")
 
-    user User? @relation(fields: [userId], references: [id])
-    link Link  @relation(fields: [linkHash], references: [hash])
+    payee        String?
+    value        String  @default("0")
+    currencyCode String  @default("EUR") @map("currency_code")
+    breakdown    Json?
 
+    user   User?          @relation(fields: [userId], references: [id])
+    link   Link           @relation(fields: [linkHash], references: [hash])
+    seller SellerAccount? @relation(fields: [payee], references: [merchantIdInPayPal])
+
+    @@index([payee])
     @@index([paymentRef])
     @@index([linkHash, userId])
 }
 
 model SellerAccount {
-    id                 String  @id @default(cuid())
-    userId             String  @unique @map("user_id")
-    merchantIdInPayPal String  @map("merchant_id_in_paypal")
-    permissionsGranted Boolean @map("permissions_granted")
-    accountStatus      String? @map("account_status")
-    consentStatus      Boolean @map("consent_status")
-    productIntentId    String  @map("product_intent_id")
-    isEmailConfirmed   Boolean @map("is_email_confirmed")
-    riskStatus         String? @map("risk_status")
-    primaryEmail       String? @map("primary_email")
-    userName           String? @map("user_name")
-    paymentsReceivable Boolean @default(true) @map("payments_receivable")
-    country            String  @default("DE")
-    primary_currency   String  @default("EUR")
-    isActive           Boolean @default(false)
-    user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id                 String    @id @default(cuid())
+    userId             String    @unique @map("user_id")
+    merchantIdInPayPal String    @unique @map("merchant_id_in_paypal")
+    permissionsGranted Boolean   @map("permissions_granted")
+    accountStatus      String?   @map("account_status")
+    consentStatus      Boolean   @map("consent_status")
+    productIntentId    String    @map("product_intent_id")
+    isEmailConfirmed   Boolean   @map("is_email_confirmed")
+    riskStatus         String?   @map("risk_status")
+    primaryEmail       String?   @map("primary_email")
+    userName           String?   @map("user_name")
+    paymentsReceivable Boolean   @default(true) @map("payments_receivable")
+    country            String    @default("DE")
+    primary_currency   String    @default("EUR")
+    isActive           Boolean   @default(false)
+    user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    Payments           Payment[]
 
     @@index([userId])
 }
@@ -178,4 +186,16 @@ model VerificationToken {
     expires    DateTime
 
     @@unique([identifier, token])
+}
+
+enum ClientTokenType {
+    PAYPAL
+}
+
+model ClientToken {
+    id      String          @id @default(cuid())
+    type    ClientTokenType
+    value   String          @db.MediumText
+    expires DateTime
+    appId   String
 }
