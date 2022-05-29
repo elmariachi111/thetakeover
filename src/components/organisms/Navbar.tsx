@@ -123,9 +123,7 @@ const Navbar = () => {
                 <Navlink onClose={onClose} href="/my">
                   Your Takeovers
                 </Navlink>
-                <Navlink onClose={onClose} href="/sales">
-                  Sales Overview
-                </Navlink>
+
                 <Navlink onClose={onClose} href="/create">
                   Create a Takeover
                 </Navlink>

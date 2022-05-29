@@ -1,10 +1,13 @@
 import {
   Icon,
   Link,
+  Slide,
+  SlideFade,
   Td,
   Text,
   Tr,
   useColorModeValue,
+  useDisclosure,
   VStack,
 } from "@chakra-ui/react";
 import axios from "axios";
@@ -21,6 +24,7 @@ import { default as NextLink } from "next/link";
 type SalesRowDetails = { type: string; amount: string; negative?: boolean };
 export const SalesRow = ({ payment }: { payment: XSalesPayment }) => {
   const [orderDetails, setOrderDetails] = useState<OrderDetailsResponse>();
+  const { isOpen: showDetails, onToggle: toggleDetails } = useDisclosure();
 
   const detailsBg = useColorModeValue("gray.200", "gray.800");
 
@@ -35,36 +39,35 @@ export const SalesRow = ({ payment }: { payment: XSalesPayment }) => {
   };
 
   const fees = useMemo<Array<SalesRowDetails>>(() => {
-    if (!orderDetails) return [];
-    const breakdown =
-      orderDetails.purchase_units[0].payments.captures[0]
-        .seller_receivable_breakdown;
-    if (!breakdown) return [];
+    if (!payment.breakdown) return [];
     const fees: SalesRowDetails[] = [];
+
     fees.push({
       type: "gross_amount",
-      amount: paypalAmountObjectToString(breakdown["gross_amount"]),
+      amount: paypalAmountObjectToString(payment.breakdown["gross_amount"]),
     });
     fees.push({
       type: "paypal_fee",
-      amount: paypalAmountObjectToString(breakdown["paypal_fee"]),
+      amount: paypalAmountObjectToString(payment.breakdown["paypal_fee"]),
       negative: true,
     });
     fees.push({
       type: "platform_fees",
-      amount: paypalAmountObjectToString(breakdown.platform_fees[0].amount),
+      amount: paypalAmountObjectToString(
+        payment.breakdown["platform_fees"][0].amount
+      ),
       negative: true,
     });
     fees.push({
       type: "net_amount",
-      amount: paypalAmountObjectToString(breakdown["net_amount"]),
+      amount: paypalAmountObjectToString(payment.breakdown["net_amount"]),
     });
     return fees;
-  }, [orderDetails]);
+  }, [payment.breakdown]);
 
   return (
     <>
-      <Tr>
+      <Tr onClick={toggleDetails}>
         <Td>{formatTime(payment.initiatedAt)}</Td>
         <Td title={payment.link.hash}>
           <NextLink href={`/to/${payment.link.hash}`} passHref>
@@ -74,41 +77,40 @@ export const SalesRow = ({ payment }: { payment: XSalesPayment }) => {
         <Td>
           <Text isTruncated>{payment.user.id}</Text>
         </Td>
-        <Td>{payment.link.price}</Td>
         <Td>
-          {orderDetails ? (
-            <Icon
-              sx={{ cursor: "pointer" }}
-              as={FaCaretUp}
-              onClick={() => setOrderDetails(undefined)}
-            />
+          <Text whiteSpace="nowrap">
+            {payment.value} {payment.currencyCode}
+          </Text>
+        </Td>
+        <Td>
+          {showDetails ? (
+            <Icon sx={{ cursor: "pointer" }} as={FaCaretUp} />
           ) : (
-            <Icon
-              sx={{ cursor: "pointer" }}
-              as={FaCaretDown}
-              onClick={() => fetchOrderDetails(payment.id)}
-            />
+            <Icon sx={{ cursor: "pointer" }} as={FaCaretDown} />
           )}
         </Td>
       </Tr>
-      {orderDetails && (
+
+      {showDetails && (
         <Tr fontSize="sm" background={detailsBg}>
-          <Td colSpan={5}>
-            <VStack gap={3}>
-              <TableItem label="Payment Reference" value={payment.paymentRef} />
-              <TableItem
-                label="Payer Email"
-                value={orderDetails.payer.email_address}
-              />
-              {fees.map((f) => (
+          <Td colSpan={5} position="relative">
+            <SlideFade in={showDetails}>
+              <VStack gap={3}>
                 <TableItem
-                  key={`cap-${orderDetails.id}-${f.type}`}
-                  label={f.type}
-                  value={f.amount}
-                  negative={f.negative}
+                  label="Payment Reference"
+                  value={payment.paymentRef}
                 />
-              ))}
-            </VStack>
+                <TableItem label="Payer Email" value={payment.user.email} />
+                {fees.map((f) => (
+                  <TableItem
+                    key={`cap-${payment.id}-${f.type}`}
+                    label={f.type}
+                    value={f.amount}
+                    negative={f.negative}
+                  />
+                ))}
+              </VStack>
+            </SlideFade>
           </Td>
         </Tr>
       )}

@@ -1,6 +1,11 @@
 import { core as Paypal, orders } from "@paypal/checkout-server-sdk";
 import { Order } from "@paypal/checkout-server-sdk/lib/orders/lib";
-import { PaymentIntent, PaymentStatus, PrismaClient } from "@prisma/client";
+import {
+  PaymentIntent,
+  PaymentStatus,
+  Prisma,
+  PrismaClient,
+} from "@prisma/client";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import { setCookie } from "../../../../lib/cookie";
@@ -35,11 +40,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   //console.log("orderResponse", JSON.stringify(orderResponse, null, 2));
 
   const order: Order = await orderResponse.result;
-  const purchaseUnit0 = order.purchase_units[0].reference_id;
+  const purchaseUnit0 = order.purchase_units[0];
 
   const link = await prisma.link.findUnique({
     where: {
-      hash: purchaseUnit0,
+      hash: purchaseUnit0.reference_id,
     },
     select: {
       hash: true,
@@ -47,6 +52,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       creatorId: true,
       metadata: true,
       saleStatus: true,
+      price: true,
     },
   });
 
@@ -101,6 +107,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     sessionCookies.forEach((cookie) => setCookie(res, cookie));
   }
 
+  const capture0 = purchaseUnit0.payments?.captures[0];
+
+  const breakdown = capture0
+    ? (capture0.seller_receivable_breakdown as unknown as Prisma.InputJsonObject)
+    : {};
+
+  //console.log("upserting order / payment", JSON.stringify(order, null, 2));
+
   const payment = await prisma.payment.upsert({
     where: {
       paymentRef: order.id,
@@ -112,11 +126,18 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       paymentStatus: order.status as PaymentStatus,
       linkHash: link.hash,
       userId: user?.id,
+      payee: purchaseUnit0.payee.merchant_id || null,
+      value: purchaseUnit0.amount.value,
+      currencyCode: purchaseUnit0.amount.currency_code,
+      breakdown: breakdown,
     },
     update: {
       paymentIntent: order.intent as PaymentIntent,
       paymentStatus: order.status as PaymentStatus,
       userId: user?.id,
+      breakdown,
+      currencyCode: capture0?.amount.currency_code,
+      value: capture0?.amount.value,
     },
   });
 
@@ -127,7 +148,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     await sendPurchaseConfirmations({
       payment,
       user,
-      link,
+      link: JSON.parse(JSON.stringify(link)),
     });
   }
 

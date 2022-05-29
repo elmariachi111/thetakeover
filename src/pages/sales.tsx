@@ -37,7 +37,19 @@ export const getServerSideProps: GetServerSideProps<{
     },
   });
 
+  if (!sellerAccount) {
+    return {
+      redirect: {
+        destination: "/my",
+      },
+    };
+  }
+
   const payments = await adapterClient.payment.findMany({
+    where: {
+      payee: sellerAccount.merchantIdInPayPal,
+      paymentStatus: "COMPLETED",
+    },
     include: {
       link: {
         include: {
@@ -45,11 +57,6 @@ export const getServerSideProps: GetServerSideProps<{
         },
       },
       user: true,
-    },
-    where: {
-      link: {
-        creatorId: session.user.id,
-      },
     },
     orderBy: {
       initiatedAt: "desc",
@@ -70,7 +77,7 @@ const Sales = ({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   return (
     <Flex direction="column">
-      <Heading my={6}>Sales</Heading>
+      <Heading my={6}>Sales Overview</Heading>
       <Box overflowX="scroll">
         <Table>
           <Thead>
