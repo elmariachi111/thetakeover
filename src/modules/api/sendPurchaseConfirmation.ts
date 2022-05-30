@@ -10,6 +10,7 @@ import tplPurchaseNotification from "../../mjml/generated/purchaseNotification.h
 import { XLink } from "../../types/Payment";
 import { prismaAdapter } from "./adapter";
 import { createVerificationSigninUrl, emailFrom } from "./emailProvider";
+import canonicalUrl from "./canonicalUrl";
 
 const sendBuyerNotification = async (
   transport: any,
@@ -20,7 +21,7 @@ const sendBuyerNotification = async (
     throw new Error("the user has no email address");
   }
 
-  const callbackUrl = `${process.env.NEXTAUTH_URL}/to/${link.hash}`;
+  const callbackUrl = `${canonicalUrl}/to/${link.hash}`;
 
   const signinUrl = await createVerificationSigninUrl(
     prismaAdapter,
@@ -56,7 +57,7 @@ const sendSellerNotification = async (
     html: tplPurchaseNotification({
       link,
       payment,
-      host: process.env.NEXTAUTH_URL,
+      host: canonicalUrl,
     }),
   });
 };

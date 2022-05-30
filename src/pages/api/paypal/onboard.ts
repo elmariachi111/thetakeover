@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
-
+import canonicalUrl from "../../../modules/api/canonicalUrl";
 import paypal from "../../../modules/api/paypal";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
@@ -11,7 +11,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const onboardLink = await paypal.startSigningUpMerchant(
     session.user.id,
-    `${process.env.NEXTAUTH_URL}/api/paypal/seller`
+    `${canonicalUrl}/api/paypal/seller`
   );
   if (!onboardLink) {
     return res.status(500).send("couldn't create onboard link");

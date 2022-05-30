@@ -9,8 +9,8 @@ import nodemailer from "nodemailer";
 import mailServerConfig from "../../lib/mailConfig";
 //@ts-ignore
 import tplLogin from "../../mjml/generated/verifyToken.html";
+import canonicalUrl from "./canonicalUrl";
 
-const AUTH_BASE = `${process.env.NEXTAUTH_URL}/api/auth`;
 const emailFrom = `The Takeover Movement <${process.env.GOOGLE_MAIL_CLIENT_USER}>`;
 
 const sendVerificationRequest = async (params: {
@@ -84,7 +84,7 @@ const createVerificationSigninUrl = async (
 
   // Generate a link with email, unhashed token and callback url
   const params = new URLSearchParams({ callbackUrl, token, email });
-  const _url = `${AUTH_BASE}/callback/${emailProvider.id}?${params}`;
+  const _url = `${canonicalUrl}/api/auth/callback/${emailProvider.id}?${params}`;
   return _url;
 };
 

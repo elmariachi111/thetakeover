@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { getCsrfToken, getSession } from "next-auth/react";
 import { SiweMessage } from "siwe";
 import { adapterClient, prismaAdapter } from "./adapter";
+import canonicalUrl from "./canonicalUrl";
 
 export const ethereumProvider = (req: NextApiRequest) => {
   return CredentialsProvider({
@@ -24,8 +25,8 @@ export const ethereumProvider = (req: NextApiRequest) => {
       try {
         console.debug("siwe, tryign to authorize ", credentials);
         const siwe = new SiweMessage(JSON.parse(credentials?.message || "{}"));
-        const nextAuthUrl = new URL(process.env.NEXTAUTH_URL as string);
-        if (siwe.domain !== nextAuthUrl.host) {
+
+        if (siwe.domain !== new URL(canonicalUrl).host) {
           return null;
         }
 

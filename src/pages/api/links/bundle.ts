@@ -5,7 +5,7 @@ import { BundleSchema } from "../../../components/molecules/MetadataEditor";
 import { adapterClient } from "../../../modules/api/adapter";
 import { findLinks } from "../../../modules/api/findLink";
 import { BundleInput } from "../../../types/LinkInput";
-
+import canonicalUrl from "../../../modules/api/canonicalUrl";
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const payload: BundleInput = req.body;
   const session = await getSession({ req });
@@ -53,7 +53,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     },
   });
 
-  const newUrl = `${process.env.NEXTAUTH_URL}/to/${hash}`;
+  const newUrl = `${canonicalUrl}/to/${hash}`;
 
   res.status(200).json({
     status: "ok",
