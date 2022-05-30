@@ -4,6 +4,7 @@ import { getSession } from "next-auth/react";
 import { adapterClient } from "../../../modules/api/adapter";
 import { LinkInput } from "../../../types/LinkInput";
 import { extractOembed } from "./oembed";
+import canonicalUrl from "../../../modules/api/canonicalUrl";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const payload: LinkInput = req.body;
@@ -41,7 +42,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     },
   });
 
-  const newUrl = `${process.env.NEXTAUTH_URL}/to/${hash}`;
+  const newUrl = `${canonicalUrl}/to/${hash}`;
 
   res.status(200).json({
     status: "ok",

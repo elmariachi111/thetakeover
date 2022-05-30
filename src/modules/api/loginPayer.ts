@@ -2,6 +2,7 @@ import { NextApiRequest } from "next";
 import { DefaultUser } from "next-auth";
 import { encode } from "next-auth/jwt";
 import { Cookie, SessionStore } from "../../lib/cookie";
+import canonicalUrl from "./canonicalUrl";
 
 //https://github.com/nextauthjs/next-auth/blob/8d7ba75bca2f8a076ff53d55e1916a157e084b1e/packages/next-auth/src/core/routes/callback.ts
 
@@ -9,8 +10,7 @@ export const loginPayer = async (
   req: NextApiRequest,
   user: DefaultUser
 ): Promise<Cookie[]> => {
-  const secureCookie =
-    process.env.NEXTAUTH_URL?.startsWith("https://") ?? !!process.env.VERCEL;
+  const secureCookie = canonicalUrl.startsWith("https://");
   const cookieName = secureCookie
     ? "__Secure-next-auth.session-token"
     : "next-auth.session-token";

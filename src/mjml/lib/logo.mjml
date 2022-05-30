@@ -2,7 +2,7 @@
   <mj-column>
     <mj-image
       width="100px"
-      src="https://the-takeover.vercel.app/to_logo_white.png"
+      src="https://app.the-takeover.com/to_logo_white.png"
     ></mj-image>
     <mj-divider border-color="#FFFFFF"></mj-divider>
   </mj-column>
