@@ -13,15 +13,17 @@ export const ViewBundle = (props: { link: XLink; items: XLink[] }) => {
   const { link, items } = props;
 
   return (
-    <Flex direction="column" w="100%">
+    <Flex direction="column" w="100%" gridGap={12} py={24}>
       <Container maxW="container.xl" px={[2, 2, null]}>
         <Flex
           direction="column"
           justify="center"
           w="100%"
-          h="100vh"
+          minH="100vh"
           align="center"
           position="relative"
+          my={20}
+          gridGap={6}
         >
           <TitleAndCreator link={link} />
           {link.metadata.previewImage && (
@@ -34,7 +36,7 @@ export const ViewBundle = (props: { link: XLink; items: XLink[] }) => {
             skipHtml
           />
 
-          <Icon as={CgScrollV} w={12} h={12} position="absolute" bottom={12} />
+          <Icon as={CgScrollV} w={12} h={12} mt={24} />
         </Flex>
       </Container>
       {items.map((bundleLink) => {

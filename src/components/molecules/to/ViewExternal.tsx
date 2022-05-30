@@ -17,7 +17,7 @@ export const ViewExternal = (props: { link: XLink }) => {
         direction="column"
         justify="center"
         w="100%"
-        h="100vh"
+        minH="100vh"
         align="center"
         gap={12}
       >

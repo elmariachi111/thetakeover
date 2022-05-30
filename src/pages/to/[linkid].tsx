@@ -107,7 +107,7 @@ function ToView({
 
   return (
     <Flex w="100%">
-      <Flex position="absolute" left={12} top={12}>
+      <Flex position="fixed" left={2} top={0} zIndex={20}>
         <ToLogo />
       </Flex>
       <Flex position="fixed" right={2} top={2}>
