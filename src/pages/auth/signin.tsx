@@ -20,7 +20,7 @@ import {
 } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { IoLogoGithub, IoLogoGoogle } from "react-icons/io5";
+import { IoLogoGithub, IoLogoGoogle, IoLogoDiscord } from "react-icons/io5";
 import { GeneralAlert } from "../../components/atoms/GeneralAlert";
 import { SiweButton } from "../../components/atoms/SiweButton";
 
@@ -45,6 +45,7 @@ const transErrors: Record<string, string> = {
 const iconMap = {
   github: <IoLogoGithub />,
   google: <IoLogoGoogle />,
+  discord: <IoLogoDiscord />,
 };
 export function EmailSignin({
   csrfToken,
@@ -135,7 +136,7 @@ export default function SignIn({
       <Heading size="lg">
         {authStatus === "authenticated" ? "Connect with" : "Sign in with"}
       </Heading>
-      <Flex direction="row" gridGap={3}>
+      <Flex direction={["column", "column", "row"]} gridGap={3}>
         {connectableProviders.map((provider: Provider) => (
           <Button
             leftIcon={iconMap[provider.id]}

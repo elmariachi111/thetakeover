@@ -82,11 +82,11 @@ const Sales = ({
         <Table>
           <Thead>
             <Tr>
-              <Th>time</Th>
-              <Th>link</Th>
-              <Th>user</Th>
-              <Th>price</Th>
-              <Th></Th>
+              <Th width="10%">time</Th>
+              <Th width="50%">link</Th>
+              <Th width="20%">user</Th>
+              <Th width="10%">price</Th>
+              <Th width="10%"></Th>
             </Tr>
           </Thead>
           <Tbody>
