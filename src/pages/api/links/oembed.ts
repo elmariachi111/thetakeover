@@ -39,7 +39,23 @@ export const extractOembedFromUrl = async (
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { uri }: { uri: string } = req.body;
   try {
-    const oembed = await extractOembedFromUrl(uri);
+    let oembed;
+    oembed = await extract(uri);
+
+    console.debug(
+      "[OEMBED] extracting via api from %s %s",
+      uri,
+      oembed != null ? "succeeded" : "failed"
+    );
+
+    if (oembed == null) {
+      oembed = await extractOembedFromUrl(uri);
+      console.debug(
+        "[OEMBED] fallback oembed from website %s %s",
+        uri,
+        oembed != null ? "succeeded" : "failed"
+      );
+    }
     res.status(200).send(oembed);
   } catch (e: any) {
     console.error(e);
