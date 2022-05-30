@@ -3,6 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import { adapterClient } from "../../../modules/api/adapter";
 import { LinkInput } from "../../../types/LinkInput";
+import { extractOembed } from "./oembed";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const payload: LinkInput = req.body;
@@ -13,7 +14,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const hash = await nanoid();
 
-  console.log(payload);
+  let oembed;
+  try {
+    oembed = await extractOembed(payload.url);
+  } catch (e: any) {
+    oembed = undefined;
+  }
 
   const newLink = await adapterClient.link.create({
     data: {
@@ -26,11 +32,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const md = await adapterClient.metadata.create({
     data: {
+      linkHash: hash,
       description: payload.description,
       title: payload.title,
       previewImage: payload.previewImage,
       embed: payload.embed,
-      linkHash: hash,
+      oembed,
     },
   });
 

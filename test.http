@@ -98,3 +98,14 @@ Content-Type: application/json
 GET {{Paypal}}/v2/customer/partner-referrals/N2E1ZDNjNTItMTU3MC00MzM5LTkyOTctN2Y5YmY3NTM2ZWMzVjgzSDFSTkM2RHRWY0xiWkx3U3F6blYxZ3d1RUlrdUpKMmVzQkdsZmhQTT12Mg==
 Authorization: Bearer {{PaypalAccessToken}}
 Content-Type: application/json
+
+###
+
+POST http://localhost:3000/api/links/dropbox
+Content-Type: application/json
+
+{
+  //"uri": "https://www.dropbox.com/s/yskvm0vx9rf449k/stefan.05b672a7.jpg?dl=0"
+  "uri": "https://www.dropbox.com/sh/4dl2dz5gnviwqls/AAAgnigO3acUazEmO-i1w0OJa?dl=0"
+}
+
