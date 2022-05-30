@@ -3573,6 +3573,13 @@ domutils@^2.0.0, domutils@^2.5.2, domutils@^2.8.0:
     domelementtype "^2.2.0"
     domhandler "^4.2.0"
 
+dropbox@^10.29.0:
+  version "10.29.0"
+  resolved "https://registry.yarnpkg.com/dropbox/-/dropbox-10.29.0.tgz#3ae751706f7be8d31ac4aa72825b3b45a48ee3d3"
+  integrity sha512-ZrLZbrvZPWiF9DLSOpmwXq57saTFwygcD6FBV7onURbTNHn0ivavAlb7jT/HI0LguNbCxpS2Luh1LHiYXM2ojA==
+  dependencies:
+    node-fetch "^2.6.1"
+
 duplexer@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/duplexer/-/duplexer-0.1.2.tgz#3abe43aef3835f8ae077d136ddce0f276b0400e6"

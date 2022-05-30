@@ -26,6 +26,7 @@
     "axios-logger": "^2.6.0",
     "chakra-ui-markdown-renderer": "^4.0.0",
     "cookie": "^0.4.1",
+    "dropbox": "^10.29.0",
     "ethers": "^5.6.4",
     "formik": "^2.2.9",
     "framer-motion": "^4",
