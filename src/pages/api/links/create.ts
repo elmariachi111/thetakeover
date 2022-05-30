@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import { adapterClient } from "../../../modules/api/adapter";
 import { LinkInput } from "../../../types/LinkInput";
-import { extractOembedFromUrl } from "./oembed";
+import { extractOembed } from "./oembed";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const payload: LinkInput = req.body;
@@ -16,7 +16,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   let oembed;
   try {
-    oembed = await extractOembedFromUrl(payload.url);
+    oembed = await extractOembed(payload.url);
   } catch (e: any) {
     oembed = undefined;
   }

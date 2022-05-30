@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { extract, OembedData } from "oembed-parser";
+import { extract as extractOembedFromApi, OembedData } from "oembed-parser";
 import { parse } from "node-html-parser";
 import axios from "axios";
 
@@ -10,7 +10,7 @@ const scraperOptions = {
   },
 };
 
-const extractOembedUrlFromWebsite = async (url: string) => {
+const getOembedUrlFromWebsite = async (url: string) => {
   const res = await axios.get(url, scraperOptions);
   const html = parse(res.data);
   const $el = html.querySelector('link[type="application/json+oembed"]');
@@ -18,44 +18,39 @@ const extractOembedUrlFromWebsite = async (url: string) => {
   return $el.getAttribute("href") || null;
 };
 
-const fetchOembedData = async (oembedUri: string): Promise<OembedData> => {
-  const oembedRes = await axios.get(oembedUri, scraperOptions);
-  return oembedRes.data;
+const extractOembedFromUrl = async (
+  url: string
+): Promise<OembedData | null> => {
+  const href = await getOembedUrlFromWebsite(url);
+  if (!href) return null;
+  return (await axios.get(href, scraperOptions)).data;
 };
 
-export const extractOembedFromUrl = async (
-  url: string
-): Promise<OembedData> => {
-  const href = await extractOembedUrlFromWebsite(url);
-  if (href === null) {
-    //fallback to oembed library...
-    const oembed = await extract(url);
-    if (!oembed) throw Error("url doesnt contain oembed data");
-    return oembed;
+export const extractOembed = async (uri: string): Promise<OembedData> => {
+  let oembed;
+  oembed = await extractOembedFromApi(uri);
+
+  console.debug(
+    "[OEMBED] extracting via api from %s %s",
+    uri,
+    oembed != null ? "succeeded" : "failed"
+  );
+
+  if (oembed == null) {
+    oembed = await extractOembedFromUrl(uri);
+    console.debug(
+      "[OEMBED] fallback oembed from website %s %s",
+      uri,
+      oembed != null ? "succeeded" : "failed"
+    );
   }
-  return fetchOembedData(href);
+  return oembed;
 };
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const { uri }: { uri: string } = req.body;
   try {
-    let oembed;
-    oembed = await extract(uri);
-
-    console.debug(
-      "[OEMBED] extracting via api from %s %s",
-      uri,
-      oembed != null ? "succeeded" : "failed"
-    );
-
-    if (oembed == null) {
-      oembed = await extractOembedFromUrl(uri);
-      console.debug(
-        "[OEMBED] fallback oembed from website %s %s",
-        uri,
-        oembed != null ? "succeeded" : "failed"
-      );
-    }
+    const oembed = await extractOembed(uri);
     res.status(200).send(oembed);
   } catch (e: any) {
     console.error(e);
