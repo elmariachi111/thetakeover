@@ -19,7 +19,7 @@ const CreateLink: NextPage = () => {
 
   const salutation = useMemo(() => {
     if (status === "authenticated") {
-      return session.user?.name || session.user?.email || session.user?.id;
+      return session?.user?.name || session?.user?.email || session?.user?.id;
     }
   }, [session, status]);
 
