@@ -19,18 +19,7 @@ const CreateLink: NextPage = () => {
 
   const salutation = useMemo(() => {
     if (status === "authenticated") {
-      if (session) {
-        if (session.user) {
-          return (
-            "gm, " +
-            (session.user.name || session.user.email || session.user.id)
-          );
-        } else {
-          return "gm.";
-        }
-      }
-    } else {
-      return "gm, please";
+      return session.user?.name || session.user?.email || session.user?.id;
     }
   }, [session, status]);
 
@@ -39,7 +28,12 @@ const CreateLink: NextPage = () => {
       <Spacer />
       {status === "authenticated" ? (
         <Flex direction="column" align="center">
-          <Text my={3}>{salutation}</Text>
+          <Text my={3}>
+            gm,{" "}
+            <Link href="/profile" passHref>
+              <ChakraLink>{salutation}</ChakraLink>
+            </Link>
+          </Text>
           <Link href="/create" passHref>
             <Button as={ChakraLink} to="/create">
               Create a Takeover
