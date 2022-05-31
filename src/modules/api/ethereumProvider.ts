@@ -34,7 +34,8 @@ export const ethereumProvider = (req: NextApiRequest) => {
           console.error("nonce doesnt match");
           return null;
         }
-        await siwe.validate(credentials?.signature || "");
+        //throws when invalid
+        const message = await siwe.validate(credentials?.signature || "");
 
         const session = await getSession({ req });
 
@@ -42,13 +43,35 @@ export const ethereumProvider = (req: NextApiRequest) => {
           console.debug(`session user ${session.user.id}`);
           const account = await adapterClient.account.findFirst({
             where: {
-              userId: session.user.id,
               providerAccountId: siwe.address,
               provider: "ethereum",
             },
           });
-          console.debug(`has account ${account?.providerAccountId}`);
-          if (!account) {
+
+          if (account) {
+            console.debug(
+              `eth account exists [${account?.providerAccountId}][${account?.id}]`
+            );
+            if (account.userId !== session.user.id) {
+              //#57 assuming it's *not* safe to move over this account since signing with an Eth address is a safe op
+              //console.error("account already taken");
+              throw new Error(
+                `eth account [${siwe.address}] already associated with another user`
+              );
+              //#57 alternatively: move the account to the current user.
+              // console.warn(
+              //   `ethereum address [${siwe.address} is already attached to another user [${account.userId}]. Moving it to the current user`
+              // );
+              // await adapterClient.account.update({
+              //   where: {
+              //     id: account.id,
+              //   },
+              //   data: {
+              //     userId: session.user.id,
+              //   },
+              // });
+            }
+          } else {
             console.debug("creating new eth account for session user");
             await prismaAdapter.linkAccount({
               userId: session.user.id,
@@ -71,10 +94,12 @@ export const ethereumProvider = (req: NextApiRequest) => {
           });
 
           if (user) {
-            console.debug(`no session. found user by account`);
+            console.debug(
+              `Found user [${user.id}] by eth account [${siwe.address}]`
+            );
             return user;
           }
-          console.debug("creating user and account");
+          console.debug(`creating new user for eth account [${siwe.address}]`);
           user = await adapterClient.user.create({
             data: {
               accounts: {
@@ -90,7 +115,7 @@ export const ethereumProvider = (req: NextApiRequest) => {
         }
       } catch (e) {
         console.error("siwe error", e);
-        return null;
+        throw e;
       }
     },
   });

@@ -1,4 +1,4 @@
-import { Button, Icon } from "@chakra-ui/react";
+import { Button, Icon, useToast } from "@chakra-ui/react";
 import { getCsrfToken, signIn, useSession } from "next-auth/react";
 import { useCallback } from "react";
 import { SiweMessage } from "siwe";
@@ -11,6 +11,8 @@ export const SiweButton = (props: {
 }) => {
   const { data: session } = useSession();
   const { connect } = useWeb3();
+  const toast = useToast();
+  const { onConnected } = props;
 
   const handleSiwe = useCallback(async () => {
     try {
@@ -30,20 +32,33 @@ export const SiweButton = (props: {
       const signature = await signer?.signMessage(message.prepareMessage());
 
       if (signature) {
-        await signIn("ethereum", {
+        const result: {
+          ok: boolean;
+          status: number;
+          error: string;
+        } = (await signIn("ethereum", {
           message: JSON.stringify(message),
           redirect: false,
           signature,
           callbackUrl,
-        });
-        if (props.onConnected) {
-          props.onConnected(account as string);
+        })) as any | undefined;
+        if (result.error) {
+          throw { message: result.error };
+        } else {
+          if (onConnected) {
+            onConnected(account as string);
+          }
         }
       }
-    } catch (error) {
-      window.alert(error);
+    } catch (error: any) {
+      console.error(error);
+      toast({
+        status: "error",
+        title: "ethereum connection failed",
+        description: error.message,
+      });
     }
-  }, [session, connect]);
+  }, [connect, onConnected, toast]);
 
   return (
     <>
