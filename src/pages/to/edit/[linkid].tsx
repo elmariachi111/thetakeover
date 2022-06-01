@@ -105,7 +105,6 @@ function ToEdit({
     title: link.metadata.title,
     previewImage: link.metadata.previewImage,
     description: link.metadata.description,
-    embed: link.metadata.embed || "",
     salesActive: link.saleStatus,
   };
 

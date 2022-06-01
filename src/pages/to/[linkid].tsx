@@ -113,7 +113,6 @@ function ToView({
       window.onscroll = null;
     };
   }, [motionDetected]);
-
   useEffect(() => {
     motionDetected();
   }, []);
@@ -121,19 +120,23 @@ function ToView({
   let view;
   if (bundleItems.length > 0) {
     view = (
-      <ViewBundle link={link} items={bundleItems} showChrome={showChrome} />
+      <ViewBundle
+        link={link}
+        items={bundleItems}
+        showChrome={showChrome}
+        motionDetected={motionDetected}
+      />
     );
   } else {
-    const embed = extractEmbedUrl(link.metadata.embed);
-    if (!embed) {
-      view = <ViewExternal link={link} />;
-    } else {
+    if (link.metadata.oembed?.html) {
       view = <ViewEmbed link={link} showChrome={showChrome} />;
+    } else {
+      view = <ViewExternal link={link} />;
     }
   }
 
   return (
-    <Flex w="100%">
+    <Flex w="100%" h="101vh">
       <Flex
         position="fixed"
         left={2}
@@ -156,7 +159,7 @@ function ToView({
         )}
         {session?.user?.id !== link.creatorId && <ReportContent link={link} />}
       </Flex>
-      <Flex margin="0 auto" borderBottom="2px solid transparent">
+      <Flex margin="0 auto" w="100%" h="100%">
         {view}
       </Flex>
     </Flex>
