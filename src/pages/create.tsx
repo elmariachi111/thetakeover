@@ -1,4 +1,11 @@
-import { Box, Flex, Heading, Spacer, useBoolean } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Heading,
+  Spacer,
+  useBoolean,
+  useToast,
+} from "@chakra-ui/react";
 import axios from "axios";
 import type { NextPage } from "next";
 import { signIn, useSession } from "next-auth/react";
@@ -13,6 +20,7 @@ const CreateLink: NextPage = () => {
   const router = useRouter();
   const { url: qUrl, price: qPrice } = router.query;
   const { status } = useSession();
+  const toast = useToast();
 
   const [initialValues, setInitialValues] = useState<Partial<LinkInput>>();
   const [buzy, setBuzy] = useBoolean(false);
@@ -41,17 +49,32 @@ const CreateLink: NextPage = () => {
     setInitialValues(undefined);
   }, [status, qUrl, qPrice]);
 
-  const create = async (payload: LinkInput) => {
+  const create = async (
+    payload: LinkInput,
+    afterSuccessfulSubmission?: () => void
+  ) => {
     if (status === "authenticated") {
       setBuzy.on();
-      const _res = await axios.post("/api/links/create", payload);
-      const { newUrl } = _res.data;
-      setBuzy.off();
-      setCreatedLink(newUrl);
+      try {
+        const _res = await axios.post("/api/links/create", payload);
+        const { newUrl } = _res.data;
+        afterSuccessfulSubmission && afterSuccessfulSubmission();
+        setCreatedLink(newUrl);
+      } catch (e: any) {
+        const reason = e.response ? e.response.data.reason : e.message;
+        toast({
+          status: "error",
+          title: "couldn't create Takevoer",
+          description: reason,
+        });
+      } finally {
+        setBuzy.off();
+      }
     } else {
       window.localStorage.setItem("newLink", JSON.stringify(payload));
       await signIn(undefined, { callbackUrl: "/create" });
     }
+    return false;
   };
 
   const proceedToContent = async () => {

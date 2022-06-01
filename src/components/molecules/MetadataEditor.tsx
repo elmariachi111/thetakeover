@@ -85,7 +85,6 @@ const MetadataEditor = (props: {
         setFieldValue("description", oembed.description);
         setFieldValue("title", oembed.title);
         setFieldValue("previewImage", oembed.thumbnail_url, true);
-        setFieldValue("embed", oembed.html);
       } catch (e: any) {
         console.error(e.message);
       } finally {

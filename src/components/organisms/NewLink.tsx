@@ -14,7 +14,7 @@ import { LinkInput } from "../../types/LinkInput";
 import { LinkSchema, MetadataEditor } from "../molecules/MetadataEditor";
 
 const NewLink = (props: {
-  onSubmit: (p: LinkInput) => unknown;
+  onSubmit: (input: LinkInput, afterSubmission?: () => void) => unknown;
   buttonRef: MutableRefObject<HTMLElement | null>;
   initialValues?: Partial<LinkInput>;
 }) => {
@@ -24,7 +24,6 @@ const NewLink = (props: {
     title: "",
     previewImage: "",
     description: "",
-    embed: "",
     ...props.initialValues,
   };
   const { status } = useSession();
@@ -37,9 +36,7 @@ const NewLink = (props: {
       initialValues={initialValues}
       validationSchema={LinkSchema}
       onSubmit={async (values, { resetForm }) => {
-        await props.onSubmit(values);
-        resetForm();
-        return;
+        props.onSubmit(values, resetForm);
       }}
     >
       {({ errors, touched, values }) => (

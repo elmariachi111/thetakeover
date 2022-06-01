@@ -22,33 +22,43 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     oembed = undefined;
   }
 
-  const newLink = await adapterClient.link.create({
-    data: {
+  try {
+    const newLink = await adapterClient.link.create({
+      data: {
+        hash,
+        originUri: payload.url,
+        price: payload.price,
+        creatorId: session.user.id,
+      },
+    });
+    const md = await adapterClient.metadata.create({
+      data: {
+        linkHash: hash,
+        description: payload.description,
+        title: payload.title,
+        previewImage: payload.previewImage,
+        oembed,
+      },
+    });
+
+    const newUrl = `${canonicalUrl}/to/${hash}`;
+
+    res.status(200).json({
+      status: "ok",
       hash,
-      originUri: payload.url,
-      price: payload.price,
-      creatorId: session.user.id,
-    },
-  });
-
-  const md = await adapterClient.metadata.create({
-    data: {
-      linkHash: hash,
-      description: payload.description,
-      title: payload.title,
-      previewImage: payload.previewImage,
-      embed: payload.embed,
-      oembed,
-    },
-  });
-
-  const newUrl = `${canonicalUrl}/to/${hash}`;
-
-  res.status(200).json({
-    status: "ok",
-    hash,
-    newUrl,
-  });
+      newUrl,
+    });
+  } catch (e: any) {
+    console.error(e);
+    const reason =
+      e.meta?.target == "Link_originUri_key"
+        ? "someone used that link already"
+        : e.message;
+    res.status(500).json({
+      status: "error",
+      reason,
+    });
+  }
 };
 
 export default handler;
