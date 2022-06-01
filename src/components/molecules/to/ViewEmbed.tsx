@@ -13,20 +13,18 @@ export const ViewEmbed = (props: { link: XLink; showChrome: boolean }) => {
     : null;
 
   return (
-    <Flex direction="column" w="100vw" minH="100vh">
-      <Flex w="100%" h="100%">
-        {embedUrl ? (
-          <Iframe
-            url={embedUrl}
-            allowFullScreen
-            width="100%"
-            height="100%"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          />
-        ) : (
-          <Text>no embed found</Text>
-        )}
-      </Flex>
+    <Flex direction="column" w="100%" minH="100vh">
+      {embedUrl ? (
+        <Iframe
+          url={embedUrl}
+          allowFullScreen
+          width="100%"
+          height="100%"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        />
+      ) : (
+        <Text>no embed found</Text>
+      )}
 
       <Flex
         position="absolute"

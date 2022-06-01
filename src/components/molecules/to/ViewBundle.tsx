@@ -22,9 +22,10 @@ export const ViewBundle = (props: {
       direction="column"
       gridGap={12}
       py={24}
+      w="100%"
       h="100vh"
       overflowY="scroll"
-      style={{ scrollSnapType: "y" }}
+      style={{ scrollSnapType: "y mandatory" }}
     >
       <Container maxW="container.xl" px={[2, 2, null]}>
         <Flex
@@ -54,7 +55,7 @@ export const ViewBundle = (props: {
           <Flex
             key={`bundle-${bundleLink.hash}`}
             position="relative"
-            style={{ scrollSnapAlign: "start" }}
+            style={{ scrollSnapAlign: "center" }}
           >
             {bundleLink.metadata.oembed ? (
               <ViewEmbed link={bundleLink} showChrome={showChrome} />

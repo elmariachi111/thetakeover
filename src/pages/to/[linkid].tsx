@@ -136,7 +136,7 @@ function ToView({
   }
 
   return (
-    <Flex w="100%" h="101vh">
+    <Flex w="100vw">
       <Flex
         position="fixed"
         left={2}
@@ -150,6 +150,7 @@ function ToView({
         position="fixed"
         right={2}
         top={2}
+        zIndex={20}
         visibility={showChrome ? "visible" : "hidden"}
       >
         {session?.user?.id === link.creatorId && (
@@ -159,7 +160,11 @@ function ToView({
         )}
         {session?.user?.id !== link.creatorId && <ReportContent link={link} />}
       </Flex>
-      <Flex margin="0 auto" w="100%" h="100%">
+      <Flex
+        margin="0 auto"
+        borderBottom={bundleItems.length == 0 ? "1px solid black" : ""}
+        w="100%"
+      >
         {view}
       </Flex>
     </Flex>
