@@ -19,7 +19,7 @@ import { XOembedData } from "../../types/Oembed";
 import CloudinaryUploadWidget from "../organisms/CloudinaryUploadWidget";
 
 const LinkSchema = Yup.object().shape({
-  url: Yup.string().url("not an url").max(200).required("required"),
+  url: Yup.string().url("not an url").max(550).required("required"),
   price: Yup.number()
     .moreThan(0.98, "price too low")
     .lessThan(100, "price too high")
