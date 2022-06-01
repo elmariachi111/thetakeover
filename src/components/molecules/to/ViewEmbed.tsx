@@ -1,35 +1,13 @@
 import { Fade, Flex } from "@chakra-ui/react";
-import React, { useCallback, useEffect, useState } from "react";
+import React from "react";
 import Iframe from "react-iframe";
 import { extractEmbedUrl } from "../../../modules/fixEmbed";
 import { XLink } from "../../../types/Link";
 import { TitleAndCreator } from "../../atoms/TitleAndCreator";
 
-export const ViewEmbed = (props: { link: XLink }) => {
-  const { link } = props;
+export const ViewEmbed = (props: { link: XLink; showChrome: boolean }) => {
+  const { link, showChrome } = props;
   const embed = extractEmbedUrl(link.metadata.embed);
-
-  const [showTitle, setShowTitle] = useState(true);
-  const [timeout, setTimeout] = useState<number>();
-
-  const motion = useCallback(() => {
-    if (timeout) {
-      window.clearTimeout(timeout);
-    }
-    setShowTitle(true);
-    setTimeout(
-      window.setTimeout(() => {
-        setShowTitle(false);
-      }, 3000)
-    );
-  }, [timeout]);
-
-  useEffect(() => {
-    window.onscroll = motion;
-    return () => {
-      window.onscroll = null;
-    };
-  }, [motion]);
 
   return (
     <Flex direction="column" w="100vw" minH="100vh">
@@ -51,7 +29,7 @@ export const ViewEmbed = (props: { link: XLink }) => {
         alignItems="center"
         direction="column"
       >
-        <Fade in={showTitle} unmountOnExit>
+        <Fade in={showChrome} unmountOnExit>
           <TitleAndCreator link={link} color="white" backdrop />
         </Fade>
       </Flex>

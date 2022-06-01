@@ -1,9 +1,9 @@
-import { Flex, IconButton } from "@chakra-ui/react";
+import { Flex, IconButton, Spacer } from "@chakra-ui/react";
 import { Payment } from "@prisma/client";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { getSession, useSession } from "next-auth/react";
 import { default as NextLink } from "next/link";
-import { ReactElement } from "react";
+import { ReactElement, useCallback, useEffect, useState } from "react";
 import { FiEdit2 } from "react-icons/fi";
 import { ToLogo } from "../../components/atoms/ToLogo";
 import { ReportContent } from "../../components/molecules/ReportContent";
@@ -92,25 +92,63 @@ function ToView({
   const { data: session } = useSession({
     required: false,
   });
+  const [timeout, setTimeout] = useState<number>();
+  const [showChrome, setShowChrome] = useState<boolean>(true);
+
+  const motionDetected = useCallback(() => {
+    if (timeout) {
+      window.clearTimeout(timeout);
+    }
+    setShowChrome(true);
+    setTimeout(
+      window.setTimeout(() => {
+        setShowChrome(false);
+      }, 3000)
+    );
+  }, [timeout]);
+
+  useEffect(() => {
+    window.onscroll = motionDetected;
+    return () => {
+      window.onscroll = null;
+    };
+  }, [motionDetected]);
+
+  useEffect(() => {
+    motionDetected();
+  }, []);
 
   let view;
   if (bundleItems.length > 0) {
-    view = <ViewBundle link={link} items={bundleItems} />;
+    view = (
+      <ViewBundle link={link} items={bundleItems} showChrome={showChrome} />
+    );
   } else {
     const embed = extractEmbedUrl(link.metadata.embed);
     if (!embed) {
       view = <ViewExternal link={link} />;
     } else {
-      view = <ViewEmbed link={link} />;
+      view = <ViewEmbed link={link} showChrome={showChrome} />;
     }
   }
 
   return (
     <Flex w="100%">
-      <Flex position="fixed" left={2} top={0} zIndex={20}>
+      <Flex
+        position="fixed"
+        left={2}
+        top={0}
+        zIndex={20}
+        visibility={showChrome ? "visible" : "hidden"}
+      >
         <ToLogo />
       </Flex>
-      <Flex position="fixed" right={2} top={2}>
+      <Flex
+        position="fixed"
+        right={2}
+        top={2}
+        visibility={showChrome ? "visible" : "hidden"}
+      >
         {session?.user?.id === link.creatorId && (
           <NextLink href={`/to/edit/${link.hash}`} passHref>
             <IconButton aria-label="edit" icon={<FiEdit2 />} />
@@ -118,7 +156,9 @@ function ToView({
         )}
         {session?.user?.id !== link.creatorId && <ReportContent link={link} />}
       </Flex>
-      <Flex margin="0 auto">{view}</Flex>
+      <Flex margin="0 auto" borderBottom="2px solid transparent">
+        {view}
+      </Flex>
     </Flex>
   );
 }

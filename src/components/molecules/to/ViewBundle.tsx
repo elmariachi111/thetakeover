@@ -9,8 +9,12 @@ import ReactMarkdown from "react-markdown";
 import ChakraUIRenderer from "chakra-ui-markdown-renderer";
 import { CgScrollV } from "react-icons/cg";
 
-export const ViewBundle = (props: { link: XLink; items: XLink[] }) => {
-  const { link, items } = props;
+export const ViewBundle = (props: {
+  link: XLink;
+  items: XLink[];
+  showChrome: boolean;
+}) => {
+  const { link, items, showChrome } = props;
 
   return (
     <Flex direction="column" w="100%" gridGap={12} py={24}>
@@ -44,7 +48,7 @@ export const ViewBundle = (props: { link: XLink; items: XLink[] }) => {
         return (
           <Flex key={`bundle-${bundleLink.hash}`} w="100%" position="relative">
             {embed ? (
-              <ViewEmbed link={bundleLink} />
+              <ViewEmbed link={bundleLink} showChrome={showChrome} />
             ) : (
               <ViewExternal link={bundleLink} />
             )}
