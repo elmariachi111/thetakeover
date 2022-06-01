@@ -20,7 +20,7 @@ enum SaleStatus {
 
 model Link {
     hash       String       @id
-    originUri  String?      @map("origin_uri")
+    originUri  String?      @unique @db.VarChar(550)
     price      Decimal
     creatorId  String       @map("creator_id")
     creator    User         @relation(fields: [creatorId], references: [id])
@@ -37,12 +37,11 @@ model Link {
 }
 
 model Metadata {
-    linkHash     String  @id @map("link_hash")
-    link         Link    @relation(fields: [linkHash], references: [hash], onDelete: Cascade)
+    linkHash     String @id @map("link_hash")
+    link         Link   @relation(fields: [linkHash], references: [hash], onDelete: Cascade)
     title        String
-    description  String  @db.LongText
-    previewImage String  @map("preview_image") @db.MediumText
-    embed        String? @db.MediumText
+    description  String @db.LongText
+    previewImage String @map("preview_image") @db.MediumText
     oembed       Json?
 
     @@index([linkHash])

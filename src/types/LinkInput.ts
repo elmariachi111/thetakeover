@@ -6,7 +6,6 @@ export type LinkInput = {
   title: string;
   previewImage: string;
   description: string;
-  embed: string;
   salesActive?: SaleStatus;
 };
 

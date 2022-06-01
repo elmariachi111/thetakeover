@@ -19,7 +19,7 @@ import { XOembedData } from "../../types/Oembed";
 import CloudinaryUploadWidget from "../organisms/CloudinaryUploadWidget";
 
 const LinkSchema = Yup.object().shape({
-  url: Yup.string().url("not an url").required("required"),
+  url: Yup.string().url("not an url").max(550).required("required"),
   price: Yup.number()
     .moreThan(0.98, "price too low")
     .lessThan(100, "price too high")
@@ -85,7 +85,6 @@ const MetadataEditor = (props: {
         setFieldValue("description", oembed.description);
         setFieldValue("title", oembed.title);
         setFieldValue("previewImage", oembed.thumbnail_url, true);
-        setFieldValue("embed", oembed.html);
       } catch (e: any) {
         console.error(e.message);
       } finally {
