@@ -20,7 +20,7 @@ enum SaleStatus {
 
 model Link {
     hash       String       @id
-    originUri  String?      @map("origin_uri")
+    originUri  String?      @unique @db.VarChar(255)
     price      Decimal
     creatorId  String       @map("creator_id")
     creator    User         @relation(fields: [creatorId], references: [id])
