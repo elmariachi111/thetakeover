@@ -134,7 +134,7 @@ export function sdk(
         const actionUrl = resp.links.find((l) => l.rel === "action_url");
         return actionUrl?.href || null;
       } catch (e: any) {
-        console.error(e);
+        console.error(JSON.stringify(e, null, 2));
         return null;
       }
     },
