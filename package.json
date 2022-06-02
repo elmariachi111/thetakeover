@@ -11,6 +11,8 @@
     "postinstall": "yarn prisma:gen && yarn mjml"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.100.0",
+    "@aws-sdk/s3-request-presigner": "^3.100.0",
     "@chakra-ui/react": "^1.8.3",
     "@coinbase/wallet-sdk": "^3.0.11",
     "@emotion/react": "^11",
@@ -40,6 +42,7 @@
     "oembed-parser": "^3.0.3",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-dropzone": "^14.2.1",
     "react-icons": "^4.3.1",
     "react-iframe": "^1.8.0",
     "react-markdown": "^8.0.3",

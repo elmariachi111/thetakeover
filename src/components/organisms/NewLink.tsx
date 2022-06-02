@@ -9,7 +9,9 @@ import {
 } from "@chakra-ui/react";
 import { Field, Form, Formik } from "formik";
 import { useSession } from "next-auth/react";
-import React, { MutableRefObject } from "react";
+import React, { MutableRefObject, useCallback, useState } from "react";
+import { useDropzone } from "react-dropzone";
+import { storeFiles } from "../../modules/storeFiles";
 import { LinkInput } from "../../types/LinkInput";
 import { LinkSchema, MetadataEditor } from "../molecules/MetadataEditor";
 
@@ -28,6 +30,13 @@ const NewLink = (props: {
   };
   const { status } = useSession();
   const buttonRef = props.buttonRef;
+
+  const [files, setFiles] = useState([]);
+
+  const onDrop = useCallback((acceptedFiles) => {
+    setFiles(acceptedFiles);
+  }, []);
+  const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   return (
     <Formik
@@ -54,8 +63,21 @@ const NewLink = (props: {
                 <FormErrorMessage>{errors.url}</FormErrorMessage>
               )}
             </FormControl>
-
-            {!!values.url && !errors.url && (
+            <Flex justify="space-between">
+              <Flex {...getRootProps()} direction="column">
+                <input {...getInputProps()} />
+                <p>Drop some files here, or click to select files</p>
+                <ul>
+                  {files.map((f: { path: string }) => (
+                    <li key={f.path}>{f.path}</li>
+                  ))}
+                </ul>
+              </Flex>
+              {!!files && (
+                <Button onClick={() => storeFiles(files)}>upload</Button>
+              )}
+            </Flex>
+            {(!!files || (!!values.url && !errors.url)) && (
               <MetadataEditor
                 initialValues={
                   values.description?.length > 10 ? initialValues : undefined
@@ -77,7 +99,9 @@ const NewLink = (props: {
               w="100%"
               form="newlink-form"
               disabled={
-                values.url.length < 5 || Object.values(errors).length > 0
+                !files ||
+                values.url.length < 5 ||
+                Object.values(errors).length > 0
               }
             >
               {status === "authenticated"
