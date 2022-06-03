@@ -14,12 +14,12 @@ import { useField, useFormikContext } from "formik";
 import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
-import { LinkInput } from "../../types/LinkInput";
+import { NewTakeoverInput } from "../../types/TakeoverInput";
 import { XOembedData } from "../../types/Oembed";
 import CloudinaryUploadWidget from "../organisms/CloudinaryUploadWidget";
 
-const LinkSchema = Yup.object().shape({
-  url: Yup.string().url("not an url").max(550).required("required"),
+export const LinkSchema = Yup.object().shape({
+  url: Yup.string().url("not an url").max(550),
   price: Yup.number()
     .moreThan(0.98, "price too low")
     .lessThan(100, "price too high")
@@ -37,11 +37,11 @@ const LinkSchema = Yup.object().shape({
     .required("needs a preview image"),
 });
 
-const BundleSchema = LinkSchema.omit(["url"]);
+export const BundleSchema = LinkSchema.omit(["url"]);
 
-const MetadataEditor = (props: {
+export const MetadataEditor = (props: {
   isDisabled?: boolean;
-  initialValues?: LinkInput;
+  initialValues?: NewTakeoverInput;
 }) => {
   const { isDisabled, initialValues } = props;
   const { status } = useSession();
@@ -49,7 +49,7 @@ const MetadataEditor = (props: {
   const {
     values: { url },
     setFieldValue,
-  } = useFormikContext<LinkInput>();
+  } = useFormikContext<NewTakeoverInput>();
   const [fTitle, mTitle] = useField({
     name: "title",
     value: initialValues?.title,
@@ -158,5 +158,3 @@ const MetadataEditor = (props: {
     </Flex>
   );
 };
-
-export { MetadataEditor, LinkSchema, BundleSchema };

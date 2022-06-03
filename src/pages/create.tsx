@@ -14,7 +14,9 @@ import { useEffect, useRef, useState } from "react";
 import { ToLoadingOverlay } from "../components/atoms/ToOverlay";
 import { ToSuccessOverlay } from "../components/molecules/ToSuccessOverlay";
 import NewLink from "../components/organisms/NewLink";
-import { LinkInput } from "../types/LinkInput";
+import { LinkInput, NewTakeoverInput } from "../types/TakeoverInput";
+
+const CACHE_ITEM_NAME = "newTO";
 
 const CreateLink: NextPage = () => {
   const router = useRouter();
@@ -22,35 +24,34 @@ const CreateLink: NextPage = () => {
   const { status } = useSession();
   const toast = useToast();
 
-  const [initialValues, setInitialValues] = useState<Partial<LinkInput>>();
+  const [linkInput, setLinkInput] = useState<LinkInput>();
+
   const [buzy, setBuzy] = useBoolean(false);
   const [createdLink, setCreatedLink] = useState<string>();
 
   useEffect(() => {
-    const _newLink = window.localStorage.getItem("newLink");
+    const _newTO = window.localStorage.getItem(CACHE_ITEM_NAME);
 
-    if (_newLink) {
-      const newLink = JSON.parse(_newLink) as LinkInput;
+    if (_newTO) {
+      const newTO = JSON.parse(_newTO) as NewTakeoverInput;
       if (status === "authenticated") {
-        window.localStorage.removeItem("newLink");
-        create(newLink);
+        window.localStorage.removeItem(CACHE_ITEM_NAME);
+        create(newTO);
       }
       return;
     }
 
     if (!!qUrl && !!qPrice) {
-      window.localStorage.removeItem("newLink");
-      return setInitialValues({
-        price: parseFloat(qPrice as string),
+      window.localStorage.removeItem(CACHE_ITEM_NAME);
+      return setLinkInput({
         url: qUrl as string,
+        price: parseFloat(qPrice as string),
       });
     }
-
-    setInitialValues(undefined);
   }, [status, qUrl, qPrice]);
 
   const create = async (
-    payload: LinkInput,
+    payload: NewTakeoverInput,
     afterSuccessfulSubmission?: () => void
   ) => {
     if (status === "authenticated") {
@@ -71,7 +72,7 @@ const CreateLink: NextPage = () => {
         setBuzy.off();
       }
     } else {
-      window.localStorage.setItem("newLink", JSON.stringify(payload));
+      window.localStorage.setItem(CACHE_ITEM_NAME, JSON.stringify(payload));
       await signIn(undefined, { callbackUrl: "/create" });
     }
     return false;
@@ -106,7 +107,7 @@ const CreateLink: NextPage = () => {
       <NewLink
         onSubmit={create}
         buttonRef={buttonRef}
-        initialValues={initialValues}
+        initialLink={linkInput}
       />
 
       <Spacer />

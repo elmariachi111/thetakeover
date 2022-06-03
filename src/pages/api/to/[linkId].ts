@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
-import { LinkInput } from "../../../types/LinkInput";
+import { NewTakeoverInput } from "../../../types/TakeoverInput";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const prisma = new PrismaClient();
@@ -12,7 +12,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const linkId = req.query.linkId as string;
 
   if (req.method === "POST") {
-    const { link }: { link: LinkInput } = req.body;
+    const { link }: { link: NewTakeoverInput } = req.body;
 
     const oldLink = await prisma.link.findUnique({
       where: {

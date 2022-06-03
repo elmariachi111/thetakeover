@@ -3,17 +3,21 @@ import { SaleStatus } from "@prisma/client";
 export type LinkInput = {
   url: string;
   price: number;
-  title: string;
-  previewImage: string;
-  description: string;
-  salesActive?: SaleStatus;
 };
 
-export type BundleInput = {
+export type TOMetadata = {
   title: string;
-  description: string;
-  price: number;
   previewImage: string;
   salesActive?: SaleStatus;
+  description: string;
+  price: number;
+};
+
+export type NewTakeoverInput = TOMetadata & {
+  url?: string;
+  files?: string[];
+};
+
+export type TakeoverBundle = TOMetadata & {
   members: string[];
 };

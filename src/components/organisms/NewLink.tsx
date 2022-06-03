@@ -9,108 +9,108 @@ import {
 } from "@chakra-ui/react";
 import { Field, Form, Formik } from "formik";
 import { useSession } from "next-auth/react";
-import React, { MutableRefObject, useCallback, useState } from "react";
-import { useDropzone } from "react-dropzone";
-import { storeFiles } from "../../modules/storeFiles";
-import { LinkInput } from "../../types/LinkInput";
+import React, { MutableRefObject } from "react";
+import { LinkInput, NewTakeoverInput } from "../../types/TakeoverInput";
 import { LinkSchema, MetadataEditor } from "../molecules/MetadataEditor";
+import { TakeoverUploadForm } from "../molecules/TakeoverUploadForm";
 
 const NewLink = (props: {
-  onSubmit: (input: LinkInput, afterSubmission?: () => void) => unknown;
+  onSubmit: (input: NewTakeoverInput, afterSubmission?: () => void) => unknown;
   buttonRef: MutableRefObject<HTMLElement | null>;
-  initialValues?: Partial<LinkInput>;
+  initialLink?: LinkInput;
 }) => {
-  const initialValues: LinkInput = {
+  const { onSubmit } = props;
+  const { status } = useSession();
+  const buttonRef = props.buttonRef;
+
+  const initialValues: NewTakeoverInput = {
     url: "",
+    files: [],
     price: 0,
     title: "",
     previewImage: "",
     description: "",
-    ...props.initialValues,
+    ...props.initialLink,
   };
-  const { status } = useSession();
-  const buttonRef = props.buttonRef;
-
-  const [files, setFiles] = useState([]);
-
-  const onDrop = useCallback((acceptedFiles) => {
-    setFiles(acceptedFiles);
-  }, []);
-  const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
   return (
     <Formik
       enableReinitialize
-      validateOnMount={props.initialValues !== undefined}
+      validateOnMount={props.initialLink !== undefined}
       initialValues={initialValues}
       validationSchema={LinkSchema}
       onSubmit={async (values, { resetForm }) => {
-        props.onSubmit(values, resetForm);
+        console.log(values);
+        onSubmit(values, resetForm);
       }}
     >
-      {({ errors, touched, values }) => (
-        <Form id="newlink-form">
-          <Flex direction="column" gridGap={6}>
-            <FormControl isInvalid={!!errors.url}>
-              <FormLabel>Paste a link to protect:</FormLabel>
-              <Field
-                name="url"
-                type="text"
-                as={Input}
-                placeholder="https://some.link"
-              />
-              {errors.url && touched.url && (
-                <FormErrorMessage>{errors.url}</FormErrorMessage>
-              )}
-            </FormControl>
-            <Flex justify="space-between">
-              <Flex {...getRootProps()} direction="column">
-                <input {...getInputProps()} />
-                <p>Drop some files here, or click to select files</p>
-                <ul>
-                  {files.map((f: { path: string }) => (
-                    <li key={f.path}>{f.path}</li>
-                  ))}
-                </ul>
-              </Flex>
-              {!!files && (
-                <Button onClick={() => storeFiles(files)}>upload</Button>
-              )}
-            </Flex>
-            {(!!files || (!!values.url && !errors.url)) && (
-              <MetadataEditor
-                initialValues={
-                  values.description?.length > 10 ? initialValues : undefined
-                }
-              />
-            )}
+      {({ errors, touched, values, setFieldValue }) => {
+        const showMetadata =
+          (!!values.url && !errors.url) ||
+          (values.files && values.files.length > 0);
 
-            <FormControl mb={8} isInvalid={!!errors.price}>
-              <Flex direction="row" align="center">
-                <FormLabel flex={2}>Price (EUR)</FormLabel>
-                <Field name="price" type="text" as={Input} flex={6} />
-              </Flex>
-              <FormErrorMessage>{errors.price}</FormErrorMessage>
-            </FormControl>
-          </Flex>
-          <Portal containerRef={buttonRef}>
-            <Button
-              type="submit"
-              w="100%"
-              form="newlink-form"
-              disabled={
-                !files ||
-                values.url.length < 5 ||
-                Object.values(errors).length > 0
-              }
-            >
-              {status === "authenticated"
-                ? "Create Takeover"
-                : "Login and create Takeover"}
-            </Button>
-          </Portal>
-        </Form>
-      )}
+        const submittable =
+          Object.values(errors).length == 0 &&
+          ((values.url && values.url.length > 5) ||
+            (values.files && values.files.length > 0));
+
+        return (
+          <Form id="newlink-form">
+            <Flex direction="column" gridGap={6}>
+              <FormControl
+                isInvalid={!!errors.url}
+                isDisabled={values.files && values.files?.length > 0}
+              >
+                <FormLabel>Paste a link to protect:</FormLabel>
+                <Field
+                  name="url"
+                  type="text"
+                  as={Input}
+                  placeholder="https://some.link"
+                />
+                {errors.url && touched.url && (
+                  <FormErrorMessage>{errors.url}</FormErrorMessage>
+                )}
+              </FormControl>
+              {status === "authenticated" && !values.url && (
+                <TakeoverUploadForm
+                  onFiles={(files) => {
+                    setFieldValue("files", files);
+                  }}
+                />
+              )}
+
+              {showMetadata && (
+                <MetadataEditor
+                  initialValues={
+                    values.description?.length > 10 ? initialValues : undefined
+                  }
+                />
+              )}
+
+              <FormControl mb={8} isInvalid={!!errors.price}>
+                <Flex direction="row" align="center">
+                  <FormLabel flex={2}>Price (EUR)</FormLabel>
+                  <Field name="price" type="text" as={Input} flex={6} />
+                </Flex>
+                <FormErrorMessage>{errors.price}</FormErrorMessage>
+              </FormControl>
+            </Flex>
+            <Portal containerRef={buttonRef}>
+              <Button
+                type="submit"
+                w="100%"
+                form="newlink-form"
+                disabled={!submittable}
+              >
+                {status === "authenticated"
+                  ? "Create Takeover"
+                  : "Login and create Takeover"}
+              </Button>
+            </Portal>
+          </Form>
+        );
+      }}
     </Formik>
   );
 };

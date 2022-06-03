@@ -15,7 +15,7 @@ import axios from "axios";
 import { Field, Form, Formik } from "formik";
 import React from "react";
 import { XLink } from "../../types/Link";
-import { BundleInput } from "../../types/LinkInput";
+import { TakeoverBundle } from "../../types/TakeoverInput";
 
 export const BundleCreator = (props: {
   items: Array<XLink & { price: string }>;
@@ -36,7 +36,7 @@ export const BundleCreator = (props: {
   };
 
   const createBundle = async (values) => {
-    const payload: BundleInput = {
+    const payload: TakeoverBundle = {
       ...values,
       previewImage: items[0].metadata.previewImage,
       members: items.map((i) => i.hash),

@@ -2,12 +2,12 @@ import { nanoid } from "nanoid/async";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import { adapterClient } from "../../../modules/api/adapter";
-import { LinkInput } from "../../../types/LinkInput";
+import { NewTakeoverInput } from "../../../types/TakeoverInput";
 import { extractOembed } from "./oembed";
 import canonicalUrl from "../../../modules/api/canonicalUrl";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const payload: LinkInput = req.body;
+  const payload: NewTakeoverInput = req.body;
   const session = await getSession({ req });
   if (!session?.user) {
     return res.status(401).send("Unauthorized");
@@ -17,7 +17,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   let oembed;
   try {
-    oembed = await extractOembed(payload.url);
+    if (payload.url) {
+      oembed = await extractOembed(payload.url);
+    }
   } catch (e: any) {
     oembed = undefined;
   }
