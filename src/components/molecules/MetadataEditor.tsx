@@ -86,7 +86,7 @@ export const MetadataEditor = (props: {
         setFieldValue("title", oembed.title);
         setFieldValue("previewImage", oembed.thumbnail_url, true);
       } catch (e: any) {
-        console.error(e.message);
+        console.error("error on oembed extraction", e.message);
       } finally {
         setTimeout(() => {
           isLoading(false);

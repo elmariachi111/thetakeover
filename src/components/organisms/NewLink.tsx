@@ -13,6 +13,7 @@ import React, { MutableRefObject } from "react";
 import { LinkInput, NewTakeoverInput } from "../../types/TakeoverInput";
 import { LinkSchema, MetadataEditor } from "../molecules/MetadataEditor";
 import { TakeoverUploadForm } from "../molecules/TakeoverUploadForm";
+import { UploadedFiles } from "../molecules/UploadedFiles";
 
 const NewLink = (props: {
   onSubmit: (input: NewTakeoverInput, afterSubmission?: () => void) => unknown;
@@ -41,7 +42,7 @@ const NewLink = (props: {
       validationSchema={LinkSchema}
       onSubmit={async (values, { resetForm }) => {
         console.log(values);
-        onSubmit(values, resetForm);
+        //onSubmit(values, resetForm);
       }}
     >
       {({ errors, touched, values, setFieldValue }) => {
@@ -73,11 +74,17 @@ const NewLink = (props: {
                 )}
               </FormControl>
               {status === "authenticated" && !values.url && (
-                <TakeoverUploadForm
-                  onFiles={(files) => {
-                    setFieldValue("files", files);
-                  }}
-                />
+                <>
+                  <UploadedFiles files={values.files || []} />
+                  <TakeoverUploadForm
+                    onFilesUploaded={(files) => {
+                      setFieldValue("files", [
+                        ...(values.files || []),
+                        ...files,
+                      ]);
+                    }}
+                  />
+                </>
               )}
 
               {showMetadata && (
