@@ -20,7 +20,7 @@ const icon = (fileType: string) => {
     case "audio/mp3":
     case "audio/aac":
       return FaFileAudio;
-    case "archive":
+    case "application/zip":
       return FaFileArchive;
     default:
       return FaFile;

@@ -68,16 +68,18 @@ export const TakeoverUploadForm = (props: {
             )}
           </Flex>
         ))}
-        <Button
-          w="100%"
-          disabled={filesToUpload.length == 0}
-          onClick={async () => {
-            const uploaded = await uploadFiles(filesToUpload);
-            onFilesUploaded(uploaded);
-          }}
-        >
-          Upload files
-        </Button>
+        {filesToUpload.length > 0 && (
+          <Button
+            w="100%"
+            disabled={Object.keys(uploadProgress).length > 0}
+            onClick={async () => {
+              const uploaded = await uploadFiles(filesToUpload);
+              onFilesUploaded(uploaded);
+            }}
+          >
+            Upload files
+          </Button>
+        )}
       </Flex>
     </>
   );
