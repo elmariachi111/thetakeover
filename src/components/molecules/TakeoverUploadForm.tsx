@@ -1,10 +1,9 @@
-import { Button, Flex, Progress, Text, VStack } from "@chakra-ui/react";
-import React, { useCallback, useState } from "react";
+import { Button, Flex, Progress, Text } from "@chakra-ui/react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { storeFile } from "../../modules/storeFiles";
 import { UploadedFile } from "../../types/TakeoverInput";
 
-export const TakeoverUploadForm = (props: {
+const TakeoverUploadForm = (props: {
   onFilesUploaded: (files: UploadedFile[]) => void;
 }) => {
   const { onFilesUploaded } = props;
@@ -14,28 +13,68 @@ export const TakeoverUploadForm = (props: {
   );
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
 
+  const workerRef = useRef<Worker>();
+  const onWorkerMessage = useCallback(
+    (evt) => {
+      //console.debug(evt.data);
+      const payload = evt.data;
+      if (payload.type === "progress") {
+        setUploadProgress((old) => ({
+          ...old,
+          [payload.fileName]: payload.progress,
+        }));
+      } else if (payload.type === "finished") {
+        setUploadProgress((old) => {
+          const newProgress = Object.fromEntries(
+            Object.entries(old).filter((e) => e[0] != payload.file.name)
+          );
+          //console.log(newProgress);
+          return newProgress;
+        });
+        setFilesToUpload((old) => {
+          return old.filter((o) => o.name !== payload.file.name);
+        });
+        onFilesUploaded([payload.file]);
+      }
+    },
+    [onFilesUploaded]
+  );
+
+  useEffect(() => {
+    console.log("new worker");
+    workerRef.current = new Worker(
+      new URL("../../workers/upload.ts", import.meta.url)
+    );
+    return () => {
+      if (workerRef.current) workerRef.current.terminate();
+    };
+  }, []);
+
+  useEffect(() => {
+    console.log("hook lister");
+    if (!workerRef.current) return;
+    workerRef.current.onmessage = onWorkerMessage;
+  }, [workerRef, onWorkerMessage]);
+
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFilesToUpload((old) => [...old, ...acceptedFiles]);
   }, []);
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
-  const uploadFiles = async (files: File[]) => {
-    const _uploadProgress = (fileName: string) => {
-      return (progress: number) => {
-        setUploadProgress((old) => ({ ...old, [fileName]: progress }));
-      };
-    };
+  const uploadFiles = useCallback(
+    (files: File[]) => {
+      if (!workerRef.current) {
+        console.warn("no worker loaded");
+        return;
+      }
 
-    const promises = files.map((file, i) =>
-      storeFile(file, _uploadProgress(file.name))
-    );
-
-    const uploadedFiles = await Promise.all(promises);
-    setUploadProgress({});
-    setFilesToUpload([]);
-    return uploadedFiles;
-  };
+      files.forEach((file, i) =>
+        workerRef.current!.postMessage({ file, index: i })
+      );
+    },
+    [workerRef]
+  );
 
   return (
     <>
@@ -72,10 +111,7 @@ export const TakeoverUploadForm = (props: {
           <Button
             w="100%"
             disabled={Object.keys(uploadProgress).length > 0}
-            onClick={async () => {
-              const uploaded = await uploadFiles(filesToUpload);
-              onFilesUploaded(uploaded);
-            }}
+            onClick={() => uploadFiles(filesToUpload)}
           >
             Upload files
           </Button>
@@ -84,3 +120,5 @@ export const TakeoverUploadForm = (props: {
     </>
   );
 };
+
+export default TakeoverUploadForm;

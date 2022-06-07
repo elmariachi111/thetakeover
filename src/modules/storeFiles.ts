@@ -5,13 +5,14 @@ import { UploadedFile } from "../types/TakeoverInput";
 
 export const storeFile = async (
   file: File,
+  encrypted?: ArrayBuffer,
   onProgress?: (progress: number) => void
 ): Promise<UploadedFile> => {
   const fileName = file.name;
 
   const { url: presignedUrl, path } = await presignUrl(fileName);
 
-  const res = await axios.put(presignedUrl, file, {
+  const res = await axios.put(presignedUrl, encrypted || file, {
     headers: {
       "Content-Type": file.type,
     },
@@ -28,6 +29,14 @@ export const storeFile = async (
     name: fileName,
     path,
   };
+};
+
+export const loadFileFromIpfs = async (cid: string): Promise<ArrayBuffer> => {
+  const ipfsUrl = `https://ipfs.filebase.io/ipfs/${cid}`;
+  const encryptedContent = await axios.get(ipfsUrl, {
+    responseType: "arraybuffer",
+  });
+  return encryptedContent.data;
 };
 
 const getItemMetadata = async (path: string) => {

@@ -12,7 +12,7 @@ import { useSession } from "next-auth/react";
 import React, { MutableRefObject } from "react";
 import { LinkInput, NewTakeoverInput } from "../../types/TakeoverInput";
 import { LinkSchema, MetadataEditor } from "../molecules/MetadataEditor";
-import { TakeoverUploadForm } from "../molecules/TakeoverUploadForm";
+import TakeoverUploadForm from "../molecules/TakeoverUploadForm";
 import { UploadedFiles } from "../molecules/UploadedFiles";
 
 const NewLink = (props: {

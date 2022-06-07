@@ -9,6 +9,7 @@ import {
   FaFileArchive,
   FaFileVideo,
 } from "react-icons/fa";
+import { downloadAndDecrypt } from "../../modules/encryption";
 
 const icon = (fileType: string) => {
   switch (fileType) {
@@ -36,7 +37,9 @@ export const UploadedFiles = (props: { files: UploadedFile[] }) => {
           <Flex align="center" gap={2}>
             <Icon as={icon(f.contentType)} title={f.contentType} />
             <Text fontWeight="bold">{f.name}</Text>
-            <Text fontSize="xs">{f.cid}</Text>
+            <Text fontSize="xs" onClick={() => downloadAndDecrypt("pwd", f)}>
+              {f.cid}
+            </Text>
           </Flex>
           <Text>{f.contentLength}</Text>
         </Flex>
