@@ -15,6 +15,7 @@ import { ToLoadingOverlay } from "../components/atoms/ToOverlay";
 import { ToSuccessOverlay } from "../components/molecules/ToSuccessOverlay";
 import NewLink from "../components/organisms/NewLink";
 import { LinkInput, NewTakeoverInput } from "../types/TakeoverInput";
+import { toBase64 } from "b64-lite";
 
 const CACHE_ITEM_NAME = "newTO";
 
@@ -52,14 +53,22 @@ const CreateLink: NextPage = () => {
 
   const create = async (
     payload: NewTakeoverInput,
-    afterSuccessfulSubmission?: () => void
+    options?: {
+      afterSubmission?: () => void;
+    }
   ) => {
     if (status === "authenticated") {
       setBuzy.on();
       try {
-        const _res = await axios.post("/api/links/create", payload);
+        const _payload = {
+          ...payload,
+          password: payload.password
+            ? toBase64(payload.password?.buffer)
+            : undefined,
+        };
+        const _res = await axios.post("/api/links/create", _payload);
         const { newUrl } = _res.data;
-        afterSuccessfulSubmission && afterSuccessfulSubmission();
+        options?.afterSubmission && options.afterSubmission();
         setCreatedLink(newUrl);
       } catch (e: any) {
         const reason = e.response ? e.response.data.reason : e.message;

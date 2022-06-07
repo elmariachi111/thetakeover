@@ -16,6 +16,7 @@ export type TOMetadata = {
 export type NewTakeoverInput = TOMetadata & {
   url?: string;
   files?: UploadedFile[];
+  password?: Uint8Array;
 };
 
 export type TakeoverBundle = TOMetadata & {
@@ -27,6 +28,6 @@ export type UploadedFile = {
   path: string;
   lastModified: string;
   contentType: string;
-  contentLength: string;
+  contentLength: number;
   cid: string;
 };

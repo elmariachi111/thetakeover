@@ -4,19 +4,23 @@ import { useDropzone } from "react-dropzone";
 import { UploadedFile } from "../../types/TakeoverInput";
 
 const TakeoverUploadForm = (props: {
-  onFilesUploaded: (files: UploadedFile[]) => void;
+  onFilesUploaded: (files: UploadedFile[], password: Uint8Array) => void;
 }) => {
   const { onFilesUploaded } = props;
-
+  const [bundlePassword, setBundlePassword] = useState<Uint8Array>();
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>(
     {}
   );
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
 
+  useEffect(() => {
+    setBundlePassword(crypto.getRandomValues(new Uint8Array(32)));
+  }, []);
+
   const workerRef = useRef<Worker>();
   const onWorkerMessage = useCallback(
     (evt) => {
-      //console.debug(evt.data);
+      if (!bundlePassword) return;
       const payload = evt.data;
       if (payload.type === "progress") {
         setUploadProgress((old) => ({
@@ -28,16 +32,15 @@ const TakeoverUploadForm = (props: {
           const newProgress = Object.fromEntries(
             Object.entries(old).filter((e) => e[0] != payload.file.name)
           );
-          //console.log(newProgress);
           return newProgress;
         });
         setFilesToUpload((old) => {
           return old.filter((o) => o.name !== payload.file.name);
         });
-        onFilesUploaded([payload.file]);
+        onFilesUploaded([payload.file], bundlePassword);
       }
     },
-    [onFilesUploaded]
+    [onFilesUploaded, bundlePassword]
   );
 
   useEffect(() => {
@@ -51,7 +54,6 @@ const TakeoverUploadForm = (props: {
   }, []);
 
   useEffect(() => {
-    console.log("hook lister");
     if (!workerRef.current) return;
     workerRef.current.onmessage = onWorkerMessage;
   }, [workerRef, onWorkerMessage]);
@@ -64,16 +66,20 @@ const TakeoverUploadForm = (props: {
 
   const uploadFiles = useCallback(
     (files: File[]) => {
-      if (!workerRef.current) {
+      if (!workerRef.current || !bundlePassword) {
         console.warn("no worker loaded");
         return;
       }
 
       files.forEach((file, i) =>
-        workerRef.current!.postMessage({ file, index: i })
+        workerRef.current!.postMessage({
+          file,
+          index: i,
+          password: bundlePassword,
+        })
       );
     },
-    [workerRef]
+    [workerRef, bundlePassword]
   );
 
   return (

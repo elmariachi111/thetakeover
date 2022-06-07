@@ -23,6 +23,7 @@ import { useState } from "react";
 import { IoLogoGithub, IoLogoGoogle, IoLogoDiscord } from "react-icons/io5";
 import { GeneralAlert } from "../../components/atoms/GeneralAlert";
 import { SiweButton } from "../../components/atoms/SiweButton";
+import { TextDivider } from "../../components/atoms/TextDivider";
 
 import { adapterClient } from "../../modules/api/adapter";
 
@@ -171,11 +172,7 @@ export default function SignIn({
       )}
       {authStatus !== "authenticated" && emailProvider && (
         <>
-          <Flex direction="row" align="center" gridGap={5} my={6}>
-            <Divider orientation="horizontal" />
-            <Text>OR</Text>
-            <Divider orientation="horizontal" />
-          </Flex>
+          <TextDivider>OR</TextDivider>
 
           <EmailSignin csrfToken={csrfToken} callbackUrl={callbackUrl} />
         </>

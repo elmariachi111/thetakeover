@@ -7,7 +7,13 @@ import { extractOembed } from "./oembed";
 import canonicalUrl from "../../../modules/api/canonicalUrl";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const payload: NewTakeoverInput = req.body;
+  const payload: NewTakeoverInput & {
+    password?: Buffer;
+  } = req.body;
+  if (req.body.password) {
+    payload.password = Buffer.from(req.body.password, "base64");
+  }
+
   const session = await getSession({ req });
   if (!session?.user) {
     return res.status(401).send("Unauthorized");
@@ -24,6 +30,26 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     oembed = undefined;
   }
 
+  let addFiles;
+  if (payload.files && payload.password)
+    addFiles = {
+      create: {
+        password: payload.password,
+        userId: session.user.id,
+        files: {
+          createMany: {
+            data: payload.files.map((file) => ({
+              path: file.path,
+              fileName: file.name,
+              cid: file.cid,
+              contentLength: file.contentLength,
+              contentType: file.contentType,
+            })),
+          },
+        },
+      },
+    };
+
   try {
     const newLink = await adapterClient.link.create({
       data: {
@@ -31,15 +57,15 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         originUri: payload.url,
         price: payload.price,
         creatorId: session.user.id,
-      },
-    });
-    const md = await adapterClient.metadata.create({
-      data: {
-        linkHash: hash,
-        description: payload.description,
-        title: payload.title,
-        previewImage: payload.previewImage,
-        oembed,
+        metadata: {
+          create: {
+            description: payload.description,
+            title: payload.title,
+            previewImage: payload.previewImage,
+            oembed,
+          },
+        },
+        files: addFiles,
       },
     });
 

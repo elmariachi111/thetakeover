@@ -27,8 +27,11 @@ const icon = (fileType: string) => {
       return FaFile;
   }
 };
-export const UploadedFiles = (props: { files: UploadedFile[] }) => {
-  const { files } = props;
+export const UploadedFiles = (props: {
+  files: UploadedFile[];
+  password: undefined | Uint8Array;
+}) => {
+  const { files, password } = props;
 
   return (
     <Flex direction="column" gap={3}>
@@ -37,7 +40,14 @@ export const UploadedFiles = (props: { files: UploadedFile[] }) => {
           <Flex align="center" gap={2}>
             <Icon as={icon(f.contentType)} title={f.contentType} />
             <Text fontWeight="bold">{f.name}</Text>
-            <Text fontSize="xs" onClick={() => downloadAndDecrypt("pwd", f)}>
+            <Text
+              fontSize="xs"
+              onClick={async () => {
+                if (!password) return console.warn("no password");
+                const dec = await downloadAndDecrypt(f, password);
+                console.log(dec);
+              }}
+            >
               {f.cid}
             </Text>
           </Flex>

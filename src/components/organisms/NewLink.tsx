@@ -9,14 +9,19 @@ import {
 } from "@chakra-ui/react";
 import { Field, Form, Formik } from "formik";
 import { useSession } from "next-auth/react";
-import React, { MutableRefObject } from "react";
+import React, { MutableRefObject, useEffect, useState } from "react";
 import { LinkInput, NewTakeoverInput } from "../../types/TakeoverInput";
+import { TextDivider } from "../atoms/TextDivider";
 import { LinkSchema, MetadataEditor } from "../molecules/MetadataEditor";
 import TakeoverUploadForm from "../molecules/TakeoverUploadForm";
 import { UploadedFiles } from "../molecules/UploadedFiles";
 
+type NewLinkSubmitOptions = {
+  afterSubmission?: () => void;
+  password?: Uint8Array;
+};
 const NewLink = (props: {
-  onSubmit: (input: NewTakeoverInput, afterSubmission?: () => void) => unknown;
+  onSubmit: (input: NewTakeoverInput, options: NewLinkSubmitOptions) => unknown;
   buttonRef: MutableRefObject<HTMLElement | null>;
   initialLink?: LinkInput;
 }) => {
@@ -25,12 +30,13 @@ const NewLink = (props: {
   const buttonRef = props.buttonRef;
 
   const initialValues: NewTakeoverInput = {
-    url: "",
+    url: undefined,
     files: [],
     price: 0,
     title: "",
     previewImage: "",
     description: "",
+    password: undefined,
     ...props.initialLink,
   };
 
@@ -41,8 +47,9 @@ const NewLink = (props: {
       initialValues={initialValues}
       validationSchema={LinkSchema}
       onSubmit={async (values, { resetForm }) => {
-        console.log(values);
-        //onSubmit(values, resetForm);
+        onSubmit(values, {
+          afterSubmission: resetForm,
+        });
       }}
     >
       {({ errors, touched, values, setFieldValue }) => {
@@ -74,17 +81,22 @@ const NewLink = (props: {
                 )}
               </FormControl>
               {status === "authenticated" && !values.url && (
-                <>
-                  <UploadedFiles files={values.files || []} />
+                <Flex direction="column">
+                  <TextDivider>OR</TextDivider>
+                  <UploadedFiles
+                    files={values.files || []}
+                    password={values.password}
+                  />
                   <TakeoverUploadForm
-                    onFilesUploaded={(files) => {
+                    onFilesUploaded={(files, password) => {
+                      setFieldValue("password", password);
                       setFieldValue("files", [
                         ...(values.files || []),
                         ...files,
                       ]);
                     }}
                   />
-                </>
+                </Flex>
               )}
 
               {showMetadata && (

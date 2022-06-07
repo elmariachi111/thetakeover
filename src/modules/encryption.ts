@@ -1,18 +1,17 @@
 import { UploadedFile } from "../types/TakeoverInput";
 import { loadFileFromIpfs } from "./storeFiles";
 
-const encoder = new TextEncoder();
 const PBKDF2 = async (
-  password,
-  salt,
-  iterations,
-  length,
-  hash,
+  password: Uint8Array,
+  salt: Uint8Array,
+  iterations: number,
+  length: number,
+  hash: string,
   algorithm = "AES-CBC"
 ): Promise<CryptoKey> => {
   const keyMaterial = await crypto.subtle.importKey(
     "raw",
-    encoder.encode(password),
+    password,
     { name: "PBKDF2" },
     false,
     ["deriveKey"]
@@ -21,7 +20,7 @@ const PBKDF2 = async (
   return crypto.subtle.deriveKey(
     {
       name: "PBKDF2",
-      salt: encoder.encode(salt),
+      salt: salt,
       iterations,
       hash,
     },
@@ -33,8 +32,8 @@ const PBKDF2 = async (
 };
 
 export const downloadAndDecrypt = async (
-  password: string,
-  file: UploadedFile
+  file: UploadedFile,
+  password: Uint8Array
 ) => {
   console.log("dl");
   const content = await loadFileFromIpfs(file.cid);
@@ -55,7 +54,7 @@ export const downloadAndDecrypt = async (
 };
 
 export const encryptFile = async (
-  password: string,
+  password: Uint8Array,
   infile: File
 ): Promise<{
   salt: Uint8Array;
@@ -63,9 +62,7 @@ export const encryptFile = async (
   encrypted: Promise<ArrayBuffer>;
 }> => {
   const salt = crypto.getRandomValues(new Uint8Array(16));
-
   const key = await PBKDF2(password, salt, 100000, 256, "SHA-256");
-
   const iv = crypto.getRandomValues(new Uint8Array(16));
   const encrypted = crypto.subtle.encrypt(
     { name: "AES-CBC", iv },

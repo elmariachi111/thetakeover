@@ -4,6 +4,7 @@ import { storeFile } from "../modules/storeFiles";
 type Payload = {
   file: File;
   index: number;
+  password: Uint8Array;
 };
 
 console.log("upload worker installed");
@@ -11,7 +12,7 @@ console.log("upload worker installed");
 addEventListener("message", async (evt) => {
   const payload: Payload = evt.data;
 
-  const response = await encryptFile("pwd", payload.file);
+  const response = await encryptFile(payload.password, payload.file);
   const encrypted = new Uint8Array(await response.encrypted);
   const binaryUpload = new Uint8Array(16 + 16 + encrypted.byteLength);
 

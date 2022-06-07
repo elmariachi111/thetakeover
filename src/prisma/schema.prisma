@@ -19,18 +19,19 @@ enum SaleStatus {
 }
 
 model Link {
-    hash       String       @id
-    originUri  String?      @unique @db.VarChar(550)
-    price      Decimal
-    creatorId  String       @map("creator_id")
-    creator    User         @relation(fields: [creatorId], references: [id])
-    payments   Payment[]
-    metadata   Metadata?
-    saleStatus SaleStatus   @default(ON_SALE) @map("sale_status")
-    createdAt  DateTime     @default(now())
-    bundles    Link[]       @relation("BundleItems", references: [hash])
-    bundledIn  Link[]       @relation("BundleItems", references: [hash])
-    UserReport UserReport[]
+    hash        String       @id
+    originUri   String?      @unique @db.VarChar(550)
+    price       Decimal
+    creatorId   String       @map("creator_id")
+    creator     User         @relation(fields: [creatorId], references: [id])
+    payments    Payment[]
+    metadata    Metadata?
+    saleStatus  SaleStatus   @default(ON_SALE) @map("sale_status")
+    createdAt   DateTime     @default(now())
+    bundles     Link[]       @relation("BundleItems", references: [hash])
+    bundledIn   Link[]       @relation("BundleItems", references: [hash])
+    userReports UserReport[]
+    files       FileBundle?
 
     @@index([hash, originUri])
     @@index([creatorId])
@@ -45,6 +46,30 @@ model Metadata {
     oembed       Json?
 
     @@index([linkHash])
+}
+
+model FileBundle {
+    id    String @id @default(uuid())
+    files File[]
+
+    linkHash String @unique @map("link_hash")
+    userId   String @map("user_id")
+    password Bytes  @db.TinyBlob
+
+    link     Link @relation(fields: [linkHash], references: [hash], onDelete: Cascade)
+    uploader User @relation(fields: [userId], references: [id])
+}
+
+model File {
+    path String @id
+    cid  String
+
+    bundleId      String?
+    fileName      String  @map("file_name")
+    contentType   String  @map("content_type")
+    contentLength Int     @map("content_length")
+
+    bundle FileBundle? @relation(fields: [bundleId], references: [id], onDelete: Cascade)
 }
 
 enum UserReportState {
@@ -178,6 +203,7 @@ model User {
     payments      Payment[]
     sellerAccount SellerAccount?
     UserReport    UserReport[]
+    files         FileBundle[]
 }
 
 model VerificationToken {
