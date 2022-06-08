@@ -49,7 +49,7 @@ model Metadata {
 }
 
 model FileBundle {
-    id    String @id @default(uuid())
+    id    String @id
     files File[]
 
     linkHash String @unique @map("link_hash")
@@ -61,15 +61,16 @@ model FileBundle {
 }
 
 model File {
-    path String @id
-    cid  String
+    bundleId String
+    fileName String @map("file_name")
 
-    bundleId      String?
-    fileName      String  @map("file_name")
-    contentType   String  @map("content_type")
-    contentLength Int     @map("content_length")
+    cid           String
+    contentType   String @map("content_type")
+    contentLength Int    @map("content_length")
 
     bundle FileBundle? @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+
+    @@id([bundleId, fileName])
 }
 
 enum UserReportState {

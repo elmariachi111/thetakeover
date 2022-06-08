@@ -1,4 +1,5 @@
 import { Button, Flex, Progress, Text } from "@chakra-ui/react";
+import { nanoid } from "nanoid/async";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { UploadedFile } from "../../types/TakeoverInput";
@@ -8,6 +9,7 @@ const TakeoverUploadForm = (props: {
 }) => {
   const { onFilesUploaded } = props;
   const [bundlePassword, setBundlePassword] = useState<Uint8Array>();
+  const [bundleId, setBundleId] = useState<string>();
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>(
     {}
   );
@@ -15,6 +17,7 @@ const TakeoverUploadForm = (props: {
 
   useEffect(() => {
     setBundlePassword(crypto.getRandomValues(new Uint8Array(32)));
+    nanoid().then(setBundleId);
   }, []);
 
   const workerRef = useRef<Worker>();
@@ -66,20 +69,20 @@ const TakeoverUploadForm = (props: {
 
   const uploadFiles = useCallback(
     (files: File[]) => {
-      if (!workerRef.current || !bundlePassword) {
+      if (!workerRef.current || !bundlePassword || !bundleId) {
         console.warn("no worker loaded");
         return;
       }
 
-      files.forEach((file, i) =>
+      files.forEach((file) =>
         workerRef.current!.postMessage({
           file,
-          index: i,
+          bundleId,
           password: bundlePassword,
         })
       );
     },
-    [workerRef, bundlePassword]
+    [workerRef, bundlePassword, bundleId]
   );
 
   return (

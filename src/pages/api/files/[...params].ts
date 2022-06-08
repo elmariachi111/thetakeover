@@ -25,7 +25,8 @@ const handlers = {
     user: DefaultUser
   ) => {
     if (!(req.method === "POST")) throw new Error("wrong method, try POST");
-    const path = `${user.id}/${req.body.fileName}`;
+
+    const path = `${user.id}/${req.body.bundleId}/${req.body.fileName}`;
     const command = new PutObjectCommand({
       Bucket: process.env.NEXT_PUBLIC_FILEBASE_BUCKET_NAME as string,
       Key: path,
@@ -50,10 +51,9 @@ const handlers = {
     });
     const headData = await s3.send(command);
     return res.json({
-      lastModified: headData.LastModified,
-      contentType: headData.ContentType,
-      contentLength: headData.ContentLength,
       cid: headData.Metadata?.cid,
+      contentLength: headData.ContentLength,
+      contentType: headData.ContentType,
     });
   },
 };

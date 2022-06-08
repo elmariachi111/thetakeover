@@ -1,4 +1,4 @@
-import { Flex, Icon, Text } from "@chakra-ui/react";
+import { Flex, Icon, IconButton, Text } from "@chakra-ui/react";
 import React from "react";
 import { UploadedFile } from "../../types/TakeoverInput";
 import filesize from "file-size";
@@ -9,6 +9,7 @@ import {
   FaFile,
   FaFileArchive,
   FaFileVideo,
+  FaDownload,
 } from "react-icons/fa";
 import { downloadAndDecrypt } from "../../modules/encryption";
 
@@ -39,27 +40,28 @@ export const UploadedFiles = (props: {
   return (
     <Flex direction="column" gap={3} w="100%">
       {files.map((f) => (
-        <Flex
-          key={f.cid}
-          gap={3}
-          justify="space-between"
-          onClick={async () => {
-            if (onDecrypted) {
-              if (!password) return console.warn("no password");
-              const dec = await downloadAndDecrypt(f, password);
-              onDecrypted(f, dec);
-            }
-          }}
-          style={{ cursor: onDecrypted ? "pointer" : "initial" }}
-        >
+        <Flex key={f.cid} gap={3} justify="space-between">
           <Flex align="center" gap={2}>
             <Icon as={icon(f.contentType)} title={f.contentType} w={8} h={8} />
             <Flex direction="column">
               <Text fontWeight="bold">{f.fileName}</Text>
-              <Text fontSize="xs">{f.cid}</Text>
+              <Text fontSize="xs">{filesize(f.contentLength).human("si")}</Text>
             </Flex>
           </Flex>
-          <Text>{filesize(f.contentLength).human("si")}</Text>
+
+          <IconButton
+            variant="ghost"
+            aria-label="download"
+            title={f.cid}
+            icon={<FaDownload />}
+            onClick={async () => {
+              if (onDecrypted) {
+                if (!password) return console.warn("no password");
+                const dec = await downloadAndDecrypt(f, password);
+                onDecrypted(f, dec);
+              }
+            }}
+          />
         </Flex>
       ))}
     </Flex>

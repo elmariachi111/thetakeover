@@ -3,7 +3,7 @@ import { storeFile } from "../modules/storeFiles";
 
 type Payload = {
   file: File;
-  index: number;
+  bundleId: string;
   password: Uint8Array;
 };
 
@@ -20,14 +20,18 @@ addEventListener("message", async (evt) => {
   binaryUpload.set(response.iv, 16);
   binaryUpload.set(encrypted, 32);
 
-  storeFile(payload.file, binaryUpload, (progress: number) => {
-    postMessage({
-      type: "progress",
-      fileName: payload.file.name,
-      index: payload.index,
-      progress,
-    });
-  }).then((uploadedFile) => {
+  storeFile(
+    payload.bundleId,
+    payload.file,
+    binaryUpload,
+    (progress: number) => {
+      postMessage({
+        type: "progress",
+        fileName: payload.file.name,
+        progress,
+      });
+    }
+  ).then((uploadedFile) => {
     postMessage({
       type: "finished",
       file: uploadedFile,

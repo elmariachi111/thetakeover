@@ -31,24 +31,26 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   let addFiles;
-  if (payload.files && payload.password)
+
+  if (payload.files && payload.password) {
     addFiles = {
       create: {
+        id: payload.files[0].bundleId,
         password: payload.password,
         userId: session.user.id,
         files: {
           createMany: {
-            data: payload.files.map((file) => ({
-              path: file.path,
-              fileName: file.fileName,
-              cid: file.cid,
-              contentLength: file.contentLength,
-              contentType: file.contentType,
+            data: payload.files.map((f) => ({
+              cid: f.cid,
+              contentLength: f.contentLength,
+              contentType: f.contentType,
+              fileName: f.fileName,
             })),
           },
         },
       },
     };
+  }
 
   try {
     const newLink = await adapterClient.link.create({

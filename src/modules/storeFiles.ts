@@ -4,13 +4,14 @@ import { UploadedFile } from "../types/TakeoverInput";
 //const client = new S3Client({ region: "us-east-1" });
 
 export const storeFile = async (
+  bundleId: string,
   file: File,
   encrypted?: ArrayBuffer,
   onProgress?: (progress: number) => void
 ): Promise<UploadedFile> => {
   const fileName = file.name;
 
-  const { url: presignedUrl, path } = await presignUrl(fileName);
+  const { url: presignedUrl, path } = await presignUrl(bundleId, fileName);
 
   const res = await axios.put(presignedUrl, encrypted || file, {
     headers: {
@@ -27,7 +28,7 @@ export const storeFile = async (
   return {
     ...metadata,
     fileName,
-    path,
+    bundleId,
   };
 };
 
@@ -39,7 +40,7 @@ export const loadFileFromIpfs = async (cid: string): Promise<ArrayBuffer> => {
   return encryptedContent.data;
 };
 
-const getItemMetadata = async (path: string) => {
+const getItemMetadata = async (path: string): Promise<UploadedFile> => {
   return (
     await axios.get<UploadedFile>("/api/files/metadata", {
       params: {
@@ -49,9 +50,10 @@ const getItemMetadata = async (path: string) => {
   ).data;
 };
 
-const presignUrl = async (fileName: string) => {
+const presignUrl = async (bundleId: string, fileName: string) => {
   const { url, path } = (
     await axios.post<{ url: string; path: string }>("/api/files/presign", {
+      bundleId,
       fileName,
     })
   ).data;
