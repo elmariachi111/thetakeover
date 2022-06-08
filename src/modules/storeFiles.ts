@@ -26,7 +26,7 @@ export const storeFile = async (
   const metadata = await getItemMetadata(path);
   return {
     ...metadata,
-    name: fileName,
+    fileName,
     path,
   };
 };

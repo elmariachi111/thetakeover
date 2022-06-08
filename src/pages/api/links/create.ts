@@ -40,7 +40,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           createMany: {
             data: payload.files.map((file) => ({
               path: file.path,
-              fileName: file.name,
+              fileName: file.fileName,
               cid: file.cid,
               contentLength: file.contentLength,
               contentType: file.contentType,

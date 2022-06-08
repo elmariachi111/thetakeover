@@ -1,20 +1,21 @@
-import { Flex, IconButton, Spacer } from "@chakra-ui/react";
+import { Flex, IconButton, toast, useToast } from "@chakra-ui/react";
 import { Payment } from "@prisma/client";
+import axios from "axios";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { getSession, useSession } from "next-auth/react";
 import { default as NextLink } from "next/link";
 import { ReactElement, useCallback, useEffect, useState } from "react";
-import { FiEdit2 } from "react-icons/fi";
+import { FiEdit2, FiTrash } from "react-icons/fi";
 import { ToLogo } from "../../components/atoms/ToLogo";
 import { ReportContent } from "../../components/molecules/ReportContent";
 import { ViewBundle } from "../../components/molecules/to/ViewBundle";
-import { ViewEmbed } from "../../components/molecules/to/ViewEmbed";
-import { ViewExternal } from "../../components/molecules/to/ViewExternal";
+import { ViewLink } from "../../components/molecules/to/ViewLink";
 import { findLink, findLinks } from "../../modules/api/findLink";
-import { findSettledPayment } from "../../modules/api/findPayment";
-import { extractEmbedUrl } from "../../modules/fixEmbed";
+import {
+  countPayments,
+  findSettledPayment,
+} from "../../modules/api/findPayment";
 import { XLink } from "../../types/Link";
-import { XPayment } from "../../types/Payment";
 
 const redirectToPayment = (linkId: string) => {
   return {
@@ -25,18 +26,10 @@ const redirectToPayment = (linkId: string) => {
   };
 };
 
-// const viewLink = (link: Link & { metadata: Metadata | null }) => {
-//   if (link.metadata) {
-//     return `/to/${link.hash}`;
-//   } else {
-//     return link.originUri;
-//   }
-// };
-
 export const getServerSideProps: GetServerSideProps<{
   link: XLink;
-  payment: XPayment;
   bundleItems: XLink[];
+  paymentCount: number;
 }> = async (context) => {
   const linkid: string = context.params?.linkid as string;
   if (!linkid) return { notFound: true };
@@ -57,8 +50,10 @@ export const getServerSideProps: GetServerSideProps<{
   const { user } = session;
 
   let payment: Payment | null;
+  let paymentCount = 0;
   if (user.id === link.creatorId) {
     payment = null;
+    paymentCount = await countPayments(linkid);
   } else {
     payment = await findSettledPayment(linkid, user.id);
 
@@ -78,22 +73,24 @@ export const getServerSideProps: GetServerSideProps<{
   return {
     props: {
       link: JSON.parse(JSON.stringify(link)),
-      payment: JSON.parse(JSON.stringify(payment)),
       bundleItems: JSON.parse(JSON.stringify(bundleItems)),
+      paymentCount,
     },
   };
 };
 
 function ToView({
   link,
-  payment,
   bundleItems,
+  paymentCount,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const { data: session } = useSession({
     required: false,
   });
   const [timeout, setTimeout] = useState<number>();
   const [showChrome, setShowChrome] = useState<boolean>(true);
+
+  const toast = useToast();
 
   const motionDetected = useCallback(() => {
     if (timeout) {
@@ -113,10 +110,17 @@ function ToView({
       window.onscroll = null;
     };
   }, [motionDetected]);
+
   useEffect(() => {
     motionDetected();
   }, []);
 
+  const removeTakeover = async () => {
+    await axios.delete(`/api/to/${link.hash}`);
+    toast({
+      title: `${link.metadata.title} has been deleted.`,
+    });
+  };
   let view;
   if (bundleItems.length > 0) {
     view = (
@@ -128,11 +132,7 @@ function ToView({
       />
     );
   } else {
-    if (link.metadata.oembed?.html) {
-      view = <ViewEmbed link={link} showChrome={showChrome} />;
-    } else {
-      view = <ViewExternal link={link} />;
-    }
+    view = ViewLink({ link, showChrome });
   }
 
   return (
@@ -154,9 +154,18 @@ function ToView({
         visibility={showChrome ? "visible" : "hidden"}
       >
         {session?.user?.id === link.creatorId && (
-          <NextLink href={`/to/edit/${link.hash}`} passHref>
-            <IconButton aria-label="edit" icon={<FiEdit2 />} />
-          </NextLink>
+          <>
+            <NextLink href={`/to/edit/${link.hash}`} passHref>
+              <IconButton aria-label="edit" icon={<FiEdit2 />} />
+            </NextLink>
+            {paymentCount === 0 && (
+              <IconButton
+                aria-label="delete"
+                icon={<FiTrash />}
+                onClick={removeTakeover}
+              />
+            )}
+          </>
         )}
         {session?.user?.id !== link.creatorId && <ReportContent link={link} />}
       </Flex>

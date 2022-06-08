@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { link } from "fs";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import { NewTakeoverInput } from "../../../types/TakeoverInput";
@@ -6,23 +7,33 @@ import { NewTakeoverInput } from "../../../types/TakeoverInput";
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const prisma = new PrismaClient();
   const session = await getSession({ req });
-  //todo: check that user is owning the content.
-  //todo: maybe validate by yup again
 
   const linkId = req.query.linkId as string;
+  const oldLink = await prisma.link.findUnique({
+    where: {
+      hash: linkId,
+    },
+  });
+  if (oldLink?.creatorId != session?.user?.id) {
+    return res.status(403).send("you're not owning this asset");
+  }
 
-  if (req.method === "POST") {
-    const { link }: { link: NewTakeoverInput } = req.body;
-
-    const oldLink = await prisma.link.findUnique({
+  if (req.method === "DELETE") {
+    //todo: delete remote files as well!!
+    await prisma.link.delete({
       where: {
         hash: linkId,
       },
     });
+    return res.json({
+      status: "ok",
+      result: "deleted",
+    });
+  }
 
-    if (oldLink?.creatorId != session?.user?.id) {
-      return res.status(403).send("you're not owning this asset");
-    }
+  if (req.method === "POST") {
+    const { link }: { link: NewTakeoverInput } = req.body;
+    //todo: maybe validate by yup again
 
     await prisma.link.update({
       where: {

@@ -30,12 +30,12 @@ const TakeoverUploadForm = (props: {
       } else if (payload.type === "finished") {
         setUploadProgress((old) => {
           const newProgress = Object.fromEntries(
-            Object.entries(old).filter((e) => e[0] != payload.file.name)
+            Object.entries(old).filter((e) => e[0] != payload.file.fileName)
           );
           return newProgress;
         });
         setFilesToUpload((old) => {
-          return old.filter((o) => o.name !== payload.file.name);
+          return old.filter((o) => o.name !== payload.file.fileName);
         });
         onFilesUploaded([payload.file], bundlePassword);
       }
@@ -96,7 +96,7 @@ const TakeoverUploadForm = (props: {
         </Flex>
         {/* {!!files && <Button onClick={() => storeFiles(files)}>upload</Button>} */}
       </Flex>
-      <Flex direction="column" gridGap={3}>
+      <Flex direction="column" gridGap={3} my={3}>
         {filesToUpload.map((f) => (
           <Flex key={f.name} direction="column">
             <Flex justify="space-between">

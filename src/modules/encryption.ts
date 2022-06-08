@@ -34,8 +34,8 @@ const PBKDF2 = async (
 export const downloadAndDecrypt = async (
   file: UploadedFile,
   password: Uint8Array
-) => {
-  console.log("dl");
+): Promise<ArrayBuffer> => {
+  console.log("dl", password);
   const content = await loadFileFromIpfs(file.cid);
   console.log("loaded");
 

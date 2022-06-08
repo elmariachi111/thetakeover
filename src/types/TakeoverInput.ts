@@ -24,7 +24,7 @@ export type TakeoverBundle = TOMetadata & {
 };
 
 export type UploadedFile = {
-  name: string;
+  fileName: string;
   path: string;
   lastModified: string;
   contentType: string;

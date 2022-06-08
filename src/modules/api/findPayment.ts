@@ -36,3 +36,12 @@ export const findSettledPayment = async (
 
   return payment;
 };
+
+export const countPayments = async (linkId: string): Promise<number> => {
+  return adapterClient.payment.count({
+    where: {
+      linkHash: linkId,
+      paymentStatus: "COMPLETED",
+    },
+  });
+};

@@ -82,11 +82,6 @@ const NewLink = (props: {
               </FormControl>
               {status === "authenticated" && !values.url && (
                 <Flex direction="column">
-                  <TextDivider>OR</TextDivider>
-                  <UploadedFiles
-                    files={values.files || []}
-                    password={values.password}
-                  />
                   <TakeoverUploadForm
                     onFilesUploaded={(files, password) => {
                       setFieldValue("password", password);
@@ -95,6 +90,10 @@ const NewLink = (props: {
                         ...files,
                       ]);
                     }}
+                  />
+                  <UploadedFiles
+                    files={values.files || []}
+                    password={values.password}
                   />
                 </Flex>
               )}
