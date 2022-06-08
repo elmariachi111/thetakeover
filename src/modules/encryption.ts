@@ -35,9 +35,7 @@ export const downloadAndDecrypt = async (
   file: UploadedFile,
   password: Uint8Array
 ): Promise<ArrayBuffer> => {
-  console.log("dl", password);
   const content = await loadFileFromIpfs(file.cid);
-  console.log("loaded");
 
   const salt = new Uint8Array(content.slice(0, 16));
   const iv = new Uint8Array(content.slice(16, 32));

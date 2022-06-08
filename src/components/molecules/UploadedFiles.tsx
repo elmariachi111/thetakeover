@@ -1,5 +1,13 @@
-import { Flex, Icon, IconButton, Text } from "@chakra-ui/react";
-import React from "react";
+import {
+  CircularProgress,
+  Flex,
+  Icon,
+  IconButton,
+  StackDivider,
+  Text,
+  VStack,
+} from "@chakra-ui/react";
+import React, { useState } from "react";
 import { UploadedFile } from "../../types/TakeoverInput";
 import filesize from "file-size";
 
@@ -30,18 +38,59 @@ const icon = (fileType: string) => {
       return FaFile;
   }
 };
+
+const DownloadButton = (props: {
+  file: UploadedFile;
+  password: undefined | Uint8Array;
+  onDecrypted?: (file: UploadedFile, content: ArrayBuffer) => void;
+}) => {
+  const { file, password, onDecrypted } = props;
+  const [busy, setBusy] = useState(false);
+  const download = async () => {
+    setBusy(true);
+    if (!password) return console.warn("no password");
+    const dec = await downloadAndDecrypt(file, password);
+    setBusy(false);
+    if (onDecrypted) {
+      onDecrypted(file, dec);
+    }
+  };
+
+  return busy ? (
+    <CircularProgress isIndeterminate color="black" size={6} thickness={15} />
+  ) : (
+    <IconButton
+      variant="ghost"
+      aria-label="download"
+      title={file.cid}
+      icon={<FaDownload />}
+      onClick={download}
+    />
+  );
+};
+
 export const UploadedFiles = (props: {
   files: UploadedFile[];
   password: undefined | Uint8Array;
   onDecrypted?: (file: UploadedFile, content: ArrayBuffer) => void;
 }) => {
-  const { files, password, onDecrypted } = props;
+  const { files, ...actionProps } = props;
 
   return (
-    <Flex direction="column" gap={3} w="100%">
+    <VStack
+      spacing={3}
+      w="100%"
+      divider={<StackDivider borderColor="gray.600" />}
+    >
       {files.map((f) => (
-        <Flex key={f.cid} gap={3} justify="space-between">
-          <Flex align="center" gap={2}>
+        <Flex
+          key={f.cid}
+          gap={3}
+          justify="space-between"
+          w="100%"
+          align="center"
+        >
+          <Flex align="center" gap={3}>
             <Icon as={icon(f.contentType)} title={f.contentType} w={8} h={8} />
             <Flex direction="column">
               <Text fontWeight="bold">{f.fileName}</Text>
@@ -49,21 +98,9 @@ export const UploadedFiles = (props: {
             </Flex>
           </Flex>
 
-          <IconButton
-            variant="ghost"
-            aria-label="download"
-            title={f.cid}
-            icon={<FaDownload />}
-            onClick={async () => {
-              if (onDecrypted) {
-                if (!password) return console.warn("no password");
-                const dec = await downloadAndDecrypt(f, password);
-                onDecrypted(f, dec);
-              }
-            }}
-          />
+          <DownloadButton file={f} {...actionProps} />
         </Flex>
       ))}
-    </Flex>
+    </VStack>
   );
 };
