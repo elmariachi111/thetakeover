@@ -15,6 +15,7 @@ import { downloadAndDecrypt } from "../../modules/encryption";
 const icon = (fileType: string) => {
   switch (fileType) {
     case "image/jpg":
+    case "image/jpeg":
     case "image/png":
       return FaFileImage;
     case "video/mp4":
@@ -38,23 +39,24 @@ export const UploadedFiles = (props: {
   return (
     <Flex direction="column" gap={3} w="100%">
       {files.map((f) => (
-        <Flex key={f.cid} gap={3} justify="space-between">
+        <Flex
+          key={f.cid}
+          gap={3}
+          justify="space-between"
+          onClick={async () => {
+            if (onDecrypted) {
+              if (!password) return console.warn("no password");
+              const dec = await downloadAndDecrypt(f, password);
+              onDecrypted(f, dec);
+            }
+          }}
+          style={{ cursor: onDecrypted ? "pointer" : "initial" }}
+        >
           <Flex align="center" gap={2}>
             <Icon as={icon(f.contentType)} title={f.contentType} w={8} h={8} />
             <Flex direction="column">
               <Text fontWeight="bold">{f.fileName}</Text>
-              <Text
-                fontSize="xs"
-                onClick={async () => {
-                  if (!password) return console.warn("no password");
-                  const dec = await downloadAndDecrypt(f, password);
-                  if (onDecrypted) {
-                    onDecrypted(f, dec);
-                  }
-                }}
-              >
-                {f.cid}
-              </Text>
+              <Text fontSize="xs">{f.cid}</Text>
             </Flex>
           </Flex>
           <Text>{filesize(f.contentLength).human("si")}</Text>
