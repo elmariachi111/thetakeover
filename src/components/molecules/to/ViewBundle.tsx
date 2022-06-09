@@ -7,6 +7,7 @@ import { XLink } from "../../../types/Link";
 import { TitleAndCreator } from "../../atoms/TitleAndCreator";
 import { ViewEmbed } from "./ViewEmbed";
 import { ViewExternal } from "./ViewExternal";
+import { ViewLink } from "./ViewLink";
 
 export const ViewBundle = (props: {
   link: XLink;
@@ -57,11 +58,7 @@ export const ViewBundle = (props: {
             position="relative"
             style={{ scrollSnapAlign: "center" }}
           >
-            {bundleLink.metadata.oembed ? (
-              <ViewEmbed link={bundleLink} showChrome={showChrome} />
-            ) : (
-              <ViewExternal link={bundleLink} />
-            )}
+            <ViewLink link={bundleLink} showChrome={showChrome} />
           </Flex>
         );
       })}

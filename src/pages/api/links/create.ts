@@ -2,12 +2,18 @@ import { nanoid } from "nanoid/async";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import { adapterClient } from "../../../modules/api/adapter";
-import { LinkInput } from "../../../types/LinkInput";
+import { NewTakeoverInput } from "../../../types/TakeoverInput";
 import { extractOembed } from "./oembed";
 import canonicalUrl from "../../../modules/api/canonicalUrl";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const payload: LinkInput = req.body;
+  const payload: NewTakeoverInput & {
+    password?: Buffer;
+  } = req.body;
+  if (req.body.password) {
+    payload.password = Buffer.from(req.body.password, "base64");
+  }
+
   const session = await getSession({ req });
   if (!session?.user) {
     return res.status(401).send("Unauthorized");
@@ -17,9 +23,33 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   let oembed;
   try {
-    oembed = await extractOembed(payload.url);
+    if (payload.url) {
+      oembed = await extractOembed(payload.url);
+    }
   } catch (e: any) {
     oembed = undefined;
+  }
+
+  let addFiles;
+
+  if (payload.files && payload.password) {
+    addFiles = {
+      create: {
+        id: payload.files[0].bundleId,
+        password: payload.password,
+        userId: session.user.id,
+        files: {
+          createMany: {
+            data: payload.files.map((f) => ({
+              cid: f.cid,
+              contentLength: f.contentLength,
+              contentType: f.contentType,
+              fileName: f.fileName,
+            })),
+          },
+        },
+      },
+    };
   }
 
   try {
@@ -29,15 +59,15 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         originUri: payload.url,
         price: payload.price,
         creatorId: session.user.id,
-      },
-    });
-    const md = await adapterClient.metadata.create({
-      data: {
-        linkHash: hash,
-        description: payload.description,
-        title: payload.title,
-        previewImage: payload.previewImage,
-        oembed,
+        metadata: {
+          create: {
+            description: payload.description,
+            title: payload.title,
+            previewImage: payload.previewImage,
+            oembed,
+          },
+        },
+        files: addFiles,
       },
     });
 

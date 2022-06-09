@@ -8,6 +8,12 @@ const select = {
   originUri: true,
   metadata: true,
   saleStatus: true,
+  files: {
+    select: {
+      password: true,
+      files: true,
+    },
+  },
   bundles: {
     select: {
       hash: true,
@@ -26,7 +32,7 @@ export const findLink = async (linkid: string) => {
     where: {
       hash: linkid,
     },
-    select,
+    select: select,
   });
 };
 

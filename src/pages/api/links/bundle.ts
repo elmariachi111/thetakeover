@@ -1,13 +1,12 @@
 import { nanoid } from "nanoid/async";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
-import { BundleSchema } from "../../../components/molecules/MetadataEditor";
 import { adapterClient } from "../../../modules/api/adapter";
-import { findLinks } from "../../../modules/api/findLink";
-import { BundleInput } from "../../../types/LinkInput";
 import canonicalUrl from "../../../modules/api/canonicalUrl";
+import { findLinks } from "../../../modules/api/findLink";
+import { TakeoverBundle } from "../../../types/TakeoverInput";
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const payload: BundleInput = req.body;
+  const payload: TakeoverBundle = req.body;
   const session = await getSession({ req });
   if (!session?.user) {
     return res.status(401).send("Unauthorized");

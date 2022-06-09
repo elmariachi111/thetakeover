@@ -29,7 +29,7 @@ import {
   MetadataEditor,
 } from "../../../components/molecules/MetadataEditor";
 import { findLink } from "../../../modules/api/findLink";
-import { LinkInput } from "../../../types/LinkInput";
+import { LinkInput, NewTakeoverInput } from "../../../types/TakeoverInput";
 
 export const getServerSideProps: GetServerSideProps<{
   link: Link & {
@@ -99,7 +99,7 @@ function ToEdit({
     return false;
   };
 
-  const initialValues: LinkInput = {
+  const initialValues: NewTakeoverInput = {
     url: link.originUri || "",
     price: link.price as unknown as number,
     title: link.metadata.title,
