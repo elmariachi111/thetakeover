@@ -147,6 +147,7 @@ const Navbar = () => {
                 <Link isExternal href="https://the-takeover.com/datenschutz-to">
                   Privacy
                 </Link>
+                <Text>M</Text>
               </Flex>
             </Flex>
           </Flex>
