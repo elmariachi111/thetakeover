@@ -139,15 +139,24 @@ const Navbar = () => {
 
               <Flex direction="row" fontSize="small" gap={3} my={5}>
                 <Link isExternal href="https://the-takeover.com/">
-                  The Takeover
+                  Home
                 </Link>
+
                 <Link isExternal href="https://the-takeover.com/impressum-to">
                   Imprint
                 </Link>
-                <Link isExternal href="https://the-takeover.com/datenschutz-to">
+                <Link
+                  isExternal
+                  href="https://www.iubenda.com/nutzungsbedingungen/47481833"
+                >
+                  ToS
+                </Link>
+                <Link
+                  isExternal
+                  href="https://www.iubenda.com/privacy-policy/47481833"
+                >
                   Privacy
                 </Link>
-                <Text>St</Text>
               </Flex>
             </Flex>
           </Flex>
