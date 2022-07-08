@@ -2,7 +2,7 @@ import { Button, Flex, Progress, Text } from "@chakra-ui/react";
 import { nanoid } from "nanoid/async";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { useGate } from "../../modules/GatingContext";
+import { useGatingWorker } from "../../context/GatingWorkerContext";
 import { UploadedFile } from "../../types/TakeoverInput";
 
 const TakeoverUploadForm = (props: {
@@ -16,7 +16,7 @@ const TakeoverUploadForm = (props: {
   );
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
 
-  const { worker } = useGate();
+  const { worker } = useGatingWorker();
 
   useEffect(() => {
     setBundlePassword(crypto.getRandomValues(new Uint8Array(32)));

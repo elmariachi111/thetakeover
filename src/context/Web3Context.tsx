@@ -1,7 +1,7 @@
 import { providers } from "ethers";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
+import CoinbaseWalletSDK from "@coinbase/wallet-sdk";
 
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
@@ -45,7 +45,7 @@ const Web3Provider = ({ children }: { children: React.ReactNode }) => {
           options: {
             appName: "The Takeover", // Required
             infuraId: process.env.NEXT_PUBLIC_INFURA_KEY, // Required
-          }
+          },
         },
       },
     });
@@ -93,7 +93,6 @@ const Web3Provider = ({ children }: { children: React.ReactNode }) => {
         console.warn("user rejected connection");
       }
       return {};
-
     },
     [web3Modal]
   );

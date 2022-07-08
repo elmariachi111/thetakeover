@@ -1,16 +1,16 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 
-interface IGatingContext {
+interface IGatingWorkerContext {
   worker: Worker | undefined;
 }
 
-const GatingContext = React.createContext<IGatingContext>({
+const GatingWorkerContext = React.createContext<IGatingWorkerContext>({
   worker: undefined,
 });
 
-const useGate = () => useContext(GatingContext);
+const useGatingWorker = () => useContext(GatingWorkerContext);
 
-const GateProvider = ({
+const GateWorkerProvider = ({
   children,
   chain,
 }: {
@@ -30,10 +30,10 @@ const GateProvider = ({
   }, []);
 
   return (
-    <GatingContext.Provider value={{ worker: workerRef.current }}>
+    <GatingWorkerContext.Provider value={{ worker: workerRef.current }}>
       {children}
-    </GatingContext.Provider>
+    </GatingWorkerContext.Provider>
   );
 };
 
-export { GateProvider, useGate };
+export { GateWorkerProvider, useGatingWorker };

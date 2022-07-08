@@ -20,7 +20,7 @@ import {
   FaDownload,
 } from "react-icons/fa";
 
-import { useGate } from "../../modules/GatingContext";
+import { useGatingWorker } from "../../context/GatingWorkerContext";
 
 const icon = (fileType: string) => {
   switch (fileType) {
@@ -48,13 +48,12 @@ const DownloadButton = (props: {
   const { file, password, onDecrypted } = props;
   const [busy, setBusy] = useState(false);
 
-  const { worker } = useGate();
+  const { worker } = useGatingWorker();
 
   const onWorkerMessage = useCallback(
     (evt) => {
       const payload = evt.data;
       if (payload.topic === "decrypt_done") {
-        console.log(onDecrypted, payload);
         if (onDecrypted) {
           onDecrypted(payload.file, payload.content);
         }

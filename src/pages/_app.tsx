@@ -6,7 +6,7 @@ import Head from "next/head";
 import { ReactElement, ReactNode } from "react";
 import Layout from "../components/Layout";
 import { default as TOTheme } from "../theme";
-import { Web3Provider } from "../modules/Web3Context";
+import { Web3Provider } from "../context/Web3Context";
 
 const theme = extendTheme(TOTheme);
 

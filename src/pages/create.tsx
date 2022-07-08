@@ -16,7 +16,7 @@ import { ToSuccessOverlay } from "../components/molecules/ToSuccessOverlay";
 import NewLink from "../components/organisms/NewLink";
 import { LinkInput, NewTakeoverInput } from "../types/TakeoverInput";
 import { toBase64 } from "b64-lite";
-import { GateProvider } from "../modules/GatingContext";
+import { GateWorkerProvider } from "../context/GatingWorkerContext";
 
 const CACHE_ITEM_NAME = "newTO";
 
@@ -113,13 +113,13 @@ const CreateLink: NextPage = () => {
       <Heading size="lg" my={6}>
         Create a Takeover
       </Heading>
-      <GateProvider>
+      <GateWorkerProvider>
         <NewLink
           onSubmit={create}
           buttonRef={buttonRef}
           initialLink={linkInput}
         />
-      </GateProvider>
+      </GateWorkerProvider>
       <Spacer />
 
       <Box ref={buttonRef}></Box>

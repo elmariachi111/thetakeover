@@ -2,7 +2,7 @@ import { Button, Icon, useToast } from "@chakra-ui/react";
 import { getCsrfToken, signIn, useSession } from "next-auth/react";
 import { useCallback } from "react";
 import { SiweMessage } from "siwe";
-import { useWeb3 } from "../../modules/Web3Context";
+import { useWeb3 } from "../../context/Web3Context";
 import { FaEthereum } from "react-icons/fa";
 
 export const SiweButton = (props: {
