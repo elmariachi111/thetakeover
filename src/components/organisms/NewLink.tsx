@@ -9,9 +9,8 @@ import {
 } from "@chakra-ui/react";
 import { Field, Form, Formik } from "formik";
 import { useSession } from "next-auth/react";
-import React, { MutableRefObject, useEffect, useState } from "react";
+import { MutableRefObject } from "react";
 import { LinkInput, NewTakeoverInput } from "../../types/TakeoverInput";
-import { TextDivider } from "../atoms/TextDivider";
 import { LinkSchema, MetadataEditor } from "../molecules/MetadataEditor";
 import TakeoverUploadForm from "../molecules/TakeoverUploadForm";
 import { UploadedFiles } from "../molecules/UploadedFiles";

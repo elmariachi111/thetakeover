@@ -15,6 +15,7 @@ import {
   countPayments,
   findSettledPayment,
 } from "../../modules/api/findPayment";
+import { GateProvider } from "../../modules/GatingContext";
 import { XLink } from "../../types/Link";
 
 const redirectToPayment = (linkId: string) => {
@@ -169,13 +170,15 @@ function ToView({
         )}
         {session?.user?.id !== link.creatorId && <ReportContent link={link} />}
       </Flex>
-      <Flex
-        margin="0 auto"
-        borderBottom={bundleItems.length == 0 ? "1px solid black" : ""}
-        w="100%"
-      >
-        {view}
-      </Flex>
+      <GateProvider>
+        <Flex
+          margin="0 auto"
+          borderBottom={bundleItems.length == 0 ? "1px solid black" : ""}
+          w="100%"
+        >
+          {view}
+        </Flex>
+      </GateProvider>
     </Flex>
   );
 }

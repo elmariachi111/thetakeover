@@ -7,7 +7,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { UploadedFile } from "../../types/TakeoverInput";
 import filesize from "file-size";
 
@@ -19,7 +19,8 @@ import {
   FaFileVideo,
   FaDownload,
 } from "react-icons/fa";
-import { downloadAndDecrypt } from "../../modules/encryption";
+
+import { useGate } from "../../modules/GatingContext";
 
 const icon = (fileType: string) => {
   switch (fileType) {
@@ -46,14 +47,41 @@ const DownloadButton = (props: {
 }) => {
   const { file, password, onDecrypted } = props;
   const [busy, setBusy] = useState(false);
-  const download = async () => {
-    setBusy(true);
+
+  const { worker } = useGate();
+
+  const onWorkerMessage = useCallback(
+    (evt) => {
+      const payload = evt.data;
+      if (payload.topic === "decrypt_done") {
+        console.log(onDecrypted, payload);
+        if (onDecrypted) {
+          onDecrypted(payload.file, payload.content);
+        }
+        setBusy(false);
+      }
+    },
+    [onDecrypted]
+  );
+
+  useEffect(() => {
+    if (!worker) return;
+    worker.addEventListener("message", onWorkerMessage);
+    return () => {
+      worker.removeEventListener("message", onWorkerMessage);
+    };
+  }, [worker, onWorkerMessage]);
+
+  const requestDownload = async () => {
+    if (!worker) return console.warn("no worker");
     if (!password) return console.warn("no password");
-    const dec = await downloadAndDecrypt(file, password);
-    setBusy(false);
-    if (onDecrypted) {
-      onDecrypted(file, dec);
-    }
+
+    setBusy(true);
+    worker.postMessage({
+      topic: "decrypt",
+      file,
+      password,
+    });
   };
 
   return busy ? (
@@ -64,8 +92,34 @@ const DownloadButton = (props: {
       aria-label="download"
       title={file.cid}
       icon={<FaDownload />}
-      onClick={download}
+      onClick={requestDownload}
     />
+  );
+};
+
+const UploadedFile = (props: {
+  file: UploadedFile;
+  password: undefined | Uint8Array;
+  onDecrypted?: (file: UploadedFile, content: ArrayBuffer) => void;
+}) => {
+  const { file, ...actionProps } = props;
+  return (
+    <Flex gap={3} justify="space-between" w="100%" align="center">
+      <Flex align="center" gap={3}>
+        <Icon
+          as={icon(file.contentType)}
+          title={file.contentType}
+          w={8}
+          h={8}
+        />
+        <Flex direction="column">
+          <Text fontWeight="bold">{file.fileName}</Text>
+          <Text fontSize="xs">{filesize(file.contentLength).human("si")}</Text>
+        </Flex>
+      </Flex>
+
+      <DownloadButton file={file} {...actionProps} />
+    </Flex>
   );
 };
 
@@ -83,23 +137,7 @@ export const UploadedFiles = (props: {
       divider={<StackDivider borderColor="gray.600" />}
     >
       {files.map((f) => (
-        <Flex
-          key={f.cid}
-          gap={3}
-          justify="space-between"
-          w="100%"
-          align="center"
-        >
-          <Flex align="center" gap={3}>
-            <Icon as={icon(f.contentType)} title={f.contentType} w={8} h={8} />
-            <Flex direction="column">
-              <Text fontWeight="bold">{f.fileName}</Text>
-              <Text fontSize="xs">{filesize(f.contentLength).human("si")}</Text>
-            </Flex>
-          </Flex>
-
-          <DownloadButton file={f} {...actionProps} />
-        </Flex>
+        <UploadedFile key={f.cid} file={f} {...actionProps} />
       ))}
     </VStack>
   );

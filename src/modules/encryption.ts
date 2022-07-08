@@ -1,6 +1,3 @@
-import { UploadedFile } from "../types/TakeoverInput";
-import { loadFileFromIpfs } from "./storeFiles";
-
 const PBKDF2 = async (
   password: Uint8Array,
   salt: Uint8Array,
@@ -31,12 +28,10 @@ const PBKDF2 = async (
   );
 };
 
-export const downloadAndDecrypt = async (
-  file: UploadedFile,
+export const decryptFile = async (
+  content: ArrayBuffer,
   password: Uint8Array
 ): Promise<ArrayBuffer> => {
-  const content = await loadFileFromIpfs(file.cid);
-
   const salt = new Uint8Array(content.slice(0, 16));
   const iv = new Uint8Array(content.slice(16, 32));
   const encrypted = new Uint8Array(content.slice(32));
@@ -54,23 +49,23 @@ export const downloadAndDecrypt = async (
 export const encryptFile = async (
   password: Uint8Array,
   infile: File
-): Promise<{
-  salt: Uint8Array;
-  iv: Uint8Array;
-  encrypted: Promise<ArrayBuffer>;
-}> => {
+): Promise<Uint8Array> => {
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const key = await PBKDF2(password, salt, 100000, 256, "SHA-256");
   const iv = crypto.getRandomValues(new Uint8Array(16));
-  const encrypted = crypto.subtle.encrypt(
-    { name: "AES-CBC", iv },
-    key,
-    await infile.arrayBuffer()
+  const encrypted = new Uint8Array(
+    await crypto.subtle.encrypt(
+      { name: "AES-CBC", iv },
+      key,
+      await infile.arrayBuffer()
+    )
   );
 
-  return {
-    salt,
-    iv,
-    encrypted,
-  };
+  const pfxEncrypted = new Uint8Array(16 + 16 + encrypted.byteLength);
+
+  pfxEncrypted.set(salt, 0);
+  pfxEncrypted.set(iv, 16);
+  pfxEncrypted.set(encrypted, 32);
+
+  return pfxEncrypted;
 };

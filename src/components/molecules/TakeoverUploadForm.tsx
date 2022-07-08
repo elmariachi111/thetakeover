@@ -2,6 +2,7 @@ import { Button, Flex, Progress, Text } from "@chakra-ui/react";
 import { nanoid } from "nanoid/async";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDropzone } from "react-dropzone";
+import { useGate } from "../../modules/GatingContext";
 import { UploadedFile } from "../../types/TakeoverInput";
 
 const TakeoverUploadForm = (props: {
@@ -15,27 +16,27 @@ const TakeoverUploadForm = (props: {
   );
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
 
+  const { worker } = useGate();
+
   useEffect(() => {
     setBundlePassword(crypto.getRandomValues(new Uint8Array(32)));
     nanoid().then(setBundleId);
   }, []);
 
-  const workerRef = useRef<Worker>();
   const onWorkerMessage = useCallback(
     (evt) => {
       if (!bundlePassword) return;
       const payload = evt.data;
-      if (payload.type === "progress") {
+      if (payload.topic === "store_progress") {
         setUploadProgress((old) => ({
           ...old,
           [payload.fileName]: payload.progress,
         }));
-      } else if (payload.type === "finished") {
+      } else if (payload.topic === "store_finished") {
         setUploadProgress((old) => {
-          const newProgress = Object.fromEntries(
+          return Object.fromEntries(
             Object.entries(old).filter((e) => e[0] != payload.file.fileName)
           );
-          return newProgress;
         });
         setFilesToUpload((old) => {
           return old.filter((o) => o.name !== payload.file.fileName);
@@ -47,19 +48,12 @@ const TakeoverUploadForm = (props: {
   );
 
   useEffect(() => {
-    console.log("new worker");
-    workerRef.current = new Worker(
-      new URL("../../workers/upload.ts", import.meta.url)
-    );
+    if (!worker) return;
+    worker.addEventListener("message", onWorkerMessage);
     return () => {
-      if (workerRef.current) workerRef.current.terminate();
+      worker.removeEventListener("message", onWorkerMessage);
     };
-  }, []);
-
-  useEffect(() => {
-    if (!workerRef.current) return;
-    workerRef.current.onmessage = onWorkerMessage;
-  }, [workerRef, onWorkerMessage]);
+  }, [worker, onWorkerMessage]);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFilesToUpload((old) => [...old, ...acceptedFiles]);
@@ -69,20 +63,21 @@ const TakeoverUploadForm = (props: {
 
   const uploadFiles = useCallback(
     (files: File[]) => {
-      if (!workerRef.current || !bundlePassword || !bundleId) {
+      if (!worker || !bundlePassword || !bundleId) {
         console.warn("no worker loaded");
         return;
       }
 
       files.forEach((file) =>
-        workerRef.current!.postMessage({
+        worker.postMessage({
+          topic: "store",
           file,
           bundleId,
           password: bundlePassword,
         })
       );
     },
-    [workerRef, bundlePassword, bundleId]
+    [worker, bundlePassword, bundleId]
   );
 
   return (

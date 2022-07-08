@@ -9,7 +9,7 @@ import { User } from "@prisma/client";
 
 const SellerNotConnectedAlert = (props: { creator: User }) => {
   const { creator } = props;
-  console.log(creator);
+
   return (
     <Alert status="warning">
       <AlertIcon />
