@@ -1,44 +1,19 @@
 import {
   CircularProgress,
   Flex,
-  Icon,
   IconButton,
   StackDivider,
   Text,
   VStack,
 } from "@chakra-ui/react";
-import React, { useCallback, useEffect, useState } from "react";
-import { UploadedFile } from "../../types/TakeoverInput";
 import filesize from "file-size";
+import { useCallback, useEffect, useState } from "react";
+import { UploadedFile } from "../../../types/TakeoverInput";
 
-import {
-  FaFileAudio,
-  FaFileImage,
-  FaFile,
-  FaFileArchive,
-  FaFileVideo,
-  FaDownload,
-} from "react-icons/fa";
+import { FaDownload } from "react-icons/fa";
 
-import { useGatingWorker } from "../../context/GatingWorkerContext";
-
-const icon = (fileType: string) => {
-  switch (fileType) {
-    case "image/jpg":
-    case "image/jpeg":
-    case "image/png":
-      return FaFileImage;
-    case "video/mp4":
-      return FaFileVideo;
-    case "audio/mp3":
-    case "audio/aac":
-      return FaFileAudio;
-    case "application/zip":
-      return FaFileArchive;
-    default:
-      return FaFile;
-  }
-};
+import { useGatingWorker } from "../../../context/GatingWorkerContext";
+import { FileTypeIcon } from "../../atoms/BinaryFileTypeIcon";
 
 const DownloadButton = (props: {
   file: UploadedFile;
@@ -56,6 +31,8 @@ const DownloadButton = (props: {
       if (payload.topic === "decrypt_done") {
         if (onDecrypted) {
           onDecrypted(payload.file, payload.content);
+        } else {
+          console.log(payload.file, payload.content);
         }
         setBusy(false);
       }
@@ -105,12 +82,7 @@ const UploadedFile = (props: {
   return (
     <Flex gap={3} justify="space-between" w="100%" align="center">
       <Flex align="center" gap={3}>
-        <Icon
-          as={icon(file.contentType)}
-          title={file.contentType}
-          w={8}
-          h={8}
-        />
+        <FileTypeIcon contentType={file.contentType} />
         <Flex direction="column">
           <Text fontWeight="bold">{file.fileName}</Text>
           <Text fontSize="xs">{filesize(file.contentLength).human("si")}</Text>

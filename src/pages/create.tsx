@@ -7,16 +7,15 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
+import { toBase64 } from "b64-lite";
 import type { NextPage } from "next";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { ToLoadingOverlay } from "../components/atoms/ToOverlay";
 import { ToSuccessOverlay } from "../components/molecules/ToSuccessOverlay";
-import NewLink from "../components/organisms/NewLink";
+import CreateNewLink from "../components/organisms/CreateNewLink";
 import { LinkInput, NewTakeoverInput } from "../types/TakeoverInput";
-import { toBase64 } from "b64-lite";
-import { GateWorkerProvider } from "../context/GatingWorkerContext";
 
 const CACHE_ITEM_NAME = "newTO";
 
@@ -113,13 +112,13 @@ const CreateLink: NextPage = () => {
       <Heading size="lg" my={6}>
         Create a Takeover
       </Heading>
-      <GateWorkerProvider>
-        <NewLink
-          onSubmit={create}
-          buttonRef={buttonRef}
-          initialLink={linkInput}
-        />
-      </GateWorkerProvider>
+
+      <CreateNewLink
+        onSubmit={create}
+        buttonRef={buttonRef}
+        initialLink={linkInput}
+      />
+
       <Spacer />
 
       <Box ref={buttonRef}></Box>

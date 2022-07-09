@@ -22,7 +22,7 @@ const GateWorkerProvider = ({
   useEffect(() => {
     console.log("new worker");
     workerRef.current = new Worker(
-      new URL("../workers/upload.ts", import.meta.url)
+      new URL("../workers/UploadWorker.ts", import.meta.url)
     );
     return () => {
       if (workerRef.current) workerRef.current.terminate();

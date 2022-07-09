@@ -1,16 +1,8 @@
-import {
-  Button,
-  Container,
-  Flex,
-  Image,
-  Link as ChakraLink,
-  Text,
-} from "@chakra-ui/react";
-import React from "react";
+import { Container, Flex, Text } from "@chakra-ui/react";
 import { XLink } from "../../../types/Link";
 import { UploadedFile } from "../../../types/TakeoverInput";
 import { TitleAndCreator } from "../../atoms/TitleAndCreator";
-import { UploadedFiles } from "../UploadedFiles";
+import { UploadedFiles } from "../FileUploads";
 
 export const ViewFiles = (props: { link: XLink }) => {
   const { link } = props;

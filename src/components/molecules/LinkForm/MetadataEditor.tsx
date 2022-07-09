@@ -14,9 +14,9 @@ import { useField, useFormikContext } from "formik";
 import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import * as Yup from "yup";
-import { NewTakeoverInput } from "../../types/TakeoverInput";
-import { XOembedData } from "../../types/Oembed";
-import CloudinaryUploadWidget from "../organisms/CloudinaryUploadWidget";
+import { NewTakeoverInput } from "../../../types/TakeoverInput";
+import { XOembedData } from "../../../types/Oembed";
+import CloudinaryUploadWidget from "../../organisms/CloudinaryUploadWidget";
 
 export const LinkSchema = Yup.object().shape({
   url: Yup.string().url("not an url").max(550),
