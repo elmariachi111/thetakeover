@@ -11,38 +11,27 @@ import {
   Spinner,
   Tag,
   TagLabel,
-  Text,
   useBoolean,
 } from "@chakra-ui/react";
-import { Link, Metadata, PrismaClient, User } from "@prisma/client";
 import axios from "axios";
 import { Field, Form, Formik } from "formik";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { getSession, useSession } from "next-auth/react";
 
 import NextLink from "next/link";
-import React from "react";
+import { UploadedFiles } from "../../../components/molecules/FileUploads";
 import { FormikChakraSwitch } from "../../../components/molecules/FormikChakraSwitch";
 import {
   BundleSchema,
   LinkSchema,
   MetadataEditor,
-} from "../../../components/molecules/MetadataEditor";
+} from "../../../components/molecules/LinkForm";
 import { findLink } from "../../../modules/api/findLink";
-import { LinkInput, NewTakeoverInput } from "../../../types/TakeoverInput";
+import { XLink } from "../../../types/Link";
+import { NewTakeoverInput } from "../../../types/TakeoverInput";
 
 export const getServerSideProps: GetServerSideProps<{
-  link: Link & {
-    metadata: Metadata;
-    creator: User;
-    bundles: Array<{
-      hash: string;
-      metadata: {
-        title: string;
-        previewImage: string;
-      };
-    }>;
-  };
+  link: XLink;
 }> = async (context) => {
   const linkid: string = context.params?.linkid as string;
 
@@ -108,7 +97,8 @@ function ToEdit({
     salesActive: link.saleStatus,
   };
 
-  const isBundle = link.bundles.length > 0;
+  const isBundle = link.bundles && link.bundles.length > 0;
+  const isFile = link.files && link.files.files.length > 0;
 
   return (
     <Formik
@@ -122,21 +112,15 @@ function ToEdit({
     >
       {({ errors, values }) => (
         <Form id="newlink-form">
-          <Flex direction="column" gridGap={6}>
+          <Flex direction="column" gridGap={6} mt={12}>
             {isBundle ? (
               <>
                 <Heading size="md">
-                  Bundle of {link.bundles.length} items
+                  Bundle of {link.bundles!.length} items
                 </Heading>
                 <Flex direction="row" wrap="wrap" gridGap={2}>
-                  {link.bundles.map((b) => (
-                    <Tag
-                      key={b.hash}
-                      colorScheme="blue"
-                      borderRadius="full"
-                      size="lg"
-                      variant="solid"
-                    >
+                  {link.bundles!.map((b) => (
+                    <Tag key={b.hash} size="lg" variant="solid">
                       <Avatar
                         src={b.metadata.previewImage}
                         size="xs"
@@ -151,11 +135,23 @@ function ToEdit({
                   ))}
                 </Flex>
               </>
+            ) : isFile ? (
+              <>
+                <Heading size="md">
+                  Contains {link.files!.files.length} files
+                </Heading>
+                <UploadedFiles
+                  files={link.files!.files}
+                  password={new Uint8Array(link.files!.password.data)}
+                ></UploadedFiles>
+              </>
             ) : (
-              <FormControl isInvalid={!!errors.url}>
-                <FormLabel>link</FormLabel>
-                <Field name="url" disabled={true} type="text" as={Input} />
-              </FormControl>
+              <>
+                <Heading size="md">Link to external content</Heading>
+                <FormControl>
+                  <Field name="url" disabled={true} type="text" as={Input} />
+                </FormControl>
+              </>
             )}
 
             <MetadataEditor isDisabled={busy} initialValues={initialValues} />
