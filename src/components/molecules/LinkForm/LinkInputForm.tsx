@@ -15,9 +15,9 @@ const LinkInputForm = ({
   touched,
   values,
 }: {
-  errors: FormikErrors<NewTakeoverInput>;
-  touched: FormikTouched<NewTakeoverInput>;
-  values: NewTakeoverInput;
+  errors: FormikErrors<Partial<NewTakeoverInput>>;
+  touched: FormikTouched<Partial<NewTakeoverInput>>;
+  values: Partial<NewTakeoverInput>;
 }) => {
   const { filesToUpload } = useUpload();
 

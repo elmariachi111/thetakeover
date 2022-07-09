@@ -13,7 +13,7 @@ export type TOMetadata = {
   price: number;
 };
 
-export type NewTakeoverInput = Partial<TOMetadata> & {
+export type NewTakeoverInput = TOMetadata & {
   url?: string;
   files?: UploadedFile[];
   password?: Uint8Array;

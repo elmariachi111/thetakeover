@@ -41,7 +41,7 @@ export const BundleSchema = LinkSchema.omit(["url"]);
 
 export const MetadataEditor = (props: {
   isDisabled?: boolean;
-  initialValues?: NewTakeoverInput;
+  initialValues?: Partial<NewTakeoverInput>;
 }) => {
   const { isDisabled, initialValues } = props;
   const { status } = useSession();

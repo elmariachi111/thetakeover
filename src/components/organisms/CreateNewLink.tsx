@@ -26,7 +26,7 @@ const CreateNewLink = (props: {
   const initialValues: NewTakeoverInput = {
     url: undefined,
     files: [],
-    price: undefined,
+    price: 0,
     title: "",
     previewImage: "",
     description: "",
