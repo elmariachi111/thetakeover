@@ -57,7 +57,6 @@ const CreateNewLink = (props: {
           return (
             <Form id="newlink-form">
               <UploadProvider
-                password={values.password}
                 setPassword={(password) => setFieldValue("password", password)}
                 onFilesUploaded={(files) => {
                   setFieldValue("files", [...(values.files || []), ...files]);

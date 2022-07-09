@@ -30,26 +30,19 @@ const useUpload = () => useContext(UploadContext);
 
 const UploadProvider = (props: {
   children: React.ReactNode;
-  password: Uint8Array | undefined;
   setPassword: (password: Uint8Array) => void;
   onFilesUploaded: (files: UploadedFile[]) => void;
 }) => {
   const { worker } = useGatingWorker();
 
-  const { onFilesUploaded, password, setPassword } = props;
+  const { onFilesUploaded, setPassword } = props;
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>(
     {}
   );
   const [bundleId, setBundleId] = useState<string>();
 
-  useEffect(() => {
-    (async () => {
-      const pw = crypto.getRandomValues(new Uint8Array(32));
-      setBundleId(await nanoid());
-      setPassword(pw);
-    })();
-  }, []);
+  const [_password, _setPassword] = useState<Uint8Array>();
 
   const onWorkerMessage = useCallback(
     (evt) => {
@@ -82,12 +75,24 @@ const UploadProvider = (props: {
     };
   }, [worker, onWorkerMessage]);
 
-  const acceptFiles = (acceptedFiles: File[]) => {
-    setFilesToUpload((old) => [...old, ...acceptedFiles]);
-  };
+  const acceptFiles = useCallback(
+    async (acceptedFiles: File[]) => {
+      if (!_password) {
+        const pw = crypto.getRandomValues(new Uint8Array(32));
+        setPassword(pw);
+        _setPassword(pw);
+      }
+      if (!bundleId) {
+        setBundleId(await nanoid());
+      }
+
+      setFilesToUpload((old) => [...old, ...acceptedFiles]);
+    },
+    [_setPassword, setPassword, _password, bundleId]
+  );
 
   const uploadFiles = useCallback(() => {
-    if (!worker || !password || !bundleId) {
+    if (!worker || !_password || !bundleId) {
       console.warn("no worker loaded");
       return;
     }
@@ -96,17 +101,17 @@ const UploadProvider = (props: {
       worker.postMessage({
         topic: "store",
         file,
-        password,
+        password: _password,
         bundleId,
       })
     );
-  }, [worker, password, bundleId, filesToUpload]);
+  }, [worker, _password, bundleId, filesToUpload]);
 
   return (
     <UploadContext.Provider
       value={{ uploadProgress, filesToUpload, acceptFiles, uploadFiles }}
     >
-      {bundleId && password ? props.children : <></>}
+      {props.children}
     </UploadContext.Provider>
   );
 };

@@ -36,7 +36,6 @@ const UploadForm = (props: { children?: React.ReactNode }) => {
       >
         <Input {...getInputProps()} size="lg" />
         click here or drop files
-        {/* {!!files && <Button onClick={() => storeFiles(files)}>upload</Button>} */}
       </Flex>
     </Flex>
   );

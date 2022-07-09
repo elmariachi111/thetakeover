@@ -14,6 +14,7 @@ export function fileIcon(fileType: string) {
     case "image/png":
       return FaFileImage;
     case "video/mp4":
+    case "video/webm":
       return FaFileVideo;
     case "audio/mp3":
     case "audio/aac":

@@ -37,7 +37,6 @@ const NewLinkForm = (props: FormikProps<NewTakeoverInput>) => {
 
   return (
     <Flex direction="column" gap={6}>
-      {values.password && values.password.toString()}
       <Flex
         direction={["column", "row"]}
         gap={6}
