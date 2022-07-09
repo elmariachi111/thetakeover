@@ -44,7 +44,7 @@ const NewLinkForm = (props: FormikProps<NewTakeoverInput>) => {
         justify="space-between"
       >
         <LinkInputForm values={values} errors={errors} touched={touched} />
-        {formStarted || <Text pt={6}>OR</Text>}
+        {!formStarted && status === "authenticated" && <Text pt={6}>OR</Text>}
         {status === "authenticated" && !values.url && (
           <Flex direction="column" w="100%">
             <UploadForm />

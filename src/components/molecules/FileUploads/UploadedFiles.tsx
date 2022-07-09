@@ -16,12 +16,35 @@ import { useGatingWorker } from "../../../context/GatingWorkerContext";
 import { FileTypeIcon } from "../../atoms/BinaryFileTypeIcon";
 
 const DownloadButton = (props: {
+  requestDownload: (file: UploadedFile) => void;
   file: UploadedFile;
+  busy?: boolean;
+}) => {
+  const { file, requestDownload, busy } = props;
+  return busy ? (
+    <CircularProgress isIndeterminate color="black" size={6} thickness={15} />
+  ) : (
+    <IconButton
+      variant="ghost"
+      aria-label="download"
+      title={file.cid}
+      icon={<FaDownload />}
+      onClick={() => {
+        requestDownload(file);
+      }}
+    />
+  );
+};
+
+export const UploadedFiles = (props: {
+  files: UploadedFile[];
   password: undefined | Uint8Array;
   onDecrypted?: (file: UploadedFile, content: ArrayBuffer) => void;
 }) => {
-  const { file, password, onDecrypted } = props;
-  const [busy, setBusy] = useState(false);
+  const { files, onDecrypted, password } = props;
+  const [busy, setBusy] = useState<Record<string, boolean>>(
+    Object.fromEntries(files.map((f) => [f.cid, false]))
+  );
 
   const { worker } = useGatingWorker();
 
@@ -34,7 +57,11 @@ const DownloadButton = (props: {
         } else {
           console.log(payload.file, payload.content);
         }
-        setBusy(false);
+        setBusy((old) => {
+          const newBuzy = { ...old };
+          newBuzy[payload.file.cid] = false;
+          return newBuzy;
+        });
       }
     },
     [onDecrypted]
@@ -43,64 +70,33 @@ const DownloadButton = (props: {
   useEffect(() => {
     const current = worker?.current;
     if (!current) return;
+
     current.addEventListener("message", onWorkerMessage);
     return () => {
       current.removeEventListener("message", onWorkerMessage);
     };
   }, [worker, onWorkerMessage]);
 
-  const requestDownload = async () => {
-    if (!worker?.current) return console.warn("no worker");
-    if (!password) return console.warn("no password");
+  const requestDownload = useCallback(
+    async (file: UploadedFile) => {
+      const current = worker?.current;
+      if (!current) return console.warn("no worker");
+      if (!password) return console.error("no password");
 
-    setBusy(true);
-    worker.current.postMessage({
-      topic: "decrypt",
-      file,
-      password,
-    });
-  };
+      setBusy((old) => {
+        const newBuzy = { ...old };
+        newBuzy[file.cid] = true;
+        return newBuzy;
+      });
 
-  return busy ? (
-    <CircularProgress isIndeterminate color="black" size={6} thickness={15} />
-  ) : (
-    <IconButton
-      variant="ghost"
-      aria-label="download"
-      title={file.cid}
-      icon={<FaDownload />}
-      onClick={requestDownload}
-    />
+      current.postMessage({
+        topic: "decrypt",
+        file,
+        password,
+      });
+    },
+    [setBusy, worker, password]
   );
-};
-
-const UploadedFile = (props: {
-  file: UploadedFile;
-  password: undefined | Uint8Array;
-  onDecrypted?: (file: UploadedFile, content: ArrayBuffer) => void;
-}) => {
-  const { file, ...actionProps } = props;
-  return (
-    <Flex gap={3} justify="space-between" w="100%" align="center">
-      <Flex align="center" gap={3}>
-        <FileTypeIcon contentType={file.contentType} />
-        <Flex direction="column">
-          <Text fontWeight="bold">{file.fileName}</Text>
-          <Text fontSize="xs">{filesize(file.contentLength).human("si")}</Text>
-        </Flex>
-      </Flex>
-
-      <DownloadButton file={file} {...actionProps} />
-    </Flex>
-  );
-};
-
-export const UploadedFiles = (props: {
-  files: UploadedFile[];
-  password: undefined | Uint8Array;
-  onDecrypted?: (file: UploadedFile, content: ArrayBuffer) => void;
-}) => {
-  const { files, ...actionProps } = props;
 
   return (
     <VStack
@@ -108,8 +104,30 @@ export const UploadedFiles = (props: {
       w="100%"
       divider={<StackDivider borderColor="gray.600" />}
     >
-      {files.map((f) => (
-        <UploadedFile key={f.cid} file={f} {...actionProps} />
+      {files.map((file) => (
+        <Flex
+          gap={3}
+          key={file.cid}
+          justify="space-between"
+          w="100%"
+          align="center"
+        >
+          <Flex align="center" gap={3}>
+            <FileTypeIcon contentType={file.contentType} />
+            <Flex direction="column">
+              <Text fontWeight="bold">{file.fileName}</Text>
+              <Text fontSize="xs">
+                {filesize(file.contentLength).human("si")}
+              </Text>
+            </Flex>
+          </Flex>
+
+          <DownloadButton
+            file={file}
+            requestDownload={requestDownload}
+            busy={busy[file.cid]}
+          />
+        </Flex>
       ))}
     </VStack>
   );
