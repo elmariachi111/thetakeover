@@ -41,19 +41,20 @@ const DownloadButton = (props: {
   );
 
   useEffect(() => {
-    if (!worker) return;
-    worker.addEventListener("message", onWorkerMessage);
+    const current = worker?.current;
+    if (!current) return;
+    current.addEventListener("message", onWorkerMessage);
     return () => {
-      worker.removeEventListener("message", onWorkerMessage);
+      current.removeEventListener("message", onWorkerMessage);
     };
   }, [worker, onWorkerMessage]);
 
   const requestDownload = async () => {
-    if (!worker) return console.warn("no worker");
+    if (!worker?.current) return console.warn("no worker");
     if (!password) return console.warn("no password");
 
     setBusy(true);
-    worker.postMessage({
+    worker.current.postMessage({
       topic: "decrypt",
       file,
       password,

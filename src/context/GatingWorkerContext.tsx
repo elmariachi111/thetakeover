@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 
 interface IGatingWorkerContext {
-  worker: Worker | undefined;
+  worker?: React.MutableRefObject<Worker | undefined>;
 }
 
 const GatingWorkerContext = React.createContext<IGatingWorkerContext>({
@@ -30,7 +30,7 @@ const GateWorkerProvider = ({
   }, []);
 
   return (
-    <GatingWorkerContext.Provider value={{ worker: workerRef.current }}>
+    <GatingWorkerContext.Provider value={{ worker: workerRef }}>
       {children}
     </GatingWorkerContext.Provider>
   );

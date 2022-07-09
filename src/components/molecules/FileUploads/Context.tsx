@@ -68,10 +68,11 @@ const UploadProvider = (props: {
   );
 
   useEffect(() => {
-    if (!worker) return;
-    worker.addEventListener("message", onWorkerMessage);
+    const current = worker?.current;
+    if (!current) return;
+    current.addEventListener("message", onWorkerMessage);
     return () => {
-      worker.removeEventListener("message", onWorkerMessage);
+      current.removeEventListener("message", onWorkerMessage);
     };
   }, [worker, onWorkerMessage]);
 
@@ -92,20 +93,21 @@ const UploadProvider = (props: {
   );
 
   const uploadFiles = useCallback(() => {
-    if (!worker || !_password || !bundleId) {
-      console.warn("no worker loaded");
+    const current = worker?.current;
+    if (!current || !_password || !bundleId) {
+      console.warn("no worker loaded", current);
       return;
     }
 
     filesToUpload.forEach((file) =>
-      worker.postMessage({
+      current.postMessage({
         topic: "store",
         file,
         password: _password,
         bundleId,
       })
     );
-  }, [worker, _password, bundleId, filesToUpload]);
+  }, [_password, bundleId, filesToUpload, worker]);
 
   return (
     <UploadContext.Provider

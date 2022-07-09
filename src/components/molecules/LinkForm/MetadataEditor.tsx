@@ -73,6 +73,7 @@ export const MetadataEditor = (props: {
 
       return;
     }
+    if (!url) return;
     (async () => {
       try {
         isLoading(true);

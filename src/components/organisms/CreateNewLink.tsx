@@ -55,29 +55,29 @@ const CreateNewLink = (props: {
               (values.files && values.files.length > 0));
 
           return (
-            <Form id="newlink-form">
-              <UploadProvider
-                setPassword={(password) => setFieldValue("password", password)}
-                onFilesUploaded={(files) => {
-                  setFieldValue("files", [...(values.files || []), ...files]);
-                }}
-              >
+            <UploadProvider
+              setPassword={(password) => setFieldValue("password", password)}
+              onFilesUploaded={(files) => {
+                setFieldValue("files", [...(values.files || []), ...files]);
+              }}
+            >
+              <Form id="newlink-form">
                 <NewLinkForm {...formikProps} />
-              </UploadProvider>
 
-              <Portal containerRef={buttonRef}>
-                <Button
-                  type="submit"
-                  w="100%"
-                  form="newlink-form"
-                  disabled={!submittable}
-                >
-                  {status === "authenticated"
-                    ? "Create Takeover"
-                    : "Login and create Takeover"}
-                </Button>
-              </Portal>
-            </Form>
+                <Portal containerRef={buttonRef}>
+                  <Button
+                    type="submit"
+                    w="100%"
+                    form="newlink-form"
+                    disabled={!submittable}
+                  >
+                    {status === "authenticated"
+                      ? "Create Takeover"
+                      : "Login and create Takeover"}
+                  </Button>
+                </Portal>
+              </Form>
+            </UploadProvider>
           );
         }}
       </Formik>
