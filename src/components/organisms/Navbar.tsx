@@ -18,30 +18,10 @@ import React from "react";
 import { FaMoon, FaSun } from "react-icons/fa";
 import { FiPlusSquare } from "react-icons/fi";
 import { HiDotsVertical } from "react-icons/hi";
+import { Navlink } from "../atoms/Navlink";
 import { ToLogo } from "../atoms/ToLogo";
 import LoginComponent from "../LoginComponent";
 
-const Navlink = (props: {
-  href: string;
-  children: string | React.ReactNode;
-  onClose?: () => void;
-}) => {
-  const { onClose, href, children } = props;
-  return (
-    <NextLink href={href} passHref>
-      <Link
-        onClick={onClose}
-        _hover={{ background: "gray.600", color: "white" }}
-        d="flex"
-        w="full"
-        fontWeight="bold"
-        p={3}
-      >
-        {children}
-      </Link>
-    </NextLink>
-  );
-};
 const Navbar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { status } = useSession();
@@ -102,7 +82,7 @@ const Navbar = () => {
               w="100%"
               position="relative"
             >
-              <LoginComponent />
+              <LoginComponent onClose={onClose} />
               <IconButton
                 position="absolute"
                 right="2px"
