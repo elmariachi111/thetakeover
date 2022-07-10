@@ -13,7 +13,7 @@ const Navlink = (props: {
       <Link
         onClick={onClose}
         _hover={{ background: "gray.600", color: "white" }}
-        d="flex"
+        display="flex"
         w="full"
         fontWeight="bold"
         p={3}

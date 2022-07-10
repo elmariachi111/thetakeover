@@ -75,7 +75,7 @@ export const SalesRow = ({ payment }: { payment: XSalesPayment }) => {
           </NextLink>
         </Td>
         <Td>
-          <Text isTruncated>{payment.user.id}</Text>
+          <Text noOfLines={1}>{payment.user.id}</Text>
         </Td>
         <Td>
           <Text whiteSpace="nowrap">

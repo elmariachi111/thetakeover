@@ -35,6 +35,11 @@ export const loginPayer = async (
   const cookieExpires = new Date();
   cookieExpires.setTime(cookieExpires.getTime() + sessionMaxAge * 1000);
 
+  const cookies: Record<string, string> = req.cookies as any as Record<
+    string,
+    string
+  >;
+
   const sessionStore = new SessionStore(
     {
       name: cookieName,
@@ -45,7 +50,7 @@ export const loginPayer = async (
         httpOnly: true,
       },
     },
-    { cookies: req.cookies, headers: req.headers },
+    { cookies, headers: req.headers },
     console
   );
 

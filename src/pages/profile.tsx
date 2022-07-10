@@ -107,7 +107,7 @@ const EmailVerified = (props: { user: XUser; value: string }) => {
   ) : (
     <Button
       disabled={verificationSent}
-      d="flex"
+      display="flex"
       aria-label="verify your email address"
       onClick={verifyEmail}
     >

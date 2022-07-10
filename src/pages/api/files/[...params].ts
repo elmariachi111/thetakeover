@@ -65,6 +65,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(401).send("Unauthorized");
   }
 
+  if (!req.query.params) return;
+
   const handlerName = req.query.params[0];
   if (!handlerName || !handlers[handlerName]) {
     return res.status(404).send(`handler ${handlerName} not found`);

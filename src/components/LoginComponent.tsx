@@ -13,12 +13,7 @@ export default function LoginComponent(props: { onClose?: () => void }) {
       <Flex direction="row" align="center" gap={2}>
         <Icon as={FaRegUserCircle} />
         <NextLink href="/profile" passHref>
-          <Link
-            onClick={props.onClose}
-            fontSize="sm"
-            fontWeight="bold"
-            isTruncated
-          >
+          <Link onClick={props.onClose} fontSize="sm" fontWeight="bold">
             {session.user?.name || session.user?.email || session.user?.id}
           </Link>
         </NextLink>
