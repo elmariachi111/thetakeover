@@ -103,8 +103,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         user.id
       );
     }
-    const sessionCookies = await loginPayer(req, user);
-    sessionCookies.forEach((cookie) => setCookie(res, cookie));
+    if (!session?.user) {
+      const sessionCookies = await loginPayer(req, user);
+      sessionCookies.forEach((cookie) => setCookie(res, cookie));
+    }
   }
 
   const capture0 = purchaseUnit0.payments?.captures[0];
