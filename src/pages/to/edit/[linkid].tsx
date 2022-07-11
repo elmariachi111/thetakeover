@@ -26,6 +26,7 @@ import {
   LinkSchema,
   MetadataEditor,
 } from "../../../components/molecules/LinkForm";
+import { ConditionModal } from "../../../components/organisms/Gate/ConditionModal";
 import { findLink } from "../../../modules/api/findLink";
 import { XLink } from "../../../types/Link";
 import { NewTakeoverInput } from "../../../types/TakeoverInput";
@@ -82,7 +83,6 @@ function ToEdit({
   const [busy, setBusy] = useBoolean(false);
   const onSubmit = async (values) => {
     setBusy.on();
-
     await axios.post(`/api/to/${link.hash}`, { link: values });
     setBusy.off();
     return false;
@@ -95,6 +95,7 @@ function ToEdit({
     previewImage: link.metadata.previewImage,
     description: link.metadata.description,
     salesActive: link.saleStatus,
+    chainConditions: link.chainConditions,
   };
 
   const isBundle = link.bundles && link.bundles.length > 0;
@@ -110,7 +111,7 @@ function ToEdit({
         return;
       }}
     >
-      {({ errors, values }) => (
+      {({ errors, values, setFieldValue }) => (
         <Form id="newlink-form">
           <Flex direction="column" gridGap={6} mt={12}>
             {isBundle ? (
@@ -164,6 +165,18 @@ function ToEdit({
               <FormErrorMessage>{errors.price}</FormErrorMessage>
             </FormControl>
 
+            <Flex direction="row" justify="space-between" align="center">
+              <FormLabel>on chain conditions</FormLabel>
+              <ConditionModal
+                initialConditions={
+                  values.chainConditions ? values.chainConditions[0] : undefined
+                }
+                onConditionsUpdated={(conditions) => {
+                  setFieldValue("chainConditions", conditions);
+                }}
+                variant="ghost"
+              />
+            </Flex>
             <FormikChakraSwitch
               name="salesActive"
               label="is on sale"

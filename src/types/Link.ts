@@ -1,5 +1,6 @@
 import { File, FileBundle, Link, Metadata, User } from "@prisma/client";
 import { RichTypeData, VideoTypeData } from "oembed-parser";
+import { ChainCondition } from "./ChainConditions";
 import { UploadedFile } from "./TakeoverInput";
 
 type XMetadata = Metadata & {
@@ -20,6 +21,7 @@ export type XLink = Link & {
   files?: XFileBundle & {
     files: UploadedFile[];
   };
+  chainConditions?: ChainCondition[];
 };
 
 export type DisplayableLink = XLink & {
