@@ -4,17 +4,20 @@ import {
   FormErrorMessage,
   FormLabel,
   Input,
+  Portal,
   Select,
 } from "@chakra-ui/react";
 import { Field, Form, Formik } from "formik";
-import React from "react";
+import { MutableRefObject } from "react";
 import {
-  ChainCondition,
-  ChainName,
-  ConditionType,
-} from "../../../types/ChainConditions";
+  extractNFTFromMarketPlace,
+  getContractType,
+} from "../../../modules/extractNFTFromMarketplace";
+import { getInfuraProvider } from "../../../modules/infura";
+import { ChainCondition, ChainName } from "../../../types/ChainConditions";
 
 const ConditionForm = (props: {
+  buttonRef: MutableRefObject<HTMLElement | null>;
   initialConditions: ChainCondition | undefined;
   chainsAllowed: ChainName[];
   onUnifiedAccessControlConditionsSelected: (
@@ -44,9 +47,42 @@ const ConditionForm = (props: {
       {(formikProps) => {
         const { errors, values, setFieldValue } = formikProps;
 
+        const updateByOpenSeaLink = async (e: any) => {
+          const collectionDetails = extractNFTFromMarketPlace(e.target.value);
+          if (collectionDetails) {
+            setFieldValue("chain", collectionDetails.chain);
+            setFieldValue("contractAddress", collectionDetails.collection);
+            const provider = getInfuraProvider(collectionDetails.chain);
+            try {
+              const type = await getContractType(
+                provider,
+                collectionDetails.collection
+              );
+              if (type) {
+                console.log(type);
+                setFieldValue("standardContractType", type);
+              }
+            } catch (e: any) {
+              console.error(e);
+            }
+          }
+          setTimeout(() => {
+            e.target.value = "";
+          }, 800);
+        };
+
         return (
           <Form id="condition-form">
             <Flex direction="column" w="100%" gap={6}>
+              <Flex direction="column">
+                <FormLabel>paste an OpenSea link here</FormLabel>
+                <Input
+                  size="sm"
+                  type="text"
+                  variant="filled"
+                  onChange={updateByOpenSeaLink}
+                ></Input>
+              </Flex>
               <Flex direction="column">
                 <FormLabel>chain</FormLabel>
                 <Field name="chain" type="text" as={Select} variant="filled">
@@ -67,8 +103,8 @@ const ConditionForm = (props: {
                   variant="filled"
                 >
                   <option value="ERC721">ERC721</option>
-                  {/* <option value="ERC1155">ERC1155</option>
-                  <option value="POAP">POAP</option> */}
+                  <option value="ERC1155">ERC1155</option>
+                  {/* <option value="POAP">POAP</option> */}
                 </Field>
                 <FormErrorMessage>
                   {errors.standardContractType}
@@ -79,8 +115,12 @@ const ConditionForm = (props: {
                 <Field name="contractAddress" type="text" as={Input} />
                 <FormErrorMessage>{errors.contractAddress}</FormErrorMessage>
               </Flex>
-              <Button type="submit">submit</Button>
             </Flex>
+            <Portal containerRef={props.buttonRef}>
+              <Button type="submit" form="condition-form">
+                submit
+              </Button>
+            </Portal>
           </Form>
         );
       }}

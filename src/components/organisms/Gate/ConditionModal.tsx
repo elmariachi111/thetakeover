@@ -5,10 +5,12 @@ import {
   ModalBody,
   ModalCloseButton,
   ModalContent,
+  ModalFooter,
   ModalHeader,
   ModalOverlay,
   useDisclosure,
 } from "@chakra-ui/react";
+import { useRef } from "react";
 import { FaPen, FaPlus } from "react-icons/fa";
 import { ChainCondition } from "../../../types/ChainConditions";
 import { ConditionForm } from "../../molecules/Gate/ConditionForm";
@@ -22,6 +24,7 @@ const ConditionModal = (
   const { initialConditions, onConditionsUpdated, ...buttonProps } = props;
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const footerRef = useRef<HTMLDivElement | null>(null);
 
   return (
     <>
@@ -44,6 +47,7 @@ const ConditionModal = (
           <ModalCloseButton />
           <ModalBody>
             <ConditionForm
+              buttonRef={footerRef}
               initialConditions={props.initialConditions}
               chainsAllowed={[
                 "ethereum",
@@ -60,6 +64,7 @@ const ConditionModal = (
               }}
             />
           </ModalBody>
+          <ModalFooter ref={footerRef}></ModalFooter>
         </ModalContent>
       </Modal>
     </>
