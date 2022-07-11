@@ -47,9 +47,9 @@ const ConditionModal = (
               initialConditions={props.initialConditions}
               chainsAllowed={[
                 "ethereum",
-                // "polygon",
+                "polygon",
+                "rinkeby",
                 // "goerli",
-                // "rinkeby",
                 // "xdai",
                 // "arbitrum",
                 // "optimism",

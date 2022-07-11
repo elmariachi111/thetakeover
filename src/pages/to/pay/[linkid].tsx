@@ -28,6 +28,7 @@ import { DisplayableLink } from "../../../types/Link";
 import ReactMarkdown from "react-markdown";
 import ChakraUIRenderer from "chakra-ui-markdown-renderer";
 import { findSettledPayment } from "../../../modules/api/findPayment";
+import { SiweButton } from "../../../components/atoms/SiweButton";
 
 export const getServerSideProps: GetServerSideProps<{
   link: DisplayableLink;
@@ -207,6 +208,15 @@ function ToPay({
                     onApprove={onApprove}
                     style={{ shape: "rect" }}
                   />
+                  {link.chainConditions && (
+                    <SiweButton
+                      onConnected={() => {
+                        router.replace(`/to/${link.hash}`);
+                      }}
+                    >
+                      check NFT
+                    </SiweButton>
+                  )}
                 </Flex>
               )}
             </PayPalScriptProvider>
