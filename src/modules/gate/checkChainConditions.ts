@@ -52,12 +52,10 @@ const checkCondition = async (condition: ChainCondition, against: Against) => {
   return matchesCondition(returnValue, condition);
 };
 
-const checkChainConditions = async (
+export const checkChainConditions = async (
   conditions: ChainCondition[],
   against: Against
 ) => {
   const result = await checkCondition(conditions[0], against);
   return result;
 };
-
-export { checkChainConditions };

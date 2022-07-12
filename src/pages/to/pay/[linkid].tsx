@@ -13,22 +13,22 @@ import type {
   OnApproveData,
 } from "@paypal/paypal-js";
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
-import { Payment, PaymentStatus, SellerAccount } from "@prisma/client";
+import { Payment, SellerAccount } from "@prisma/client";
 import axios from "axios";
+import ChakraUIRenderer from "chakra-ui-markdown-renderer";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import ReactMarkdown from "react-markdown";
 import { GeneralAlert } from "../../../components/atoms/GeneralAlert";
+import { SiweButton } from "../../../components/atoms/SiweButton";
 import { ReportContent } from "../../../components/molecules/ReportContent";
-import { SellerNotConnectedAlert } from "../../../components/molecules/SellerNotConnectedAlert";
 import { adapterClient } from "../../../modules/api/adapter";
 import { findLink } from "../../../modules/api/findLink";
-import { DisplayableLink } from "../../../types/Link";
-import ReactMarkdown from "react-markdown";
-import ChakraUIRenderer from "chakra-ui-markdown-renderer";
 import { findSettledPayment } from "../../../modules/api/findPayment";
-import { SiweButton } from "../../../components/atoms/SiweButton";
+import { sayCondition } from "../../../modules/gate/sayCondition";
+import { DisplayableLink } from "../../../types/Link";
 
 export const getServerSideProps: GetServerSideProps<{
   link: DisplayableLink;
@@ -181,6 +181,28 @@ function ToPay({
 
       {link.saleStatus === "ON_SALE" ? (
         <>
+          {(payment || isCreator) && (
+            <Button as={ChakraLink} href={`/to/${link.hash}`}>
+              proceed to content
+            </Button>
+          )}
+          {link.chainConditions && (
+            <Flex my={6} align="center">
+              <Text
+                dangerouslySetInnerHTML={{
+                  __html: sayCondition(link.chainConditions[0]),
+                }}
+              ></Text>
+
+              <SiweButton
+                onConnected={() => {
+                  router.replace(`/to/${link.hash}`);
+                }}
+              >
+                verify NFT
+              </SiweButton>
+            </Flex>
+          )}
           <Flex direction="row" my={6} justify="space-between">
             <Text fontWeight={500} fontSize="lg">
               Total
@@ -189,7 +211,7 @@ function ToPay({
               €{link.price}
             </Text>
           </Flex>
-          {seller ? (
+          {!payment && seller && (
             <PayPalScriptProvider
               options={{
                 "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID as string,
@@ -197,31 +219,16 @@ function ToPay({
                 currency: "EUR",
               }}
             >
-              {payment ? (
-                <Button as={ChakraLink} href={`/to/${payment.linkHash}`}>
-                  proceed to content
-                </Button>
-              ) : (
-                <Flex direction="column" w="full" mt={6}>
-                  <PayPalButtons
-                    createOrder={createOrder}
-                    onApprove={onApprove}
-                    style={{ shape: "rect" }}
-                  />
-                  {link.chainConditions && (
-                    <SiweButton
-                      onConnected={() => {
-                        router.replace(`/to/${link.hash}`);
-                      }}
-                    >
-                      check NFT
-                    </SiweButton>
-                  )}
-                </Flex>
-              )}
+              <PayPalButtons
+                createOrder={createOrder}
+                onApprove={onApprove}
+                style={{
+                  shape: "rect",
+                  label: "pay",
+                  layout: "vertical",
+                }}
+              />
             </PayPalScriptProvider>
-          ) : (
-            <SellerNotConnectedAlert creator={link.creator} />
           )}
         </>
       ) : (
@@ -229,12 +236,6 @@ function ToPay({
           status="info"
           title="This item is currently not for sale."
         />
-      )}
-
-      {isCreator && (
-        <Button as={ChakraLink} href={`/to/${link.hash}`} mt={6}>
-          proceed to content
-        </Button>
       )}
     </Flex>
   );

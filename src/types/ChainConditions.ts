@@ -5,7 +5,7 @@ export type ConditionType = "evmBasic";
 export type ContractType = "ERC721" | "ERC1155" | "POAP";
 
 type EthAddress = string;
-export type ChainName = string;
+export type ChainName = "ethereum" | "polygon" | "rinkeby";
 type Comparator = "<" | "<=" | "=" | ">=" | ">" | "!=" | "contains";
 
 interface ConditionReturnValueTest {
