@@ -59,7 +59,6 @@ const ConditionForm = (props: {
                 collectionDetails.collection
               );
               if (type) {
-                console.log(type);
                 setFieldValue("standardContractType", type);
               }
             } catch (e: any) {

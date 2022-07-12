@@ -20,6 +20,7 @@ import {
 import { MetadataEditor } from "./MetadataEditor";
 import { LinkInputForm } from "./LinkInputForm";
 import { ConditionModal } from "../../organisms/Gate/ConditionModal";
+import { SpeakCondition } from "../Gate/SpeakCondition";
 
 const NewLinkForm = (props: FormikProps<NewTakeoverInput>) => {
   const { errors, values, touched, initialValues, setFieldValue } = props;
@@ -72,7 +73,13 @@ const NewLinkForm = (props: FormikProps<NewTakeoverInput>) => {
             }
           />
           <Flex direction="row" justify="space-between" align="center">
-            <FormLabel>on chain conditions</FormLabel>
+            <FormLabel>
+              {values.chainConditions ? (
+                <SpeakCondition conditions={values.chainConditions} />
+              ) : (
+                <Text>define on chain conditions</Text>
+              )}
+            </FormLabel>
             <ConditionModal
               initialConditions={
                 values.chainConditions ? values.chainConditions[0] : undefined

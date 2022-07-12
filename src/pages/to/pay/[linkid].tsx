@@ -1,10 +1,13 @@
 import {
   Button,
+  Divider,
   Flex,
   Heading,
   Image,
   Link as ChakraLink,
   Text,
+  useColorMode,
+  useColorModeValue,
   useToast,
 } from "@chakra-ui/react";
 import type {
@@ -23,11 +26,12 @@ import { useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { GeneralAlert } from "../../../components/atoms/GeneralAlert";
 import { SiweButton } from "../../../components/atoms/SiweButton";
+import { SpeakCondition } from "../../../components/molecules/Gate/SpeakCondition";
 import { ReportContent } from "../../../components/molecules/ReportContent";
 import { adapterClient } from "../../../modules/api/adapter";
 import { findLink } from "../../../modules/api/findLink";
 import { findSettledPayment } from "../../../modules/api/findPayment";
-import { sayCondition } from "../../../modules/gate/sayCondition";
+import { sayCondition } from "../../../modules/gate/marketplaceLink";
 import { DisplayableLink } from "../../../types/Link";
 
 export const getServerSideProps: GetServerSideProps<{
@@ -83,6 +87,7 @@ function ToPay({
   const toast = useToast();
 
   const [payment, setPayment] = useState<Payment>();
+  const panelBg = useColorModeValue("gray.200", "gray.800");
 
   const createOrder = async (
     _data: Record<string, unknown>,
@@ -168,10 +173,11 @@ function ToPay({
       </Flex>
       <Image
         src={link.metadata.previewImage}
-        mt={2}
+        my={4}
         width="100%"
         alt={link.metadata.title}
       />
+
       <ReactMarkdown
         components={ChakraUIRenderer()}
         // eslint-disable-next-line react/no-children-prop
@@ -187,13 +193,8 @@ function ToPay({
             </Button>
           )}
           {link.chainConditions && (
-            <Flex my={6} align="center">
-              <Text
-                dangerouslySetInnerHTML={{
-                  __html: sayCondition(link.chainConditions[0]),
-                }}
-              ></Text>
-
+            <Flex my={6} align="center" bg={panelBg} p={4} gap={4}>
+              <SpeakCondition conditions={link.chainConditions} />
               <SiweButton
                 onConnected={() => {
                   router.replace(`/to/${link.hash}`);

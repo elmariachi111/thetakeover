@@ -11,6 +11,7 @@ import {
   Spinner,
   Tag,
   TagLabel,
+  Text,
   useBoolean,
 } from "@chakra-ui/react";
 import axios from "axios";
@@ -21,6 +22,7 @@ import { getSession, useSession } from "next-auth/react";
 import NextLink from "next/link";
 import { UploadedFiles } from "../../../components/molecules/FileUploads";
 import { FormikChakraSwitch } from "../../../components/molecules/FormikChakraSwitch";
+import { SpeakCondition } from "../../../components/molecules/Gate/SpeakCondition";
 import {
   BundleSchema,
   LinkSchema,
@@ -28,6 +30,7 @@ import {
 } from "../../../components/molecules/LinkForm";
 import { ConditionModal } from "../../../components/organisms/Gate/ConditionModal";
 import { findLink } from "../../../modules/api/findLink";
+import { sayCondition } from "../../../modules/gate/marketplaceLink";
 import { XLink } from "../../../types/Link";
 import { NewTakeoverInput } from "../../../types/TakeoverInput";
 
@@ -166,7 +169,13 @@ function ToEdit({
             </FormControl>
 
             <Flex direction="row" justify="space-between" align="center">
-              <FormLabel>on chain conditions</FormLabel>
+              <FormLabel>
+                {values.chainConditions ? (
+                  <SpeakCondition conditions={values.chainConditions} />
+                ) : (
+                  <Text>define on chain conditions</Text>
+                )}
+              </FormLabel>
               <ConditionModal
                 initialConditions={
                   values.chainConditions ? values.chainConditions[0] : undefined
