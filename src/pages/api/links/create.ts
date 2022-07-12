@@ -5,6 +5,7 @@ import { adapterClient } from "../../../modules/api/adapter";
 import { NewTakeoverInput } from "../../../types/TakeoverInput";
 import { extractOembed } from "./oembed";
 import canonicalUrl from "../../../modules/api/canonicalUrl";
+import { Prisma } from "@prisma/client";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   const payload: NewTakeoverInput & {
@@ -31,6 +32,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   let addFiles;
+  //todo: validate by yup again
 
   if (payload.files && payload.password) {
     addFiles = {
@@ -53,12 +55,18 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   try {
+    let chainConditions;
+    if (payload.chainConditions) {
+      chainConditions = payload.chainConditions as any as Prisma.JsonArray;
+    }
+
     const newLink = await adapterClient.link.create({
       data: {
         hash,
         originUri: payload.url,
         price: payload.price,
         creatorId: session.user.id,
+        chainConditions,
         metadata: {
           create: {
             description: payload.description,
