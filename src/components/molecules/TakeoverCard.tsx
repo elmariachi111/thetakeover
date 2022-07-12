@@ -7,6 +7,7 @@ import {
   MenuItem,
   MenuList,
   Text,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { default as NextLink } from "next/link";
 import {
@@ -27,16 +28,17 @@ const TakeoverCard = (props: {
   isSelected: boolean;
 }) => {
   const { link, onSelect, isSelected } = props;
+  const cardBackground = useColorModeValue("gray.200", "gray.800");
 
   return (
     <Flex
-      bg="gray.800"
+      bg={cardBackground}
       p={4}
       justify="space-between"
       align="center"
       _hover={{
         backgroundImage: link.metadata?.previewImage,
-        backgroundColor: "gray.800",
+        backgroundColor: { cardBackground },
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundBlendMode:

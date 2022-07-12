@@ -167,7 +167,7 @@ function ToPay({
           </Heading>
           <Heading size="md">{link.metadata.title}</Heading>
         </Flex>
-        <ReportContent link={link} size="xs" variant="ghost" />
+        {!isCreator && <ReportContent link={link} size="xs" variant="ghost" />}
       </Flex>
       <Image
         src={link.metadata.previewImage}
