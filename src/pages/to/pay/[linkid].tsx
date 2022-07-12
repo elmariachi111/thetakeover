@@ -211,7 +211,7 @@ function ToPay({
             </Text>
           </Flex>
           {!payment && (
-            <Flex>
+            <Flex direction="column" w="full">
               {seller ? (
                 <PayPalScriptProvider
                   options={{

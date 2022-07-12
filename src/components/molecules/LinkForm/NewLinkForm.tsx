@@ -41,7 +41,7 @@ const NewLinkForm = (props: FormikProps<NewTakeoverInput>) => {
     <Flex direction="column" gap={6}>
       <Flex
         direction={["column", "row"]}
-        gap={6}
+        gap={[0, 6, 6]}
         align="center"
         justify="space-between"
       >

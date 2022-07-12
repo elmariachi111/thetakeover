@@ -1,21 +1,15 @@
-import {
-  Button,
-  Collapse,
-  Flex,
-  Heading,
-  Spacer,
-  useDisclosure,
-  VStack,
-} from "@chakra-ui/react";
+import { Button, Flex, Heading, Link, Spacer, VStack } from "@chakra-ui/react";
 import { PrismaClient } from "@prisma/client";
+import axios from "axios";
 import type { InferGetServerSidePropsType } from "next";
 import { getSession } from "next-auth/react";
-import React, { useEffect, useState } from "react";
-import { SellerAccountDialog } from "../components/molecules/SellerAccountDialog";
+import { default as NextLink } from "next/link";
+import { useState } from "react";
 import { TakeoverCard } from "../components/molecules/TakeoverCard";
 import { ToSuccessOverlay } from "../components/molecules/ToSuccessOverlay";
 import { BundleCreator } from "../components/organisms/BundleCreator";
 import { MyPaymentsView } from "../components/organisms/MyPaymentsView";
+import { ToCardLink } from "../types/Link";
 
 export async function getServerSideProps(context) {
   const prisma = new PrismaClient();
@@ -41,6 +35,9 @@ export async function getServerSideProps(context) {
     where: {
       creatorId: session.user.id,
     },
+    orderBy: {
+      createdAt: "desc",
+    },
     select: {
       _count: {
         select: { payments: true },
@@ -49,6 +46,7 @@ export async function getServerSideProps(context) {
       price: true,
       originUri: true,
       saleStatus: true,
+      createdAt: true,
       bundles: {
         select: {
           hash: true,
@@ -101,13 +99,15 @@ function MyTakeOvers({
   payments,
   sellerAccount,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const { isOpen, onClose } = useDisclosure({
-    defaultIsOpen: true,
-  });
-
+  const [items, setItems] = useState<ToCardLink[]>(links);
   const [selected, setSelected] = useState<string[]>([]);
   const [createBundle, setCreateBundle] = useState<boolean>(false);
   const [newBundleUrl, setNewBundleUrl] = useState<string>();
+
+  const removeTakeover = async (hash) => {
+    await axios.delete(`/api/to/${hash}`);
+    setItems((old) => old.filter((l) => l.hash !== hash));
+  };
 
   const toggleInBundle = (hash: string) => {
     if (selected.includes(hash)) {
@@ -117,34 +117,21 @@ function MyTakeOvers({
     }
   };
 
-  useEffect(() => {
-    if (sellerAccount?.isActive) {
-      setTimeout(onClose, 4000);
-    }
-  }, [sellerAccount, onClose]);
-
   return (
     <Flex direction="column" h="full" align="flex-start">
-      {links.length > 0 && (
-        <Flex w="100%">
-          <Collapse in={isOpen} style={{ width: "100%" }}>
-            <SellerAccountDialog
-              sellerAccount={sellerAccount}
-              onClose={onClose}
-            />
-          </Collapse>
-        </Flex>
-      )}
-      {links.length > 0 && (
+      {items.length > 0 && (
         <Flex justify="space-between" align="center" width="100%">
-          <Heading fontSize="xl" my={5}>
-            Your Takeovers
-          </Heading>
+          <Heading my={5}>Your Takeovers</Heading>
           <Spacer />
-          {selected.length > 1 && (
+
+          {selected.length > 1 ? (
             <Button size="xs" onClick={() => setCreateBundle(!createBundle)}>
               {createBundle ? "cancel" : "create a bundle"}
             </Button>
+          ) : (
+            <NextLink href="/profile" passHref>
+              <Link>your profile</Link>
+            </NextLink>
           )}
         </Flex>
       )}
@@ -160,7 +147,7 @@ function MyTakeOvers({
               setCreateBundle(false);
               setSelected([]);
             }}
-            items={links.filter((l) => selected.includes(l.hash))}
+            items={items.filter((l) => selected.includes(l.hash))}
           />
         </Flex>
       )}
@@ -173,8 +160,8 @@ function MyTakeOvers({
           }}
         />
       )}
-      <VStack gap={3} align="left" w="full">
-        {links
+      <VStack align="left" w="full">
+        {items
           .filter((l) => (createBundle ? selected.includes(l.hash) : true))
           .map((link) => (
             <TakeoverCard
@@ -182,6 +169,7 @@ function MyTakeOvers({
               key={link.hash}
               isSelected={selected.includes(link.hash)}
               onSelect={toggleInBundle}
+              onRemove={removeTakeover}
             />
           ))}
       </VStack>

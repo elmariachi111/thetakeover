@@ -12,6 +12,7 @@ export const BundleSelect = (props: {
       aria-label="visit"
       icon={isSelected ? <FiCheckSquare /> : <FiSquare />}
       onClick={() => select(id)}
+      variant="unstyled"
     />
   );
 };

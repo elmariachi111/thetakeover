@@ -24,6 +24,7 @@ import { SellerAccountView } from "../components/molecules/SellerDetails";
 import { adapterClient } from "../modules/api/adapter";
 import { default as NextLink } from "next/link";
 import { Identicon } from "../components/atoms/Identicon";
+import { SellerAccountDialog } from "../components/molecules/SellerAccountDialog";
 
 type XUser = Omit<User, "emailVerified"> & {
   emailVerified: string | null;
@@ -181,9 +182,13 @@ const Profile = ({
 
   return (
     <Flex direction="column">
-      <Heading my={6} title={user.id}>
-        Your Profile
-      </Heading>
+      <Flex align="flex-end" my={6}>
+        <Heading title={user.id}>Your Profile</Heading>
+        <Spacer />
+        <NextLink href="/my" passHref>
+          <Link>your Takeovers</Link>
+        </NextLink>
+      </Flex>
       <Formik
         initialValues={user}
         onSubmit={(values) => {
@@ -215,7 +220,12 @@ const Profile = ({
           )}
         </Flex>
         {sellerAccount ? (
-          <SellerAccountView sellerAccount={sellerAccount} />
+          <>
+            <Flex mb={6}>
+              <SellerAccountDialog sellerAccount={sellerAccount} />
+            </Flex>
+            <SellerAccountView sellerAccount={sellerAccount} />
+          </>
         ) : (
           <Flex direction="column" align="center" gap={3} my={20}>
             <Button as={Link} href="/api/paypal/onboard" w={3 / 4}>

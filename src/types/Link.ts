@@ -27,3 +27,11 @@ export type XLink = Link & {
 export type DisplayableLink = XLink & {
   price: number;
 };
+
+export type ToCardLink = XLink & {
+  price: string;
+  _count: {
+    payments: number;
+  };
+  bundles: Partial<XLink & Link>[];
+};
