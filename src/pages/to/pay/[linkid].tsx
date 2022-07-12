@@ -1,12 +1,10 @@
 import {
   Button,
-  Divider,
   Flex,
   Heading,
   Image,
   Link as ChakraLink,
   Text,
-  useColorMode,
   useColorModeValue,
   useToast,
 } from "@chakra-ui/react";
@@ -28,15 +26,15 @@ import { GeneralAlert } from "../../../components/atoms/GeneralAlert";
 import { SiweButton } from "../../../components/atoms/SiweButton";
 import { SpeakCondition } from "../../../components/molecules/Gate/SpeakCondition";
 import { ReportContent } from "../../../components/molecules/ReportContent";
+import { SellerNotConnectedAlert } from "../../../components/molecules/SellerNotConnectedAlert";
 import { adapterClient } from "../../../modules/api/adapter";
 import { findLink } from "../../../modules/api/findLink";
 import { findSettledPayment } from "../../../modules/api/findPayment";
-import { sayCondition } from "../../../modules/gate/marketplaceLink";
 import { DisplayableLink } from "../../../types/Link";
 
 export const getServerSideProps: GetServerSideProps<{
   link: DisplayableLink;
-  seller: SellerAccount;
+  seller: SellerAccount | null;
 }> = async (context) => {
   const linkid: string = context.params?.linkid as string;
   if (!linkid) return { notFound: true };
@@ -212,24 +210,31 @@ function ToPay({
               €{link.price}
             </Text>
           </Flex>
-          {!payment && seller && (
-            <PayPalScriptProvider
-              options={{
-                "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID as string,
-                "merchant-id": seller.merchantIdInPayPal,
-                currency: "EUR",
-              }}
-            >
-              <PayPalButtons
-                createOrder={createOrder}
-                onApprove={onApprove}
-                style={{
-                  shape: "rect",
-                  label: "pay",
-                  layout: "vertical",
-                }}
-              />
-            </PayPalScriptProvider>
+          {!payment && (
+            <Flex>
+              {seller ? (
+                <PayPalScriptProvider
+                  options={{
+                    "client-id": process.env
+                      .NEXT_PUBLIC_PAYPAL_CLIENT_ID as string,
+                    "merchant-id": seller.merchantIdInPayPal,
+                    currency: "EUR",
+                  }}
+                >
+                  <PayPalButtons
+                    createOrder={createOrder}
+                    onApprove={onApprove}
+                    style={{
+                      shape: "rect",
+                      label: "pay",
+                      layout: "vertical",
+                    }}
+                  />
+                </PayPalScriptProvider>
+              ) : (
+                <SellerNotConnectedAlert creator={link.creator} />
+              )}
+            </Flex>
           )}
         </>
       ) : (

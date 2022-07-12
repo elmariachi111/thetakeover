@@ -30,7 +30,6 @@ import {
 } from "../../../components/molecules/LinkForm";
 import { ConditionModal } from "../../../components/organisms/Gate/ConditionModal";
 import { findLink } from "../../../modules/api/findLink";
-import { sayCondition } from "../../../modules/gate/marketplaceLink";
 import { XLink } from "../../../types/Link";
 import { NewTakeoverInput } from "../../../types/TakeoverInput";
 

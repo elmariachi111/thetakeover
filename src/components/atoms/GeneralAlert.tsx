@@ -38,7 +38,13 @@ const GeneralAlert = (
   };
   return (
     <Collapse in={isOpen} animateOpacity style={{ width: "100%" }}>
-      <Alert status={status} w="100%" alignItems="flex-start" {...boxProps}>
+      <Alert
+        status={status}
+        w="100%"
+        alignItems="flex-start"
+        variant="left-accent"
+        {...boxProps}
+      >
         <AlertIcon />
         <Flex direction="column">
           <AlertTitle mr={2}>{title}</AlertTitle>
