@@ -1,4 +1,5 @@
 import { SaleStatus } from "@prisma/client";
+import { ChainCondition } from "./ChainConditions";
 
 export type LinkInput = {
   url: string;
@@ -17,6 +18,7 @@ export type NewTakeoverInput = TOMetadata & {
   url?: string;
   files?: UploadedFile[];
   password?: Uint8Array;
+  chainConditions?: ChainCondition[];
 };
 
 export type TakeoverBundle = TOMetadata & {

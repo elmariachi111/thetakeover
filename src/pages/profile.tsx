@@ -23,6 +23,8 @@ import { SiweButton } from "../components/atoms/SiweButton";
 import { SellerAccountView } from "../components/molecules/SellerDetails";
 import { adapterClient } from "../modules/api/adapter";
 import { default as NextLink } from "next/link";
+import { Identicon } from "../components/atoms/Identicon";
+import { SellerAccountDialog } from "../components/molecules/SellerAccountDialog";
 
 type XUser = Omit<User, "emailVerified"> & {
   emailVerified: string | null;
@@ -103,7 +105,7 @@ const EmailVerified = (props: { user: XUser; value: string }) => {
   };
 
   return verified ? (
-    <Icon m={6} w={6} h={6} as={FiCheckCircle} color="green.300" />
+    <Icon w={6} h={6} as={FiCheckCircle} color="green.300" />
   ) : (
     <Button
       disabled={verificationSent}
@@ -146,7 +148,7 @@ const ProfileEditor = (props: { user: XUser }) => {
 
       <FormControl isDisabled={!!user.emailVerified}>
         <FormLabel>Email</FormLabel>
-        <Flex direction="row" align="center">
+        <Flex direction="row" align="center" gap={6}>
           <Input {...fEmail} />
           <EmailVerified user={user} value={mEmail.value} />
         </Flex>
@@ -154,9 +156,11 @@ const ProfileEditor = (props: { user: XUser }) => {
 
       <FormControl isDisabled={true}>
         <FormLabel>Eth Address</FormLabel>
-        <Flex direction="row">
+        <Flex direction="row" align="center" gap={6}>
           <Input type="text" value={ethAddress} />
-          {!ethAddress && (
+          {ethAddress ? (
+            <Identicon account={ethAddress} />
+          ) : (
             <SiweButton onConnected={setEthAddress}>Connect</SiweButton>
           )}
         </Flex>
@@ -178,9 +182,13 @@ const Profile = ({
 
   return (
     <Flex direction="column">
-      <Heading my={6} title={user.id}>
-        Your Profile
-      </Heading>
+      <Flex align="flex-end" my={6}>
+        <Heading title={user.id}>Your Profile</Heading>
+        <Spacer />
+        <NextLink href="/my" passHref>
+          <Link>your Takeovers</Link>
+        </NextLink>
+      </Flex>
       <Formik
         initialValues={user}
         onSubmit={(values) => {
@@ -212,7 +220,12 @@ const Profile = ({
           )}
         </Flex>
         {sellerAccount ? (
-          <SellerAccountView sellerAccount={sellerAccount} />
+          <>
+            <Flex mb={6}>
+              <SellerAccountDialog sellerAccount={sellerAccount} />
+            </Flex>
+            <SellerAccountView sellerAccount={sellerAccount} />
+          </>
         ) : (
           <Flex direction="column" align="center" gap={3} my={20}>
             <Button as={Link} href="/api/paypal/onboard" w={3 / 4}>

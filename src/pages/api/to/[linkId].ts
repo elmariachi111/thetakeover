@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import { link } from "fs";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
@@ -34,6 +34,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
     const { link }: { link: NewTakeoverInput } = req.body;
     //todo: maybe validate by yup again
+    let chainConditions;
+    if (link.chainConditions) {
+      chainConditions = link.chainConditions as any as Prisma.JsonArray;
+    }
 
     await prisma.link.update({
       where: {
@@ -42,6 +46,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       data: {
         price: link.price,
         saleStatus: link.salesActive,
+        chainConditions: chainConditions,
       },
     });
 

@@ -25,6 +25,7 @@ const select = {
       },
     },
   },
+  chainConditions: true,
 };
 
 export const findLink = async (linkid: string) => {

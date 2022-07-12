@@ -1,5 +1,4 @@
 import { Flex, IconButton, useToast } from "@chakra-ui/react";
-import { Payment } from "@prisma/client";
 import axios from "axios";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { getSession, useSession } from "next-auth/react";
@@ -10,12 +9,10 @@ import { ToLogo } from "../../components/atoms/ToLogo";
 import { ReportContent } from "../../components/molecules/ReportContent";
 import { ViewBundle } from "../../components/molecules/to/ViewBundle";
 import { ViewLink } from "../../components/molecules/to/ViewLink";
-import { findLink, findLinks } from "../../modules/api/findLink";
-import {
-  countPayments,
-  findSettledPayment,
-} from "../../modules/api/findPayment";
 import { GateWorkerProvider } from "../../context/GatingWorkerContext";
+import { findLink, findLinks } from "../../modules/api/findLink";
+import { countPayments } from "../../modules/api/findPayment";
+import * as Gate from "../../modules/gate";
 import { XLink } from "../../types/Link";
 
 const redirectToPayment = (linkId: string) => {
@@ -50,18 +47,12 @@ export const getServerSideProps: GetServerSideProps<{
 
   const { user } = session;
 
-  let payment: Payment | null;
-  let paymentCount = 0;
-  if (user.id === link.creatorId) {
-    payment = null;
-    paymentCount = await countPayments(linkid);
-  } else {
-    payment = await findSettledPayment(linkid, user.id);
-
-    if (!payment) {
-      return redirectToPayment(linkid);
-    }
+  const canAccessContent = await Gate.canAccessLink(user, link);
+  if (!canAccessContent) {
+    return redirectToPayment(link.hash);
   }
+
+  const paymentCount = await countPayments(link.hash);
 
   let bundleItems;
   if (link.bundles.length > 0) {
@@ -122,6 +113,7 @@ function ToView({
       title: `${link.metadata.title} has been deleted.`,
     });
   };
+
   let view;
   if (bundleItems.length > 0) {
     view = (

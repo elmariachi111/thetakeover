@@ -4,18 +4,25 @@ import { DefaultAccount, DefaultUser } from "next-auth";
 import { AdapterUser } from "next-auth/adapters";
 import { prismaAdapter } from "./adapter";
 
+export const findUserAccount = async (
+  prisma: PrismaClient,
+  userId: string,
+  provider: string
+) => {
+  return await prisma.account.findFirst({
+    where: {
+      provider,
+      userId,
+    },
+  });
+};
+
 export const findOrCreateAndAttachPaypalAccount = async (
   prisma: PrismaClient,
   userId: string,
   payerId: string
 ): Promise<DefaultAccount> => {
-  const account = await prisma.account.findFirst({
-    where: {
-      provider: "paypal",
-      userId,
-    },
-  });
-
+  const account = await findUserAccount(prisma, userId, "paypal");
   if (account) return account as DefaultAccount;
 
   const adapter = PrismaAdapter(prisma);

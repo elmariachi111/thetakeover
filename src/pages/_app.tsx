@@ -5,8 +5,8 @@ import type { AppProps } from "next/app";
 import Head from "next/head";
 import { ReactElement, ReactNode } from "react";
 import Layout from "../components/Layout";
-import { default as TOTheme } from "../theme";
 import { Web3Provider } from "../context/Web3Context";
+import { default as TOTheme } from "../theme";
 
 const theme = extendTheme(TOTheme);
 

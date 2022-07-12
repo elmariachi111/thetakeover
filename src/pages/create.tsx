@@ -3,6 +3,7 @@ import {
   Flex,
   Heading,
   Spacer,
+  Text,
   useBoolean,
   useToast,
 } from "@chakra-ui/react";
@@ -109,10 +110,14 @@ const CreateLink: NextPage = () => {
       )}
 
       <Spacer />
-      <Heading size="lg" my={6}>
-        Create a Takeover
-      </Heading>
-
+      <Flex my={12} direction="column" gap={2}>
+        <Heading size="lg">Create a Takeover</Heading>
+        <Text fontSize="md">
+          The easiest way to monetize your work. Upload files or use any private
+          link to protect. Set a price range or setup onchain conditions. Share
+          the result with your peers.
+        </Text>
+      </Flex>
       <CreateNewLink
         onSubmit={create}
         buttonRef={buttonRef}

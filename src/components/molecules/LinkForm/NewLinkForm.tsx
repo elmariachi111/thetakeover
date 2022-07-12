@@ -19,9 +19,11 @@ import {
 
 import { MetadataEditor } from "./MetadataEditor";
 import { LinkInputForm } from "./LinkInputForm";
+import { ConditionModal } from "../../organisms/Gate/ConditionModal";
+import { SpeakCondition } from "../Gate/SpeakCondition";
 
 const NewLinkForm = (props: FormikProps<NewTakeoverInput>) => {
-  const { errors, values, touched, initialValues } = props;
+  const { errors, values, touched, initialValues, setFieldValue } = props;
   const { status } = useSession();
   const { filesToUpload, uploadProgress } = useUpload();
 
@@ -39,7 +41,7 @@ const NewLinkForm = (props: FormikProps<NewTakeoverInput>) => {
     <Flex direction="column" gap={6}>
       <Flex
         direction={["column", "row"]}
-        gap={6}
+        gap={[0, 6, 6]}
         align="center"
         justify="space-between"
       >
@@ -62,14 +64,35 @@ const NewLinkForm = (props: FormikProps<NewTakeoverInput>) => {
       </Flex>
 
       {showMetadata && (
-        <MetadataEditor
-          initialValues={
-            values.description && values.description?.length > 10
-              ? initialValues
-              : undefined
-          }
-        />
+        <>
+          <MetadataEditor
+            initialValues={
+              values.description && values.description?.length > 10
+                ? initialValues
+                : undefined
+            }
+          />
+          <Flex direction="row" justify="space-between" align="center">
+            <FormLabel>
+              {values.chainConditions ? (
+                <SpeakCondition conditions={values.chainConditions} />
+              ) : (
+                <Text>define on chain conditions</Text>
+              )}
+            </FormLabel>
+            <ConditionModal
+              initialConditions={
+                values.chainConditions ? values.chainConditions[0] : undefined
+              }
+              onConditionsUpdated={(conditions) => {
+                setFieldValue("chainConditions", conditions);
+              }}
+              variant="ghost"
+            />
+          </Flex>
+        </>
       )}
+
       <FormControl mb={8} isInvalid={!!errors.price}>
         <Flex direction="row" align="center">
           <FormLabel flex={1}>Price (EUR)</FormLabel>
