@@ -6,13 +6,18 @@ import {
   Input,
   Portal,
   Select,
+  Spacer,
+  Text,
+  useToast,
 } from "@chakra-ui/react";
 import { Field, Form, Formik } from "formik";
-import { MutableRefObject } from "react";
+import { MutableRefObject, useEffect, useState } from "react";
+import { extractNFTFromMarketPlace } from "../../../modules/gate/extractNFTFromMarketplace";
 import {
-  extractNFTFromMarketPlace,
+  getContractMetadata,
   getContractType,
-} from "../../../modules/extractNFTFromMarketplace";
+} from "../../../modules/gate/extractNFTMetadata";
+
 import { getInfuraProvider } from "../../../modules/infura";
 import { ChainCondition, ChainName } from "../../../types/ChainConditions";
 
@@ -24,6 +29,9 @@ const ConditionForm = (props: {
     condition: ChainCondition[]
   ) => void;
 }) => {
+  const toast = useToast();
+  const [contractName, setContractName] = useState<string>();
+
   const initialValues: ChainCondition = props.initialConditions || {
     conditionType: "evmBasic",
     contractAddress: "",
@@ -47,39 +55,50 @@ const ConditionForm = (props: {
       {(formikProps) => {
         const { errors, values, setFieldValue } = formikProps;
 
-        const updateByOpenSeaLink = async (e: any) => {
-          const collectionDetails = extractNFTFromMarketPlace(e.target.value);
-          if (collectionDetails) {
-            setFieldValue("chain", collectionDetails.chain);
-            setFieldValue("contractAddress", collectionDetails.collection);
-            const provider = getInfuraProvider(collectionDetails.chain);
-            try {
+        const updateByMarketplaceLink = async (e: any) => {
+          try {
+            const collectionDetails = extractNFTFromMarketPlace(e.target.value);
+
+            if (collectionDetails) {
+              setFieldValue("chain", collectionDetails.chain);
+              setFieldValue("contractAddress", collectionDetails.collection);
+              const provider = getInfuraProvider(collectionDetails.chain);
               const type = await getContractType(
                 provider,
                 collectionDetails.collection
               );
               if (type) {
                 setFieldValue("standardContractType", type);
+                const name = await getContractMetadata(
+                  provider,
+                  collectionDetails.collection
+                );
+                setContractName(name);
               }
-            } catch (e: any) {
-              console.error(e);
             }
+          } catch (e: any) {
+            console.error(e);
+            toast({
+              title: "couldn't extract NFT information from your link",
+              description: e.message || e,
+            });
+          } finally {
+            setTimeout(() => {
+              e.target.value = "";
+            }, 800);
           }
-          setTimeout(() => {
-            e.target.value = "";
-          }, 800);
         };
 
         return (
           <Form id="condition-form">
             <Flex direction="column" w="100%" gap={6}>
               <Flex direction="column">
-                <FormLabel>paste an OpenSea link here</FormLabel>
+                <FormLabel>paste a marketplace link here</FormLabel>
                 <Input
                   size="sm"
                   type="text"
                   variant="filled"
-                  onChange={updateByOpenSeaLink}
+                  onChange={updateByMarketplaceLink}
                 ></Input>
               </Flex>
               <Flex direction="column">
@@ -110,7 +129,11 @@ const ConditionForm = (props: {
                 </FormErrorMessage>
               </Flex>
               <Flex direction="column">
-                <FormLabel>contractAddress</FormLabel>
+                <Flex>
+                  <FormLabel>contractAddress</FormLabel>
+                  <Spacer />
+                  <Text>{contractName}</Text>
+                </Flex>
                 <Field name="contractAddress" type="text" as={Input} />
                 <FormErrorMessage>{errors.contractAddress}</FormErrorMessage>
               </Flex>

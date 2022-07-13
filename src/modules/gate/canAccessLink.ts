@@ -20,7 +20,10 @@ export const canAccessLink = async (
     return true;
   }
 
-  if (typeof link.chainConditions == "object") {
+  if (
+    link.chainConditions !== null &&
+    typeof link.chainConditions == "object"
+  ) {
     const conditions =
       link.chainConditions as Prisma.JsonArray as unknown as ChainCondition[];
 

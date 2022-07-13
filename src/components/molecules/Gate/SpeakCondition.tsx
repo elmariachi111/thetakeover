@@ -1,12 +1,10 @@
 import { Link, Text } from "@chakra-ui/react";
-import { ethers } from "ethers";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { getContractMetadata } from "../../../modules/gate/extractNFTMetadata";
 import { marketplaceLink } from "../../../modules/gate/marketplaceLink";
 import { getInfuraProvider } from "../../../modules/infura";
 import { ChainCondition } from "../../../types/ChainConditions";
-
-import erc712abi from "../../../modules/abi/erc721.json";
 
 const ComparatorMap = {
   "<": "fewer than {value} ",
@@ -27,14 +25,13 @@ export const SpeakCondition = (props: { conditions: ChainCondition[] }) => {
     (async () => {
       try {
         const provider = getInfuraProvider(condition.chain);
-        const contract = new ethers.Contract(
-          condition.contractAddress,
-          erc712abi,
-          provider
+        const name = await getContractMetadata(
+          provider,
+          condition.contractAddress
         );
-        const result = await contract.name();
-        console.log(result);
-        setContractName(result);
+        if (name) {
+          setContractName(name);
+        }
       } catch (e: any) {
         console.error(e);
       }

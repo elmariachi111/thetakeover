@@ -1,11 +1,14 @@
 import { providers } from "ethers";
+import { translateChain } from "../types/ChainConditions";
 
 const chainToInfura = (chain: string) => {
-  if (chain === "ethereum") {
+  const translated = translateChain[chain];
+
+  if (translated === "ethereum") {
     return "mainnet";
   }
 
-  if (chain === "polygon" || chain === "matic") {
+  if (translated === "polygon") {
     return "polygon-mainnet";
   }
 

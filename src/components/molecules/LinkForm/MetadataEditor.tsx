@@ -46,55 +46,48 @@ export const MetadataEditor = (props: {
   const { isDisabled, initialValues } = props;
   const { status } = useSession();
 
-  const {
-    values: { url },
-    setFieldValue,
-  } = useFormikContext<NewTakeoverInput>();
+  const { values, setFieldValue, setFieldTouched } =
+    useFormikContext<NewTakeoverInput>();
+
   const [fTitle, mTitle] = useField({
     name: "title",
-    value: initialValues?.title,
+    value: initialValues ? initialValues.title : values.title,
   });
   const [fDescription, mDescription] = useField({
     name: "description",
-    value: initialValues?.description,
+    value: initialValues ? initialValues.description : values.description,
   });
   const [fPreviewImage, mPreviewImage] = useField({
     name: "previewImage",
-    value: initialValues?.previewImage,
+    value: initialValues ? initialValues.previewImage : values.previewImage,
   });
 
   const [loading, isLoading] = useState(false);
-  const [initialValuesUnused, setInitialValuesUnused] = useState(true);
 
   useEffect(() => {
-    if (initialValues && initialValuesUnused) {
-      console.log("unuse initial values");
-      setInitialValuesUnused(false);
+    if (initialValues) return;
+    if (!values.url) return;
 
-      return;
-    }
-    if (!url) return;
     (async () => {
       try {
         isLoading(true);
         const oembed: XOembedData = await (
           await axios.post("/api/links/oembed", {
-            uri: url,
+            uri: values.url,
           })
         ).data;
 
-        setFieldValue("description", oembed.description);
-        setFieldValue("title", oembed.title);
+        setFieldValue("description", oembed.description, true);
+        setFieldValue("title", oembed.title, true);
         setFieldValue("previewImage", oembed.thumbnail_url, true);
+        setFieldTouched("description", true, true);
       } catch (e: any) {
         console.error("error on oembed extraction", e.message);
       } finally {
-        setTimeout(() => {
-          isLoading(false);
-        }, 500);
+        isLoading(false);
       }
     })();
-  }, [url, setFieldValue]);
+  }, [values.url]);
 
   const cloudinaryUploaded = (fileInfo: any) => {
     //console.log(fileInfo);
