@@ -5,6 +5,16 @@ export type ConditionType = "evmBasic";
 export type ContractType = "ERC721" | "ERC1155" | "POAP";
 
 type EthAddress = string;
+
+export const translateChain: Record<string, ChainName> = {
+  rinkeby: "rinkeby",
+  mainnet: "ethereum",
+  homestead: "ethereum",
+  ethereum: "ethereum",
+  polygon: "polygon",
+  matic: "polygon",
+};
+
 export type ChainName = "ethereum" | "polygon" | "rinkeby";
 type Comparator = "<" | "<=" | "=" | ">=" | ">" | "!=" | "contains";
 
