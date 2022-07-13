@@ -27,7 +27,7 @@ export default function Custom500() {
           </Flex>
         </Flex>
         <Text fontSize="5xl">Uh,wow!</Text>
-        <Text fontSize="md">We've never seen this page ourselves...</Text>
+        <Text fontSize="md">We&apos;ve never seen this page ourselves...</Text>
       </Flex>
     </Container>
   );

@@ -1,5 +1,3 @@
-import { string } from "yup";
-
 export type ConditionType = "evmBasic";
 
 export type ContractType = "ERC721" | "ERC1155" | "POAP";

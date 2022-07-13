@@ -5,7 +5,6 @@ import {
   Image,
   Link as ChakraLink,
   Text,
-  useColorModeValue,
   useToast,
 } from "@chakra-ui/react";
 import type {
@@ -23,14 +22,14 @@ import { useRouter } from "next/router";
 import { useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { GeneralAlert } from "../../../components/atoms/GeneralAlert";
-import { SiweButton } from "../../../components/atoms/SiweButton";
-import { SpeakCondition } from "../../../components/molecules/Gate/SpeakCondition";
 import { ReportContent } from "../../../components/molecules/ReportContent";
 import { SellerNotConnectedAlert } from "../../../components/molecules/SellerNotConnectedAlert";
 import { adapterClient } from "../../../modules/api/adapter";
 import { findLink } from "../../../modules/api/findLink";
 import { findSettledPayment } from "../../../modules/api/findPayment";
 import { DisplayableLink } from "../../../types/Link";
+
+import { ConditionAllowanceDialog } from "../../../components/organisms/Gate/ConditionAllowanceDialog";
 
 export const getServerSideProps: GetServerSideProps<{
   link: DisplayableLink;
@@ -83,9 +82,7 @@ function ToPay({
   const { linkid } = router.query;
   const { status: sessionStatus, data: sessionData } = useSession();
   const toast = useToast();
-
   const [payment, setPayment] = useState<Payment>();
-  const panelBg = useColorModeValue("gray.200", "gray.800");
 
   const createOrder = async (
     _data: Record<string, unknown>,
@@ -190,18 +187,7 @@ function ToPay({
               proceed to content
             </Button>
           )}
-          {link.chainConditions && (
-            <Flex my={6} align="center" bg={panelBg} p={4} gap={4}>
-              <SpeakCondition conditions={link.chainConditions} />
-              <SiweButton
-                onConnected={() => {
-                  router.replace(`/to/${link.hash}`);
-                }}
-              >
-                verify NFT
-              </SiweButton>
-            </Flex>
-          )}
+          {link.chainConditions && <ConditionAllowanceDialog link={link} />}
           <Flex direction="row" my={6} justify="space-between">
             <Text fontWeight={500} fontSize="lg">
               Total
