@@ -1,4 +1,4 @@
-import { Container, Flex, Text } from "@chakra-ui/react";
+import { Container, Flex, Image, Text } from "@chakra-ui/react";
 import { XLink } from "../../../types/Link";
 import { UploadedFile } from "../../../types/TakeoverInput";
 import { TitleAndCreator } from "../../atoms/TitleAndCreator";
@@ -29,6 +29,9 @@ export const ViewFiles = (props: { link: XLink }) => {
         gap={12}
       >
         <TitleAndCreator link={link} />
+        {link.metadata.previewImage && (
+          <Image src={link.metadata.previewImage} alt={link.metadata.title} />
+        )}
         {link.files && (
           <UploadedFiles
             files={link.files?.files}
