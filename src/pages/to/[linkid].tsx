@@ -52,6 +52,8 @@ export const getServerSideProps: GetServerSideProps<{
     return redirectToPayment(link.hash);
   }
 
+  console.info(`[VIEW] ${user?.id || "-"} ${link.creatorId} ${linkid}`);
+
   const paymentCount = await countPayments(link.hash);
 
   let bundleItems;

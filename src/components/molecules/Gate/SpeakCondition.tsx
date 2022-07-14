@@ -61,7 +61,7 @@ export const SpeakCondition = (props: { conditions: ChainCondition[] }) => {
     <Text>{contractName}</Text>
   );
 
-  let pluralize: string;
+  let pluralize: string = "";
   let quantityItemType: string | ReactNode;
   if (condition.standardContractType === "ERC721") {
     pluralize = value > 1 ? "s" : "";

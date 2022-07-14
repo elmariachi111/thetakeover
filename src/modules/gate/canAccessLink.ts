@@ -30,7 +30,11 @@ export const canAccessLink = async (
     const conditionsMatched = await checkChainConditions(conditions, {
       user,
     });
-
+    if (conditionsMatched) {
+      console.info(
+        `[NFT] ${user.id} ${link.creatorId} ${link.hash} ${conditions[0].standardContractType} ${conditions[0].chain}  ${conditions[0].contractAddress}`
+      );
+    }
     return conditionsMatched;
   }
 
