@@ -44,6 +44,9 @@ const ParametersField = () => {
   useEffect(() => {
     if (values.standardContractType === "ERC721") {
       setFieldValue("parameters", [":userAddress"]);
+      setFieldValue("method", "balanceOf");
+    } else if (values.standardContractType === "ERC1155") {
+      setFieldValue("method", "balanceOfBatch");
     }
   }, [values.standardContractType, setFieldValue]);
   return (

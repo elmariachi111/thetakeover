@@ -26,7 +26,6 @@ export const SpeakCondition = (props: { conditions: ChainCondition[] }) => {
     (async () => {
       try {
         const provider = getInfuraProvider(condition.chain);
-        console.log("mddd");
         const name = await getContractMetadata(
           provider,
           condition.contractAddress
