@@ -1,6 +1,6 @@
 import { Link, Text } from "@chakra-ui/react";
 
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { getContractMetadata } from "../../../modules/gate/extractNFTMetadata";
 import { marketplaceLink } from "../../../modules/gate/marketplaceLink";
 import { getInfuraProvider } from "../../../modules/infura";
@@ -21,10 +21,12 @@ export const SpeakCondition = (props: { conditions: ChainCondition[] }) => {
   const [contractName, setContractName] = useState<string>(
     condition.contractAddress
   );
+
   useEffect(() => {
     (async () => {
       try {
         const provider = getInfuraProvider(condition.chain);
+        console.log("mddd");
         const name = await getContractMetadata(
           provider,
           condition.contractAddress
@@ -36,7 +38,7 @@ export const SpeakCondition = (props: { conditions: ChainCondition[] }) => {
         console.error(e);
       }
     })();
-  }, [condition.chain, condition.contractAddress]);
+  }, [condition]);
 
   const comparator = condition.returnValueTest.comparator;
   const value = parseInt(condition.returnValueTest.value);
@@ -48,8 +50,7 @@ export const SpeakCondition = (props: { conditions: ChainCondition[] }) => {
     quantity = ComparatorMap[comparator].replace("{value}", value);
   }
 
-  const pluralize = value > 1 ? "s" : "";
-  const itemType = `${condition.standardContractType} NFT${pluralize}`;
+  const itemType = `${condition.standardContractType} NFT`;
 
   const link = marketplaceLink(condition.chain, condition.contractAddress);
 
@@ -61,10 +62,36 @@ export const SpeakCondition = (props: { conditions: ChainCondition[] }) => {
     <Text>{contractName}</Text>
   );
 
+  let pluralize: string;
+  let quantityItemType: string | ReactNode;
+  if (condition.standardContractType === "ERC721") {
+    pluralize = value > 1 ? "s" : "";
+    quantityItemType = `${quantity} ${itemType}${pluralize}`;
+  } else {
+    const tokenIds = condition.parameters[1].split(",");
+    const tokenLinks = tokenIds.map((id, i) => (
+      <>
+        <Link
+          key={`mplink-${id}`}
+          href={marketplaceLink(condition.chain, condition.contractAddress, id)}
+          isExternal
+        >
+          this
+        </Link>
+        {i + 1 < tokenIds.length ? " or " : ""}
+      </>
+    ));
+
+    quantityItemType = (
+      <>
+        {tokenLinks} token{pluralize}
+      </>
+    );
+  }
   return (
     <Text>
-      this item can be accessed by holders of {quantity} {itemType} of{" "}
-      {collection} on the {condition.chain} blockchain
+      this item can be accessed by holders of {quantityItemType} of {collection}{" "}
+      on the {condition.chain} blockchain
     </Text>
   );
 };

@@ -1,9 +1,7 @@
-import { ethers, providers } from "ethers";
 import parsePath from "parse-path";
 import { ChainName, translateChain } from "../../types/ChainConditions";
 
 const HEX_NUMBERS = new RegExp(`^([a-f\\d])+$`, "g");
-const knownNetworks = ["rinkeby", "ethereum", "polygon", "matic"];
 
 const isNumeric = (num: string) => {
   return num.match(/^\d+$/);

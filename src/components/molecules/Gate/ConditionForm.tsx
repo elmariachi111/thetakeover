@@ -1,7 +1,9 @@
 import {
   Button,
   Flex,
+  FormControl,
   FormErrorMessage,
+  FormHelperText,
   FormLabel,
   Input,
   Portal,
@@ -10,8 +12,8 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
-import { Field, Form, Formik } from "formik";
-import { MutableRefObject, useEffect, useState } from "react";
+import { Field, Form, Formik, useField, useFormikContext } from "formik";
+import { MutableRefObject, useCallback, useEffect, useState } from "react";
 import { extractNFTFromMarketPlace } from "../../../modules/gate/extractNFTFromMarketplace";
 import {
   getContractMetadata,
@@ -21,6 +23,181 @@ import {
 import { getInfuraProvider } from "../../../modules/infura";
 import { ChainCondition, ChainName } from "../../../types/ChainConditions";
 
+const ContractTypeField = () => {
+  const [field, meta] = useField("standardContractType");
+  return (
+    <Flex direction="column">
+      <FormLabel>contract type</FormLabel>
+      <Select variant="filled" {...field}>
+        <option value="ERC721">ERC721</option>
+        <option value="ERC1155">ERC1155</option>
+        {/* <option value="POAP">POAP</option> */}
+      </Select>
+      <FormErrorMessage>{meta.error}</FormErrorMessage>
+    </Flex>
+  );
+};
+
+const ParametersField = () => {
+  const { values, setFieldValue, errors } = useFormikContext<ChainCondition>();
+
+  useEffect(() => {
+    if (values.standardContractType === "ERC721") {
+      setFieldValue("parameters", [":userAddress"]);
+    }
+  }, [values.standardContractType, setFieldValue]);
+  return (
+    <FormControl
+      flexDirection="column"
+      display={values.standardContractType === "ERC1155" ? "flex" : "none"}
+    >
+      <FormLabel>
+        {values.parameters.length == 2
+          ? values.parameters[1].split(",").length
+          : "0"}{" "}
+        token ids
+      </FormLabel>
+      <Input
+        name="parameters"
+        type="text"
+        variant="filled"
+        value={values.parameters[1]}
+        onChange={(e: any) => {
+          if (e.target.value.length == 0) {
+            setFieldValue("parameters", []);
+          } else {
+            setFieldValue("parameters", [
+              [...Array(e.target.value.split(",").length)]
+                .map((a) => ":userAddress")
+                .join(","),
+              e.target.value,
+            ]);
+          }
+        }}
+      />
+      <FormHelperText>comma separated (1,2,3)</FormHelperText>
+      <FormErrorMessage>{errors.parameters}</FormErrorMessage>
+    </FormControl>
+  );
+};
+
+const MarketplaceLinkExtractor = () => {
+  const { values, setFieldValue, errors } = useFormikContext<ChainCondition>();
+
+  const toast = useToast();
+
+  const updateByMarketplaceLink = useCallback(
+    async (
+      url: string,
+      values: ChainCondition,
+      setFieldValue: (
+        field: string,
+        value: any,
+        shouldValidate?: boolean
+      ) => void
+    ) => {
+      const collectionDetails = extractNFTFromMarketPlace(url);
+
+      if (collectionDetails) {
+        setFieldValue("chain", collectionDetails.chain);
+        setFieldValue("contractAddress", collectionDetails.collection);
+        const provider = getInfuraProvider(collectionDetails.chain);
+        const type = await getContractType(
+          provider,
+          collectionDetails.collection
+        );
+        if (type) {
+          setFieldValue("standardContractType", type);
+        }
+        if (type === "ERC721") {
+          setFieldValue("parameters", [":userAddress"]);
+        } else if (type === "ERC1155" && collectionDetails.tokenId) {
+          let newVal: Array<string>;
+          if (values.parameters.length === 2) {
+            const tokenIds = values.parameters[1].split(",");
+            tokenIds.push(collectionDetails.tokenId);
+            newVal = [
+              [...Array(tokenIds.length)].map((a) => ":userAddress").join(","),
+              tokenIds.join(","),
+            ];
+          } else {
+            newVal = [":userAddress", collectionDetails.tokenId];
+          }
+
+          setFieldValue("parameters", newVal);
+        }
+      }
+    },
+    []
+  );
+
+  return (
+    <FormControl>
+      <FormLabel>paste a marketplace link here</FormLabel>
+      <Input
+        p={5}
+        size="sm"
+        type="text"
+        variant="filled"
+        onChange={(e: any) => {
+          try {
+            updateByMarketplaceLink(e.target.value, values, setFieldValue);
+          } catch (e: any) {
+            toast({
+              title: "couldn't extract NFT information from your link",
+              description: e.message || e,
+            });
+          } finally {
+            setTimeout(() => {
+              e.target.value = "";
+            }, 800);
+          }
+        }}
+      />
+      <FormHelperText>to extract NFT details automatically</FormHelperText>
+    </FormControl>
+  );
+};
+
+const ContractAddressField = () => {
+  const { values, setFieldValue, errors, setFieldError } =
+    useFormikContext<ChainCondition>();
+  const [field, meta, helpers] = useField("contractAddress");
+
+  const [contractName, setContractName] = useState<string>();
+  useEffect(() => {
+    (async () => {
+      if (!values.chain || !values.contractAddress) return;
+      const provider = getInfuraProvider(values.chain);
+      if (!provider) return;
+      try {
+        const name = await getContractMetadata(
+          provider,
+          values.contractAddress
+        );
+        setContractName(name);
+      } catch (e: any) {
+        helpers.setError(
+          "couldn't extract contract name. Check chain, address and type."
+        );
+        setContractName(undefined);
+      }
+    })();
+  }, [values.chain, values.contractAddress]);
+
+  return (
+    <FormControl isInvalid={!!meta.error}>
+      <Flex>
+        <FormLabel>contract address</FormLabel>
+        <Spacer />
+        <Text fontSize="xs">{contractName}</Text>
+      </Flex>
+      <Input placeholder="0x1a2b3c4d..." {...field} />
+      <FormErrorMessage>{meta.error}</FormErrorMessage>
+    </FormControl>
+  );
+};
+
 const ConditionForm = (props: {
   buttonRef: MutableRefObject<HTMLElement | null>;
   initialConditions: ChainCondition | undefined;
@@ -29,9 +206,6 @@ const ConditionForm = (props: {
     condition: ChainCondition[]
   ) => void;
 }) => {
-  const toast = useToast();
-  const [contractName, setContractName] = useState<string>();
-
   const initialValues: ChainCondition = props.initialConditions || {
     conditionType: "evmBasic",
     contractAddress: "",
@@ -53,54 +227,13 @@ const ConditionForm = (props: {
       }}
     >
       {(formikProps) => {
-        const { errors, values, setFieldValue } = formikProps;
-
-        const updateByMarketplaceLink = async (e: any) => {
-          try {
-            const collectionDetails = extractNFTFromMarketPlace(e.target.value);
-
-            if (collectionDetails) {
-              setFieldValue("chain", collectionDetails.chain);
-              setFieldValue("contractAddress", collectionDetails.collection);
-              const provider = getInfuraProvider(collectionDetails.chain);
-              const type = await getContractType(
-                provider,
-                collectionDetails.collection
-              );
-              if (type) {
-                setFieldValue("standardContractType", type);
-                const name = await getContractMetadata(
-                  provider,
-                  collectionDetails.collection
-                );
-                setContractName(name);
-              }
-            }
-          } catch (e: any) {
-            console.error(e);
-            toast({
-              title: "couldn't extract NFT information from your link",
-              description: e.message || e,
-            });
-          } finally {
-            setTimeout(() => {
-              e.target.value = "";
-            }, 800);
-          }
-        };
+        const { errors } = formikProps;
 
         return (
           <Form id="condition-form">
             <Flex direction="column" w="100%" gap={6}>
-              <Flex direction="column">
-                <FormLabel>paste a marketplace link here</FormLabel>
-                <Input
-                  size="sm"
-                  type="text"
-                  variant="filled"
-                  onChange={updateByMarketplaceLink}
-                ></Input>
-              </Flex>
+              <MarketplaceLinkExtractor />
+
               <Flex direction="column">
                 <FormLabel>chain</FormLabel>
                 <Field name="chain" type="text" as={Select} variant="filled">
@@ -110,33 +243,14 @@ const ConditionForm = (props: {
                     </option>
                   ))}
                 </Field>
-                <FormErrorMessage>{errors.contractAddress}</FormErrorMessage>
+                <FormErrorMessage>{errors.chain}</FormErrorMessage>
               </Flex>
-              <Flex direction="column">
-                <FormLabel>contractType</FormLabel>
-                <Field
-                  name="standardContractType"
-                  type="select"
-                  as={Select}
-                  variant="filled"
-                >
-                  <option value="ERC721">ERC721</option>
-                  <option value="ERC1155">ERC1155</option>
-                  {/* <option value="POAP">POAP</option> */}
-                </Field>
-                <FormErrorMessage>
-                  {errors.standardContractType}
-                </FormErrorMessage>
-              </Flex>
-              <Flex direction="column">
-                <Flex>
-                  <FormLabel>contractAddress</FormLabel>
-                  <Spacer />
-                  <Text>{contractName}</Text>
-                </Flex>
-                <Field name="contractAddress" type="text" as={Input} />
-                <FormErrorMessage>{errors.contractAddress}</FormErrorMessage>
-              </Flex>
+
+              <ContractTypeField />
+
+              <ParametersField />
+
+              <ContractAddressField />
             </Flex>
             <Portal containerRef={props.buttonRef}>
               <Button type="submit" form="condition-form">
