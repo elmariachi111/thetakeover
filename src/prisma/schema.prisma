@@ -193,14 +193,14 @@ model Session {
 }
 
 model User {
-    id            String    @id @default(cuid())
+    id            String         @id @default(cuid())
     name          String?
-    email         String?   @unique
-    emailVerified DateTime? @map("email_verified")
+    email         String?        @unique
+    emailVerified DateTime?      @map("email_verified")
     image         String?
     accounts      Account[]
     sessions      Session[]
-
+    twitterHandle String?        @map("twitter_handle")
     links         Link[]
     payments      Payment[]
     sellerAccount SellerAccount?

@@ -1,4 +1,5 @@
 import {
+  AspectRatio,
   Button,
   Flex,
   Heading,
@@ -29,6 +30,7 @@ import { findLink } from "../../../modules/api/findLink";
 import { findSettledPayment } from "../../../modules/api/findPayment";
 import { DisplayableLink } from "../../../types/Link";
 
+import { SocialMediaMetadata } from "../../../components/atoms/SocialMediaMetadata";
 import { ConditionAllowanceDialog } from "../../../components/organisms/Gate/ConditionAllowanceDialog";
 import logtail from "../../../modules/api/logging";
 
@@ -163,6 +165,7 @@ function ToPay({
 
   return (
     <Flex direction="column">
+      <SocialMediaMetadata link={link} />
       <Flex my={5} direction="row" justify="space-between">
         <Flex direction="column">
           <Heading size="lg" color="gray.500">
@@ -172,24 +175,26 @@ function ToPay({
         </Flex>
         {!isCreator && <ReportContent link={link} size="xs" variant="ghost" />}
       </Flex>
-      <Image
-        src={link.metadata.previewImage}
-        my={4}
-        width="100%"
-        alt={link.metadata.title}
-      />
-
-      <ReactMarkdown
-        components={ChakraUIRenderer()}
-        // eslint-disable-next-line react/no-children-prop
-        children={link.metadata.description}
-        skipHtml
-      />
+      <AspectRatio ratio={16 / 9} overflow="hidden" my={4}>
+        <Image
+          src={link.metadata.previewImage}
+          width="100%"
+          alt={link.metadata.title}
+        />
+      </AspectRatio>
+      <Flex direction="column">
+        <ReactMarkdown
+          components={ChakraUIRenderer()}
+          // eslint-disable-next-line react/no-children-prop
+          children={link.metadata.description}
+          skipHtml
+        />
+      </Flex>
 
       {link.saleStatus === "ON_SALE" ? (
         <>
           {(payment || isCreator) && (
-            <Button as={ChakraLink} href={`/to/${link.hash}`}>
+            <Button as={ChakraLink} href={`/to/${link.hash}`} my={6}>
               proceed to content
             </Button>
           )}
