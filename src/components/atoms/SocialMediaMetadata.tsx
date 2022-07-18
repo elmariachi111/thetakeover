@@ -1,9 +1,9 @@
 import Head from "next/head";
 import canonicalUrl from "../../modules/api/canonicalUrl";
-import { DisplayableLink } from "../../types/Link";
+import { XLink } from "../../types/Link";
 import truncatise from "truncatise";
 
-const SocialMediaMetadata = ({ link }: { link: DisplayableLink }) => {
+const SocialMediaMetadata = ({ link }: { link: XLink }) => {
   const shortDescription = truncatise(link.metadata.description, {
     TruncateBy: "words",
     TruncateLength: 50,

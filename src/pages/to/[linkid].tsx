@@ -5,6 +5,7 @@ import { getSession, useSession } from "next-auth/react";
 import { default as NextLink } from "next/link";
 import { ReactElement, useCallback, useEffect, useState } from "react";
 import { FiEdit2, FiTrash } from "react-icons/fi";
+import { SocialMediaMetadata } from "../../components/atoms/SocialMediaMetadata";
 import { ToLogo } from "../../components/atoms/ToLogo";
 import { ReportContent } from "../../components/molecules/ReportContent";
 import { ViewBundle } from "../../components/molecules/to/ViewBundle";
@@ -139,6 +140,7 @@ function ToView({
 
   return (
     <Flex w="100vw">
+      <SocialMediaMetadata link={link} />
       <Flex
         position="fixed"
         left={2}
