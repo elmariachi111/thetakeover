@@ -13,29 +13,31 @@ import type {
   OnApproveData,
 } from "@paypal/paypal-js";
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
-import { Payment, PaymentStatus, SellerAccount } from "@prisma/client";
+import { Payment, SellerAccount } from "@prisma/client";
 import axios from "axios";
+import ChakraUIRenderer from "chakra-ui-markdown-renderer";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import ReactMarkdown from "react-markdown";
 import { GeneralAlert } from "../../../components/atoms/GeneralAlert";
 import { ReportContent } from "../../../components/molecules/ReportContent";
 import { SellerNotConnectedAlert } from "../../../components/molecules/SellerNotConnectedAlert";
 import { adapterClient } from "../../../modules/api/adapter";
 import { findLink } from "../../../modules/api/findLink";
-import { DisplayableLink } from "../../../types/Link";
-import ReactMarkdown from "react-markdown";
-import ChakraUIRenderer from "chakra-ui-markdown-renderer";
 import { findSettledPayment } from "../../../modules/api/findPayment";
+import { DisplayableLink } from "../../../types/Link";
+
+import { ConditionAllowanceDialog } from "../../../components/organisms/Gate/ConditionAllowanceDialog";
+import logtail from "../../../modules/api/logging";
 
 export const getServerSideProps: GetServerSideProps<{
   link: DisplayableLink;
-  seller: SellerAccount;
+  seller: SellerAccount | null;
 }> = async (context) => {
   const linkid: string = context.params?.linkid as string;
   if (!linkid) return { notFound: true };
-
   const link = await findLink(linkid);
   if (!link) {
     return {
@@ -47,7 +49,6 @@ export const getServerSideProps: GetServerSideProps<{
   if (session && session.user?.id) {
     const payment = await findSettledPayment(linkid, session.user.id);
 
-    //console.log("payment", session, payment);
     if (payment) {
       return {
         redirect: {
@@ -57,6 +58,13 @@ export const getServerSideProps: GetServerSideProps<{
       };
     }
   }
+
+  logtail.info("takeover:pay", {
+    user: session?.user?.id || "-",
+    creator: link.creatorId,
+    link: linkid,
+  });
+
   const seller = await adapterClient.sellerAccount.findFirst({
     where: {
       userId: link.creatorId,
@@ -80,7 +88,6 @@ function ToPay({
   const { linkid } = router.query;
   const { status: sessionStatus, data: sessionData } = useSession();
   const toast = useToast();
-
   const [payment, setPayment] = useState<Payment>();
 
   const createOrder = async (
@@ -163,14 +170,15 @@ function ToPay({
           </Heading>
           <Heading size="md">{link.metadata.title}</Heading>
         </Flex>
-        <ReportContent link={link} size="xs" variant="ghost" />
+        {!isCreator && <ReportContent link={link} size="xs" variant="ghost" />}
       </Flex>
       <Image
         src={link.metadata.previewImage}
-        mt={2}
+        my={4}
         width="100%"
         alt={link.metadata.title}
       />
+
       <ReactMarkdown
         components={ChakraUIRenderer()}
         // eslint-disable-next-line react/no-children-prop
@@ -180,6 +188,12 @@ function ToPay({
 
       {link.saleStatus === "ON_SALE" ? (
         <>
+          {(payment || isCreator) && (
+            <Button as={ChakraLink} href={`/to/${link.hash}`}>
+              proceed to content
+            </Button>
+          )}
+          {link.chainConditions && <ConditionAllowanceDialog link={link} />}
           <Flex direction="row" my={6} justify="space-between">
             <Text fontWeight={500} fontSize="lg">
               Total
@@ -188,30 +202,31 @@ function ToPay({
               €{link.price}
             </Text>
           </Flex>
-          {seller ? (
-            <PayPalScriptProvider
-              options={{
-                "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID as string,
-                "merchant-id": seller.merchantIdInPayPal,
-                currency: "EUR",
-              }}
-            >
-              {payment ? (
-                <Button as={ChakraLink} href={`/to/${payment.linkHash}`}>
-                  proceed to content
-                </Button>
-              ) : (
-                <Flex direction="column" w="full" mt={6}>
+          {!payment && (
+            <Flex direction="column" w="full">
+              {seller ? (
+                <PayPalScriptProvider
+                  options={{
+                    "client-id": process.env
+                      .NEXT_PUBLIC_PAYPAL_CLIENT_ID as string,
+                    "merchant-id": seller.merchantIdInPayPal,
+                    currency: "EUR",
+                  }}
+                >
                   <PayPalButtons
                     createOrder={createOrder}
                     onApprove={onApprove}
-                    style={{ shape: "rect" }}
+                    style={{
+                      shape: "rect",
+                      label: "pay",
+                      layout: "vertical",
+                    }}
                   />
-                </Flex>
+                </PayPalScriptProvider>
+              ) : (
+                <SellerNotConnectedAlert creator={link.creator} />
               )}
-            </PayPalScriptProvider>
-          ) : (
-            <SellerNotConnectedAlert creator={link.creator} />
+            </Flex>
           )}
         </>
       ) : (
@@ -219,12 +234,6 @@ function ToPay({
           status="info"
           title="This item is currently not for sale."
         />
-      )}
-
-      {isCreator && (
-        <Button as={ChakraLink} href={`/to/${link.hash}`} mt={6}>
-          proceed to content
-        </Button>
       )}
     </Flex>
   );

@@ -13,12 +13,11 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { Field, Form, Formik } from "formik";
-import React from "react";
-import { XLink } from "../../types/Link";
+import { ToCardLink } from "../../types/Link";
 import { TakeoverBundle } from "../../types/TakeoverInput";
 
 export const BundleCreator = (props: {
-  items: Array<XLink & { price: string }>;
+  items: Array<ToCardLink>;
   onCreated: (url: string) => void;
   onCancel: () => void;
 }) => {

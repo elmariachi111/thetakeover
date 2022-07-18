@@ -1,88 +1,51 @@
 import {
   Flex,
-  Icon,
   IconButton,
   Link as ChakraLink,
-  LinkBox,
-  LinkOverlay,
-  Spacer,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Text,
+  useColorModeValue,
 } from "@chakra-ui/react";
-import { Link } from "@prisma/client";
 import { default as NextLink } from "next/link";
-import { FiEdit2, FiExternalLink, FiPause } from "react-icons/fi";
-import { XLink } from "../../types/Payment";
+import {
+  FiEdit2,
+  FiExternalLink,
+  FiLink,
+  FiShoppingCart,
+  FiTrash2,
+} from "react-icons/fi";
+import { HiDotsVertical } from "react-icons/hi";
+import { ToCardLink } from "../../types/Link";
 import { BundleSelect } from "../atoms/BundleSelect";
-
-type XXLink = XLink & Link;
-type ToCardLink = XXLink & {
-  _count: {
-    payments: number;
-  };
-  bundles: Partial<XXLink>[];
-};
 
 const TakeoverCard = (props: {
   link: ToCardLink;
   onSelect: (hash: string) => void;
+  onRemove: (hash: string) => void;
   isSelected: boolean;
 }) => {
   const { link, onSelect, isSelected } = props;
+  const cardBackground = useColorModeValue("gray.200", "gray.800");
 
   return (
-    <LinkBox
-      minH={275}
-      borderColor="black"
-      sx={{
-        transition: "all 100ms",
-        _hover: { borderWidth: "2px" },
+    <Flex
+      bg={cardBackground}
+      p={4}
+      justify="space-between"
+      align="center"
+      _hover={{
+        backgroundImage: link.metadata?.previewImage,
+        backgroundColor: { cardBackground },
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundBlendMode:
+          link.saleStatus === "ON_SALE" ? "soft-light" : "luminosity",
       }}
     >
-      <LinkOverlay href={`/to/${link.hash}`}>
-        <Flex
-          position="absolute"
-          backgroundImage={link.metadata?.previewImage}
-          backgroundColor="black"
-          backgroundSize="cover"
-          backgroundPosition="center"
-          backgroundBlendMode={
-            link.saleStatus === "ON_SALE" ? "normal" : "luminosity"
-          }
-          py={2}
-          height="100%"
-          width="100%"
-        />
-        <Flex direction="row" w="100%" my={3}>
-          <Text
-            px={4}
-            py={2}
-            lineHeight="2rem"
-            background="black"
-            color="white"
-            maxW="75%"
-            ml="-2px"
-            zIndex={1}
-          >
-            {link.metadata ? link.metadata.title : link.hash}
-          </Text>
-          <Spacer />
-        </Flex>
-      </LinkOverlay>
-      <Flex
-        direction="row"
-        justify="space-between"
-        position="absolute"
-        right="0"
-        top={2}
-      >
-        <NextLink href={`/to/edit/${link.hash}`} passHref>
-          <IconButton aria-label="edit" icon={<FiEdit2 />} />
-        </NextLink>
-        {link.originUri && (
-          <ChakraLink isExternal href={link.originUri}>
-            <IconButton aria-label="visit" icon={<FiExternalLink />} />
-          </ChakraLink>
-        )}
+      <Flex gap={0} align="center">
         {link.bundles.length === 0 && (
           <BundleSelect
             id={link.hash}
@@ -90,24 +53,51 @@ const TakeoverCard = (props: {
             select={onSelect}
           />
         )}
-      </Flex>
-
-      <Flex direction="row" position="absolute" right={0} bottom={0}>
-        {/* <Image src={} fit="contain" maxW="300" /> */}
-        <Flex background="gray.900" color="white" py={2} px={4}>
-          {link.saleStatus === "ON_SALE" ? (
-            <Text>€{link.price}</Text>
-          ) : (
-            <Flex direction="row" align="center" gap={1}>
-              <Icon as={FiPause} />
-              <Text fontSize="sm">paused</Text>
-            </Flex>
-          )}
-
-          {/* <Text>{link._count.payments}</Text> */}
+        <Flex direction="column" align="flex-start">
+          <Flex gap={2} align="center" fontSize="xs">
+            <Text>{new Date(link.createdAt).toLocaleDateString()}</Text>
+            {link.saleStatus === "ON_SALE" && (
+              <Text fontWeight="bold">€{link.price}</Text>
+            )}
+            <Text>{link._count.payments} downloads</Text>
+          </Flex>
+          <Text noOfLines={1}>{link.metadata?.title}</Text>
         </Flex>
       </Flex>
-    </LinkBox>
+      <Menu>
+        <MenuButton
+          as={IconButton}
+          variant="ghost"
+          icon={<HiDotsVertical size={20} />}
+        />
+
+        <MenuList>
+          <NextLink href={`/to/edit/${link.hash}`}>
+            <MenuItem icon={<FiEdit2 />}>Edit</MenuItem>
+          </NextLink>
+          <NextLink href={`/to/${link.hash}`}>
+            <MenuItem icon={<FiLink />}>Visit</MenuItem>
+          </NextLink>
+          <NextLink href={`/to/pay/${link.hash}`}>
+            <MenuItem icon={<FiShoppingCart />}>Landing page</MenuItem>
+          </NextLink>
+          {link.originUri && (
+            <ChakraLink isExternal href={link.originUri}>
+              <MenuItem icon={<FiExternalLink />}>Go to Original</MenuItem>
+            </ChakraLink>
+          )}
+          {link._count.payments === 0 && (
+            <MenuItem
+              onClick={() => props.onRemove(link.hash)}
+              color="red"
+              icon={<FiTrash2 />}
+            >
+              Delete
+            </MenuItem>
+          )}
+        </MenuList>
+      </Menu>
+    </Flex>
   );
 };
 
