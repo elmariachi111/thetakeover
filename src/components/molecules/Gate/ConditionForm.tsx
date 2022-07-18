@@ -13,7 +13,13 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { Field, Form, Formik, useField, useFormikContext } from "formik";
-import { MutableRefObject, useCallback, useEffect, useState } from "react";
+import {
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { extractNFTFromMarketPlace } from "../../../modules/gate/extractNFTFromMarketplace";
 import {
   getContractMetadata,
@@ -21,6 +27,7 @@ import {
 } from "../../../modules/gate/extractNFTMetadata";
 
 import { getInfuraProvider } from "../../../modules/infura";
+import { isHexNumber } from "../../../modules/strings";
 import { ChainCondition, ChainName } from "../../../types/ChainConditions";
 
 const ContractTypeField = () => {
@@ -85,7 +92,8 @@ const ParametersField = () => {
 };
 
 const MarketplaceLinkExtractor = () => {
-  const { values, setFieldValue, errors } = useFormikContext<ChainCondition>();
+  const { values, setFieldValue, setFieldError, errors } =
+    useFormikContext<ChainCondition>();
 
   const toast = useToast();
 
@@ -99,39 +107,50 @@ const MarketplaceLinkExtractor = () => {
         shouldValidate?: boolean
       ) => void
     ) => {
-      const collectionDetails = extractNFTFromMarketPlace(url);
+      try {
+        const collectionDetails = extractNFTFromMarketPlace(url);
 
-      if (collectionDetails) {
-        setFieldValue("chain", collectionDetails.chain);
-        setFieldValue("contractAddress", collectionDetails.collection);
-        const provider = getInfuraProvider(collectionDetails.chain);
-        const type = await getContractType(
-          provider,
-          collectionDetails.collection
-        );
-        if (type) {
-          setFieldValue("standardContractType", type);
-        }
-        if (type === "ERC721") {
-          setFieldValue("parameters", [":userAddress"]);
-        } else if (type === "ERC1155" && collectionDetails.tokenId) {
-          let newVal: Array<string>;
-          if (values.parameters.length === 2) {
-            const tokenIds = values.parameters[1].split(",");
-            tokenIds.push(collectionDetails.tokenId);
-            newVal = [
-              [...Array(tokenIds.length)].map((a) => ":userAddress").join(","),
-              tokenIds.join(","),
-            ];
-          } else {
-            newVal = [":userAddress", collectionDetails.tokenId];
+        if (collectionDetails) {
+          setFieldValue("chain", collectionDetails.chain);
+          setFieldValue("contractAddress", collectionDetails.collection);
+          const provider = getInfuraProvider(collectionDetails.chain);
+          const type = await getContractType(
+            provider,
+            collectionDetails.collection
+          );
+          if (type) {
+            setFieldValue("standardContractType", type);
           }
+          if (type === "ERC721") {
+            setFieldValue("parameters", [":userAddress"]);
+          } else if (type === "ERC1155" && collectionDetails.tokenId) {
+            let newVal: Array<string>;
+            if (values.parameters.length === 2) {
+              const tokenIds = values.parameters[1].split(",");
+              tokenIds.push(collectionDetails.tokenId);
+              newVal = [
+                [...Array(tokenIds.length)]
+                  .map((a) => ":userAddress")
+                  .join(","),
+                tokenIds.join(","),
+              ];
+            } else {
+              newVal = [":userAddress", collectionDetails.tokenId];
+            }
 
-          setFieldValue("parameters", newVal);
+            setFieldValue("parameters", newVal);
+          }
         }
+      } catch (e: any) {
+        console.error(e);
+        toast({
+          title: "couldn't extract NFT information from your link",
+          description: e.message || e,
+        });
+      } finally {
       }
     },
-    []
+    [toast]
   );
 
   return (
@@ -143,18 +162,10 @@ const MarketplaceLinkExtractor = () => {
         type="text"
         variant="filled"
         onChange={(e: any) => {
-          try {
-            updateByMarketplaceLink(e.target.value, values, setFieldValue);
-          } catch (e: any) {
-            toast({
-              title: "couldn't extract NFT information from your link",
-              description: e.message || e,
-            });
-          } finally {
-            setTimeout(() => {
-              e.target.value = "";
-            }, 800);
-          }
+          updateByMarketplaceLink(e.target.value, values, setFieldValue);
+          setTimeout(() => {
+            e.target.value = "";
+          }, 800);
         }}
       />
       <FormHelperText>to extract NFT details automatically</FormHelperText>
@@ -163,16 +174,29 @@ const MarketplaceLinkExtractor = () => {
 };
 
 const ContractAddressField = () => {
-  const { values, setFieldValue, errors, setFieldError } =
-    useFormikContext<ChainCondition>();
-  const [field, meta, helpers] = useField("contractAddress");
+  const { values, errors } = useFormikContext<ChainCondition>();
+  const [field, meta, helpers] = useField({
+    name: "contractAddress",
+    validate: async (val) => {
+      if (!isHexNumber(val) || val.length !== 42) {
+        return "not a valid address";
+      }
+    },
+  });
 
   const [contractName, setContractName] = useState<string>();
   useEffect(() => {
+    if (!!errors.contractAddress || !!errors.chain) return;
+    if (
+      !isHexNumber(values.contractAddress) ||
+      values.contractAddress.length !== 42
+    )
+      return;
+    const provider = getInfuraProvider(values.chain);
+    if (!provider) return;
+
+    console.log("checkong", values.contractAddress, values.chain);
     (async () => {
-      if (!values.chain || !values.contractAddress) return;
-      const provider = getInfuraProvider(values.chain);
-      if (!provider) return;
       try {
         const name = await getContractMetadata(
           provider,
@@ -180,13 +204,14 @@ const ContractAddressField = () => {
         );
         setContractName(name);
       } catch (e: any) {
+        console.error(e);
         helpers.setError(
           "couldn't extract contract name. Check chain, address and type."
         );
         setContractName(undefined);
       }
     })();
-  }, [values.chain, values.contractAddress]);
+  }, [values.chain, values.contractAddress, errors]);
 
   return (
     <FormControl isInvalid={!!meta.error}>
@@ -201,6 +226,26 @@ const ContractAddressField = () => {
   );
 };
 
+const SubmitButton = (props) => {
+  const { values, errors, isValid, dirty } = useFormikContext<ChainCondition>();
+  const submittable = useMemo(() => {
+    if (!isValid) return false;
+    if (values.standardContractType === "ERC1155") {
+      if (values.parameters.length != 2) return false;
+      if (values.parameters[1].length === 0) return false;
+    }
+    return true;
+  }, [values, isValid]);
+  return (
+    <Button
+      type="submit"
+      form="condition-form"
+      disabled={!isValid || !submittable}
+    >
+      submit
+    </Button>
+  );
+};
 const ConditionForm = (props: {
   buttonRef: MutableRefObject<HTMLElement | null>;
   initialConditions: ChainCondition | undefined;
@@ -224,13 +269,14 @@ const ConditionForm = (props: {
 
   return (
     <Formik
+      isInitialValid={false}
       initialValues={initialValues}
       onSubmit={async (values, { resetForm }) => {
         props.onUnifiedAccessControlConditionsSelected([values]);
       }}
     >
       {(formikProps) => {
-        const { errors } = formikProps;
+        const { errors, values } = formikProps;
 
         return (
           <Form id="condition-form">
@@ -256,9 +302,7 @@ const ConditionForm = (props: {
               <ContractAddressField />
             </Flex>
             <Portal containerRef={props.buttonRef}>
-              <Button type="submit" form="condition-form">
-                submit
-              </Button>
+              <SubmitButton />
             </Portal>
           </Form>
         );

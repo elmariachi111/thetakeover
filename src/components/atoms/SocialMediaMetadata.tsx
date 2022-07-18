@@ -34,7 +34,9 @@ const SocialMediaMetadata = ({ link }: { link: XLink }) => {
       <meta property="twitter:description" content={shortDescription} />
       <meta
         property="twitter:creator"
-        content={link.creator.name || link.creatorId}
+        content={
+          link.creator.twitterHandle || link.creator.name || link.creatorId
+        }
       />
       <meta property="twitter:image" content={link.metadata.previewImage} />
     </Head>
