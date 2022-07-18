@@ -53,7 +53,7 @@ export const getServerSideProps: GetServerSideProps<{
     return redirectToPayment(link.hash);
   }
 
-  logtail.info("view", {
+  logtail.info("takeover:view", {
     user: user?.id || "-",
     creator: link.creatorId,
     link: linkid,

@@ -59,7 +59,7 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  logtail.info("pay", {
+  logtail.info("takeover:pay", {
     user: session?.user?.id || "-",
     creator: link.creatorId,
     link: linkid,

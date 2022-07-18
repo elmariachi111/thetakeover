@@ -32,7 +32,7 @@ export const canAccessLink = async (
       user,
     });
     if (conditionsMatched) {
-      logtail.info("nftgate", {
+      logtail.info("takeover:nftgate", {
         user: user.id,
         creator: link.creatorId,
         link: link.hash,
