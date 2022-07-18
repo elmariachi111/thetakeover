@@ -37,7 +37,6 @@ export const getServerSideProps: GetServerSideProps<{
 }> = async (context) => {
   const linkid: string = context.params?.linkid as string;
   if (!linkid) return { notFound: true };
-
   const link = await findLink(linkid);
   if (!link) {
     return {
@@ -49,7 +48,6 @@ export const getServerSideProps: GetServerSideProps<{
   if (session && session.user?.id) {
     const payment = await findSettledPayment(linkid, session.user.id);
 
-    //console.log("payment", session, payment);
     if (payment) {
       return {
         redirect: {
@@ -59,6 +57,9 @@ export const getServerSideProps: GetServerSideProps<{
       };
     }
   }
+
+  console.info(`[PAY] ${session?.user?.id || "-"} ${link.creatorId} ${linkid}`);
+
   const seller = await adapterClient.sellerAccount.findFirst({
     where: {
       userId: link.creatorId,
