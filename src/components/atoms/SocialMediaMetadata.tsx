@@ -11,12 +11,14 @@ const SocialMediaMetadata = ({ link }: { link: XLink }) => {
     Strict: false,
     Suffix: "...",
   });
+  const title = `${link.metadata.title} by ${link.creator.name}`;
+
   return (
     <Head>
-      <title>{link.metadata.title}</title>
+      <title>{title}</title>
       <meta name="description" content={shortDescription} />
       <meta property="og:url" content={`${canonicalUrl}/to/${link.hash}`} />
-      <meta property="og:title" content={link.metadata.title} key="title" />
+      <meta property="og:title" content={title} key="title" />
       <meta property="og:description" content={shortDescription} />
       <meta property="og:image" content={link.metadata.previewImage} />
       <meta property="og:type" content="product" />
@@ -27,7 +29,7 @@ const SocialMediaMetadata = ({ link }: { link: XLink }) => {
 
       <meta property="twitter:site" content="@thetakeoverdao" />
       <meta property="twitter:card" content="summary_large_image" />
-      <meta property="twitter:title" content={link.metadata.title} />
+      <meta property="twitter:title" content={title} />
       <meta property="twitter:domain" content="The Takeover" />
       <meta property="twitter:description" content={shortDescription} />
       <meta
