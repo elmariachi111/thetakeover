@@ -2,6 +2,7 @@ import { Button, Flex, Progress, Text } from "@chakra-ui/react";
 import { FileTypeIcon } from "../../atoms/BinaryFileTypeIcon";
 import { useUpload } from "./Context";
 import filesize from "file-size";
+import { useEffect, useState } from "react";
 
 const FileUploadIndicator = ({ file }: { file: File }) => {
   const { uploadProgress } = useUpload();
@@ -30,6 +31,12 @@ const FileUploadIndicator = ({ file }: { file: File }) => {
 const UploadableFiles = (props) => {
   const { filesToUpload, uploadFiles, uploadProgress } = useUpload();
 
+  const [disabled, setDisabled] = useState(false);
+
+  useEffect(() => {
+    setDisabled(Object.keys(uploadProgress).length > 0);
+  }, [uploadProgress]);
+
   return (
     <Flex direction="column" gridGap={3} my={3}>
       {filesToUpload.map((f) => (
@@ -39,8 +46,11 @@ const UploadableFiles = (props) => {
       {filesToUpload.length > 0 && (
         <Button
           w="100%"
-          disabled={Object.keys(uploadProgress).length > 0}
-          onClick={uploadFiles}
+          disabled={disabled}
+          onClick={() => {
+            setDisabled(true);
+            uploadFiles();
+          }}
         >
           Upload files
         </Button>
