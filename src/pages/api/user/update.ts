@@ -38,6 +38,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     data: {
       name: user.name,
       email: user.email,
+      twitterHandle: user.twitterHandle || null,
       emailVerified: user.email === userData.email ? undefined : null,
     },
   });

@@ -1,14 +1,11 @@
 import parsePath from "parse-path";
 import { ChainName, translateChain } from "../../types/ChainConditions";
+import { isHexNumber } from "../strings";
 
 const HEX_NUMBERS = new RegExp(`^([a-f\\d])+$`, "g");
 
 const isNumeric = (num: string) => {
   return num.match(/^\d+$/);
-};
-
-const isHexNumber = (num: string) => {
-  return num.match(/^0x([A-Fa-f\d])+$/);
 };
 
 type ExtractedNFT = {
