@@ -30,6 +30,7 @@ import { findSettledPayment } from "../../../modules/api/findPayment";
 import { DisplayableLink } from "../../../types/Link";
 
 import { ConditionAllowanceDialog } from "../../../components/organisms/Gate/ConditionAllowanceDialog";
+import logtail from "../../../modules/api/logging";
 
 export const getServerSideProps: GetServerSideProps<{
   link: DisplayableLink;
@@ -58,7 +59,11 @@ export const getServerSideProps: GetServerSideProps<{
     }
   }
 
-  console.info(`[PAY] ${session?.user?.id || "-"} ${link.creatorId} ${linkid}`);
+  logtail.info("pay", {
+    user: session?.user?.id || "-",
+    creator: link.creatorId,
+    link: linkid,
+  });
 
   const seller = await adapterClient.sellerAccount.findFirst({
     where: {
