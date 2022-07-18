@@ -52,6 +52,12 @@ const matchesCondition = (
   return result;
 };
 
+const replaceAll = (s: string, f: string, r: string) => {
+  return s
+    .split(",")
+    .map((p) => p.replace(f, r))
+    .join(",");
+};
 const checkCondition = async (condition: ChainCondition, against: Against) => {
   if (condition.conditionType !== "evmBasic") {
     //todo this seems to be obsolete
@@ -70,7 +76,7 @@ const checkCondition = async (condition: ChainCondition, against: Against) => {
   const args = condition.parameters.map((parameter, i) => {
     let arg =
       typeof parameter === "string"
-        ? parameter.replaceAll(":userAddress", against.user.eth!)
+        ? replaceAll(parameter, ":userAddress", against.user.eth!)
         : parameter;
 
     if (functionDefinition.inputs[i].type.endsWith("[]")) {
