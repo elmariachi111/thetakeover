@@ -2,6 +2,7 @@ import { Link, Prisma } from "@prisma/client";
 import { DefaultUser } from "next-auth";
 import { ChainCondition } from "../../types/ChainConditions";
 import { findSettledPayment } from "../api/findPayment";
+import logtail from "../api/logging";
 import { checkChainConditions } from "./checkChainConditions";
 
 export const canAccessLink = async (
@@ -31,9 +32,14 @@ export const canAccessLink = async (
       user,
     });
     if (conditionsMatched) {
-      console.info(
-        `[NFT] ${user.id} ${link.creatorId} ${link.hash} ${conditions[0].standardContractType} ${conditions[0].chain}  ${conditions[0].contractAddress}`
-      );
+      logtail.info("takeover:nftgate", {
+        user: user.id,
+        creator: link.creatorId,
+        link: link.hash,
+        chain: conditions[0].chain,
+        type: conditions[0].standardContractType,
+        contract: conditions[0].contractAddress,
+      });
     }
     return conditionsMatched;
   }

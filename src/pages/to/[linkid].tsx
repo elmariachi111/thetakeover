@@ -12,6 +12,7 @@ import { ViewLink } from "../../components/molecules/to/ViewLink";
 import { GateWorkerProvider } from "../../context/GatingWorkerContext";
 import { findLink, findLinks } from "../../modules/api/findLink";
 import { countPayments } from "../../modules/api/findPayment";
+import logtail from "../../modules/api/logging";
 import * as Gate from "../../modules/gate";
 import { XLink } from "../../types/Link";
 
@@ -52,7 +53,13 @@ export const getServerSideProps: GetServerSideProps<{
     return redirectToPayment(link.hash);
   }
 
-  console.info(`[VIEW] ${user?.id || "-"} ${link.creatorId} ${linkid}`);
+  logtail.info("takeover:view", {
+    user: user?.id || "-",
+    creator: link.creatorId,
+    link: linkid,
+  });
+
+  //console.info(`[VIEW] ${user?.id || "-"} ${link.creatorId} ${linkid}`);
 
   const paymentCount = await countPayments(link.hash);
 
