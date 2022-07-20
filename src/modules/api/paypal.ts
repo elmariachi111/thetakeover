@@ -175,7 +175,7 @@ export function sdk(
 }
 
 const paypal = sdk(
-  process.env.PAYPAL_SDK_ENDPOINT as string,
+  process.env.NEXT_PUBLIC_PAYPAL_SDK_ENDPOINT as string,
   process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID as string,
   process.env.PAYPAL_SECRET as string,
   process.env.PAYPAL_MERCHANT_ID as string
