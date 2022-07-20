@@ -212,9 +212,6 @@ function ToPay({
               {seller ? (
                 <PayPalScriptProvider
                   options={{
-                    intent: "capture",
-                    sdkBaseURL: process.env
-                      .NEXT_PUBLIC_PAYPAL_SDK_ENDPOINT as string,
                     "client-id": process.env
                       .NEXT_PUBLIC_PAYPAL_CLIENT_ID as string,
                     "data-partner-attribution-id": process.env
