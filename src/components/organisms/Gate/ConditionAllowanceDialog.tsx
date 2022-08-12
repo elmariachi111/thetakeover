@@ -12,7 +12,7 @@ import { XLink } from "../../../types/Link";
 import { SpeakCondition } from "../../molecules/Gate/SpeakCondition";
 import { default as NextLink } from "next/link";
 import { FaCheckCircle } from "react-icons/fa";
-import { AiOutlineStop } from "react-icons/ai";
+import { RiEmotionSadLine } from "react-icons/ri";
 import { SiweButton } from "../../atoms/SiweButton";
 
 export const ConditionAllowanceDialog = (props: { link: XLink }) => {
@@ -55,9 +55,10 @@ export const ConditionAllowanceDialog = (props: { link: XLink }) => {
           </NextLink>
         ) : matchesConditions === false ? (
           <Icon
-            as={AiOutlineStop}
-            width="8"
-            height="8"
+            mx={4}
+            as={RiEmotionSadLine}
+            width="12"
+            height="12"
             title="you're not matching the requirements"
           />
         ) : (

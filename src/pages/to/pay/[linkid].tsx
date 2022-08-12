@@ -191,56 +191,46 @@ function ToPay({
         />
       </Flex>
 
-      {link.saleStatus === "ON_SALE" ? (
+      {(payment || isCreator) && (
+        <Button as={ChakraLink} href={`/to/${link.hash}`} my={6}>
+          proceed to content
+        </Button>
+      )}
+      {link.chainConditions && <ConditionAllowanceDialog link={link} />}
+
+      {!payment && link.saleStatus === "ON_SALE" && (
         <>
-          {(payment || isCreator) && (
-            <Button as={ChakraLink} href={`/to/${link.hash}`} my={6}>
-              proceed to content
-            </Button>
-          )}
-          {link.chainConditions && <ConditionAllowanceDialog link={link} />}
-          <Flex direction="row" my={6} justify="space-between">
-            <Text fontWeight={500} fontSize="lg">
-              Total
-            </Text>
-            <Text fontWeight={700} fontSize="xl">
-              €{link.price}
-            </Text>
-          </Flex>
-          {!payment && (
-            <Flex direction="column" w="full">
-              {seller ? (
-                <PayPalScriptProvider
-                  options={{
-                    "client-id": process.env
-                      .NEXT_PUBLIC_PAYPAL_CLIENT_ID as string,
-                    "data-partner-attribution-id": process.env
-                      .NEXT_PUBLIC_PAYPAL_ATTRIBUTION_ID as string,
-                    "merchant-id": seller.merchantIdInPayPal,
-                    currency: "EUR",
-                  }}
-                >
-                  <PayPalButtons
-                    createOrder={createOrder}
-                    onApprove={onApprove}
-                    style={{
-                      shape: "rect",
-                      label: "pay",
-                      layout: "vertical",
-                    }}
-                  />
-                </PayPalScriptProvider>
-              ) : (
-                <SellerNotConnectedAlert creator={link.creator} />
-              )}
-            </Flex>
+          {seller ? (
+            <PayPalScriptProvider
+              options={{
+                "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID as string,
+                "data-partner-attribution-id": process.env
+                  .NEXT_PUBLIC_PAYPAL_ATTRIBUTION_ID as string,
+                "merchant-id": seller.merchantIdInPayPal,
+                currency: "EUR",
+              }}
+            >
+              <Flex direction="row" my={6} justify="space-between">
+                <Text fontWeight={500} fontSize="lg">
+                  Total
+                </Text>
+                <Text fontWeight={700} fontSize="xl">
+                  €{link.price}
+                </Text>
+              </Flex>
+              <PayPalButtons
+                createOrder={createOrder}
+                onApprove={onApprove}
+                style={{
+                  shape: "rect",
+                  label: "pay",
+                }}
+              />
+            </PayPalScriptProvider>
+          ) : (
+            <SellerNotConnectedAlert creator={link.creator} />
           )}
         </>
-      ) : (
-        <GeneralAlert
-          status="info"
-          title="This item is currently not for sale."
-        />
       )}
     </Flex>
   );

@@ -150,8 +150,9 @@ const ProfileEditor = (props: { user: XUser }) => {
   return (
     <>
       <FormControl>
-        <FormLabel>Name</FormLabel>
+        <FormLabel>Display Name</FormLabel>
         <Input {...fName} />
+        <FormHelperText>this is visible to users</FormHelperText>
       </FormControl>
 
       <FormControl isDisabled={!!user.emailVerified}>
