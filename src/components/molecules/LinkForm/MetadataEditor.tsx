@@ -22,7 +22,7 @@ export const LinkSchema = Yup.object().shape({
   url: Yup.string().url("not an url").max(550),
   price: Yup.number()
     .moreThan(0.98, "price too low")
-    .lessThan(100, "price too high")
+    .lessThan(10000, "price too high")
     .required("required"),
   title: Yup.string()
     .min(3, "too short")

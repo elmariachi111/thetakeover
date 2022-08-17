@@ -2,10 +2,13 @@ import {
   Button,
   Flex,
   FormControl,
+  FormHelperText,
   FormLabel,
   Heading,
   Icon,
   Input,
+  InputGroup,
+  InputLeftAddon,
   Link,
   Spacer,
   Spinner,
@@ -139,11 +142,17 @@ const ProfileEditor = (props: { user: XUser }) => {
     value: user.name || "",
   });
 
+  const [fTwitter] = useField({
+    name: "twitterHandle",
+    value: user.twitterHandle || "",
+  });
+
   return (
     <>
       <FormControl>
-        <FormLabel>Name</FormLabel>
+        <FormLabel>Display Name</FormLabel>
         <Input {...fName} />
+        <FormHelperText>this is visible to users</FormHelperText>
       </FormControl>
 
       <FormControl isDisabled={!!user.emailVerified}>
@@ -164,6 +173,20 @@ const ProfileEditor = (props: { user: XUser }) => {
             <SiweButton onConnected={setEthAddress}>Connect</SiweButton>
           )}
         </Flex>
+      </FormControl>
+
+      <FormControl>
+        <FormLabel>Twitter Handle</FormLabel>
+        <Flex direction="row" align="center" gap={6}>
+          <InputGroup>
+            <InputLeftAddon py={8} alignSelf="center">
+              @
+            </InputLeftAddon>
+
+            <Input {...fTwitter} />
+          </InputGroup>
+        </Flex>
+        <FormHelperText>used for social previews</FormHelperText>
       </FormControl>
     </>
   );

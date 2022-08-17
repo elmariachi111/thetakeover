@@ -5,7 +5,7 @@ import React from "react";
 export function FormikChakraSwitch(props: {
   name: string;
   label: string;
-  options: { on: string; off: string };
+  options?: { on: string; off: string };
 }) {
   const { name, label, options } = props;
   const [, meta, helpers] = useField(props.name);
@@ -19,10 +19,16 @@ export function FormikChakraSwitch(props: {
         <Switch
           id={name}
           size="lg"
-          isChecked={value === options.on}
+          isChecked={options ? value === options.on : !!value}
           colorScheme="brand"
           onChange={() =>
-            setValue(value === options.on ? options.off : options.on)
+            setValue(
+              options
+                ? value === options.on
+                  ? options.off
+                  : options.on
+                : !value
+            )
           }
         />
       </Flex>

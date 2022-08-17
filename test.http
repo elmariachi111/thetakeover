@@ -25,7 +25,7 @@ GET  http://localhost:3000/api/to/MZAP3AZS8427pm4LBzJDG
 
 ### PAYMENTS
 
-@Paypal = {{$dotenv PAYPAL_SDK_ENDPOINT}}
+@Paypal = {{$dotenv NEXT_PUBLIC_PAYPAL_SDK_ENDPOINT}}
 @PaypalClientId = {{$dotenv NEXT_PUBLIC_PAYPAL_CLIENT_ID}}
 @PaypalSecret = {{$dotenv PAYPAL_SECRET}}
 
@@ -91,7 +91,7 @@ Content-Type: application/json
 # partner client id AcP4K782w2qGvdAqP8RyLpMHu6QQ7OCc4vuI1exApmbf29vSBNGGLxS_TEHWaixhTgeoYgnT7QjDeI2e
 # merchant client id AYjudzAPBnSrNxaboRKkaoVPGdmdj_nMjh5Tk6GCFpa-29oGUMT6tRHscE9pXT7-Z_-03RCT7-otLMq9
 
-### 
+
 
 #N2E1ZDNjNTItMTU3MC00MzM5LTkyOTctN2Y5YmY3NTM2ZWMzVjgzSDFSTkM2RHRWY0xiWkx3U3F6blYxZ3d1RUlrdUpKMmVzQkdsZmhQTT12Mg==
 

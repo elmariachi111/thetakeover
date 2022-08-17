@@ -1,4 +1,5 @@
 import {
+  AspectRatio,
   Button,
   Flex,
   Heading,
@@ -29,6 +30,7 @@ import { findLink } from "../../../modules/api/findLink";
 import { findSettledPayment } from "../../../modules/api/findPayment";
 import { DisplayableLink } from "../../../types/Link";
 
+import { SocialMediaMetadata } from "../../../components/atoms/SocialMediaMetadata";
 import { ConditionAllowanceDialog } from "../../../components/organisms/Gate/ConditionAllowanceDialog";
 import logtail from "../../../modules/api/logging";
 
@@ -163,6 +165,7 @@ function ToPay({
 
   return (
     <Flex direction="column">
+      <SocialMediaMetadata link={link} />
       <Flex my={5} direction="row" justify="space-between">
         <Flex direction="column">
           <Heading size="lg" color="gray.500">
@@ -172,68 +175,62 @@ function ToPay({
         </Flex>
         {!isCreator && <ReportContent link={link} size="xs" variant="ghost" />}
       </Flex>
-      <Image
-        src={link.metadata.previewImage}
-        my={4}
-        width="100%"
-        alt={link.metadata.title}
-      />
+      <AspectRatio ratio={16 / 9} overflow="hidden" my={4}>
+        <Image
+          src={link.metadata.previewImage}
+          width="100%"
+          alt={link.metadata.title}
+        />
+      </AspectRatio>
+      <Flex direction="column">
+        <ReactMarkdown
+          components={ChakraUIRenderer()}
+          // eslint-disable-next-line react/no-children-prop
+          children={link.metadata.description}
+          skipHtml
+        />
+      </Flex>
 
-      <ReactMarkdown
-        components={ChakraUIRenderer()}
-        // eslint-disable-next-line react/no-children-prop
-        children={link.metadata.description}
-        skipHtml
-      />
+      {(payment || isCreator) && (
+        <Button as={ChakraLink} href={`/to/${link.hash}`} my={6}>
+          proceed to content
+        </Button>
+      )}
+      {link.chainConditions && <ConditionAllowanceDialog link={link} />}
 
-      {link.saleStatus === "ON_SALE" ? (
+      {!payment && link.saleStatus === "ON_SALE" && (
         <>
-          {(payment || isCreator) && (
-            <Button as={ChakraLink} href={`/to/${link.hash}`}>
-              proceed to content
-            </Button>
-          )}
-          {link.chainConditions && <ConditionAllowanceDialog link={link} />}
-          <Flex direction="row" my={6} justify="space-between">
-            <Text fontWeight={500} fontSize="lg">
-              Total
-            </Text>
-            <Text fontWeight={700} fontSize="xl">
-              €{link.price}
-            </Text>
-          </Flex>
-          {!payment && (
-            <Flex direction="column" w="full">
-              {seller ? (
-                <PayPalScriptProvider
-                  options={{
-                    "client-id": process.env
-                      .NEXT_PUBLIC_PAYPAL_CLIENT_ID as string,
-                    "merchant-id": seller.merchantIdInPayPal,
-                    currency: "EUR",
-                  }}
-                >
-                  <PayPalButtons
-                    createOrder={createOrder}
-                    onApprove={onApprove}
-                    style={{
-                      shape: "rect",
-                      label: "pay",
-                      layout: "vertical",
-                    }}
-                  />
-                </PayPalScriptProvider>
-              ) : (
-                <SellerNotConnectedAlert creator={link.creator} />
-              )}
-            </Flex>
+          {seller ? (
+            <PayPalScriptProvider
+              options={{
+                "client-id": process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID as string,
+                "data-partner-attribution-id": process.env
+                  .NEXT_PUBLIC_PAYPAL_ATTRIBUTION_ID as string,
+                "merchant-id": seller.merchantIdInPayPal,
+                currency: "EUR",
+              }}
+            >
+              <Flex direction="row" my={6} justify="space-between">
+                <Text fontWeight={500} fontSize="lg">
+                  Total
+                </Text>
+                <Text fontWeight={700} fontSize="xl">
+                  €{link.price}
+                </Text>
+              </Flex>
+              <PayPalButtons
+                createOrder={createOrder}
+                onApprove={onApprove}
+                style={{
+                  shape: "rect",
+                  label: "pay",
+                }}
+              />
+            </PayPalScriptProvider>
+          ) : (
+            <SellerNotConnectedAlert creator={link.creator} />
           )}
         </>
-      ) : (
-        <GeneralAlert
-          status="info"
-          title="This item is currently not for sale."
-        />
       )}
     </Flex>
   );

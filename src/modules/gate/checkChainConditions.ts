@@ -4,6 +4,7 @@ import { ChainCondition } from "../../types/ChainConditions";
 import erc721abi from "../abi/erc721.json";
 import erc1155abi from "../abi/erc1155.json";
 import { getInfuraProvider } from "../infura";
+import { replaceAll } from "../strings";
 
 type Against = {
   user: DefaultUser & {
@@ -52,12 +53,6 @@ const matchesCondition = (
   return result;
 };
 
-const replaceAll = (s: string, f: string, r: string) => {
-  return s
-    .split(",")
-    .map((p) => p.replace(f, r))
-    .join(",");
-};
 const checkCondition = async (condition: ChainCondition, against: Against) => {
   if (condition.conditionType !== "evmBasic") {
     //todo this seems to be obsolete
