@@ -155,7 +155,10 @@ const MarketplaceLinkExtractor = () => {
 
   return (
     <FormControl>
-      <FormLabel>paste a marketplace link here</FormLabel>
+      <FormLabel style={{ lineHeight: "1.2em" }}>
+        paste a marketplace link here <br />{" "}
+        <small>to extract NFT details automatically</small>
+      </FormLabel>
       <Input
         p={5}
         size="sm"
@@ -168,7 +171,6 @@ const MarketplaceLinkExtractor = () => {
           }, 800);
         }}
       />
-      <FormHelperText>to extract NFT details automatically</FormHelperText>
     </FormControl>
   );
 };

@@ -34,6 +34,9 @@ export const ToSuccessOverlay = ({
           justify="center"
           direction="column"
           gridGap={5}
+          background={colorMode === "dark" ? "grey.200" : "gray.800"}
+          padding={6}
+          borderRadius="2xl"
         >
           <Flex alignSelf="flex-end">
             <CloseButton
@@ -41,7 +44,7 @@ export const ToSuccessOverlay = ({
               color="white"
             />
           </Flex>
-          <Icon as={FaCheckCircle} h="20vh" w="20vw" color="white" />
+          <Icon as={FaCheckCircle} h="15vh" w="15vw" color="white" />
           <Text fontSize="2xl" color="white">
             {title}
           </Text>

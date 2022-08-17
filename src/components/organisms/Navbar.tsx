@@ -137,7 +137,6 @@ const Navbar = () => {
                 >
                   Privacy
                 </Link>
-                <Text>M</Text>
               </Flex>
             </Flex>
           </Flex>
