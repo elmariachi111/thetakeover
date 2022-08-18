@@ -126,6 +126,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       provider: "PAYPAL",
       paymentIntent: order.intent as PaymentIntent,
       paymentStatus: order.status as PaymentStatus,
+      transactionId: capture0 ? capture0.id : null,
       linkHash: link.hash,
       userId: user?.id,
       payee: purchaseUnit0.payee.merchant_id || null,
@@ -137,9 +138,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       paymentIntent: order.intent as PaymentIntent,
       paymentStatus: order.status as PaymentStatus,
       userId: user?.id,
-      breakdown,
+      transactionId: capture0?.id,
       currencyCode: capture0?.amount.currency_code,
       value: capture0?.amount.value,
+      breakdown,
     },
   });
 

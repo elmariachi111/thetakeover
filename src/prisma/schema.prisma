@@ -120,6 +120,7 @@ model Payment {
     userId        String?         @map("user_id")
     provider      PaymentProvider @default(PAYPAL)
     paymentRef    String          @unique @map("payment_ref")
+    transactionId String?         @unique @map("transaction_id")
     paymentIntent PaymentIntent   @default(CAPTURE) @map("payment_intent")
     paymentStatus PaymentStatus?  @map("payment_status")
     initiatedAt   DateTime        @default(now()) @map("initiated_at")
