@@ -18,7 +18,13 @@ import { sendPurchaseConfirmations } from "../../../../modules/api/sendPurchaseC
 import { paypalNameObjectToString } from "../../../../modules/strings";
 
 const prisma = new PrismaClient();
-const paypalEnv = new Paypal.SandboxEnvironment(
+
+const PaypalEnvClass =
+  process.env.NEXT_PUBLIC_PAYPAL_SDK_ENDPOINT === "https://api-m.paypal.com"
+    ? Paypal.LiveEnvironment
+    : Paypal.SandboxEnvironment;
+
+const paypalEnv = new PaypalEnvClass(
   process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID as string,
   process.env.PAYPAL_SECRET as string
 );
