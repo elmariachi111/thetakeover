@@ -39,7 +39,11 @@ export const SalesRow = ({ payment }: { payment: XSalesPayment }) => {
   };
 
   const fees = useMemo<Array<SalesRowDetails>>(() => {
-    if (!payment.breakdown) return [];
+    if (!payment.breakdown || Object.keys(payment.breakdown).length == 0)
+      return [];
+
+    console.log(payment.breakdown);
+
     const fees: SalesRowDetails[] = [];
 
     fees.push({
