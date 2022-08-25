@@ -44,7 +44,7 @@ grant_type=client_credentials
 #57595573V1292361Y
 
 #GET {{Paypal}}/v2/payments/captures/23M80733A88474749
-GET {{Paypal}}/v2/checkout/orders/83S214797E125715K
+GET {{Paypal}}/v2/checkout/orders/0AG472767V153561K
 Authorization: Bearer {{PaypalAccessToken}}
 Content-Type: application/json
 

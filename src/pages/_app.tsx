@@ -38,6 +38,7 @@ function MyApp({
       <Web3Provider>
         <SessionProvider session={session}>
           <Head>
+            <title>The Takeover</title>
             <script
               src="https://widget.cloudinary.com/v2.0/global/all.js"
               type="text/javascript"
