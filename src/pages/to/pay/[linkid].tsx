@@ -6,23 +6,14 @@ import {
   Image,
   Link as ChakraLink,
   Text,
-  useToast,
 } from "@chakra-ui/react";
-import type {
-  CreateOrderActions,
-  OnApproveActions,
-  OnApproveData,
-} from "@paypal/paypal-js";
 import { PayPalButtons, PayPalScriptProvider } from "@paypal/react-paypal-js";
-import { Payment, SellerAccount } from "@prisma/client";
-import axios from "axios";
+import { SellerAccount } from "@prisma/client";
 import ChakraUIRenderer from "chakra-ui-markdown-renderer";
 import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import { getSession, useSession } from "next-auth/react";
-import { useRouter } from "next/router";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
-import { GeneralAlert } from "../../../components/atoms/GeneralAlert";
 import { ReportContent } from "../../../components/molecules/ReportContent";
 import { SellerNotConnectedAlert } from "../../../components/molecules/SellerNotConnectedAlert";
 import { adapterClient } from "../../../modules/api/adapter";
@@ -33,8 +24,7 @@ import { DisplayableLink } from "../../../types/Link";
 import { SocialMediaMetadata } from "../../../components/atoms/SocialMediaMetadata";
 import { ConditionAllowanceDialog } from "../../../components/organisms/Gate/ConditionAllowanceDialog";
 import logtail from "../../../modules/api/logging";
-
-const PLATFORM_FEE = 0.05;
+import { usePaypalActions } from "../../../modules/usePaypalActions";
 
 export const getServerSideProps: GetServerSideProps<{
   link: DisplayableLink;
@@ -88,75 +78,8 @@ function ToPay({
   link,
   seller,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const router = useRouter();
-  const { linkid } = router.query;
   const { status: sessionStatus, data: sessionData } = useSession();
-  const toast = useToast();
-  const [payment, setPayment] = useState<Payment>();
-
-  const createOrder = async (
-    _data: Record<string, unknown>,
-    actions: CreateOrderActions
-  ) => {
-    const orderId = await actions.order.create({
-      intent: "CAPTURE",
-      application_context: {
-        shipping_preference: "NO_SHIPPING",
-      },
-      purchase_units: [
-        {
-          reference_id: linkid as string,
-          description: `Takeover ${linkid} by ${link.creator.name}`,
-          amount: {
-            currency_code: "EUR",
-            value: `${link.price}`,
-          },
-
-          /*
-           * consider adding payee information (needs their email address)
-           * https://developer.paypal.com/api/orders/v2/#definition-purchase_unit_request
-           */
-          payment_instruction: {
-            disbursement_mode: "INSTANT",
-            platform_fees: [
-              {
-                amount: {
-                  currency_code: "EUR",
-                  value: (PLATFORM_FEE * link.price).toFixed(2),
-                },
-              },
-            ],
-          },
-        },
-      ],
-    });
-    try {
-      await axios.post(`/api/to/pay/${orderId}`);
-    } catch (e: any) {
-      toast({
-        status: "warning",
-        title: "Payment failed. Nothing has been charged",
-        description: `Reason: ${e.message}`,
-      });
-      throw e;
-    }
-    //console.log(orderId);
-    return orderId;
-  };
-
-  const onApprove = async (data: OnApproveData, actions: OnApproveActions) => {
-    if (!actions.order) return;
-    try {
-      const details = await actions.order.capture();
-      const res = await axios.post(`/api/to/pay/${details.id}`);
-      setPayment(await res.data);
-    } catch (e: any) {
-      toast({
-        title: "Payment failed. Nothing has been charged",
-        description: `Reason: ${e.message}`,
-      });
-    }
-  };
+  const { payment, onApprove, createOrder } = usePaypalActions(link);
 
   const isCreator = useMemo(() => {
     return (
@@ -177,6 +100,7 @@ function ToPay({
         </Flex>
         {!isCreator && <ReportContent link={link} size="xs" variant="ghost" />}
       </Flex>
+
       <AspectRatio ratio={16 / 9} overflow="hidden" my={4}>
         <Image
           src={link.metadata.previewImage}
