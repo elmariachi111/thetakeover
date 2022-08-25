@@ -34,6 +34,8 @@ import { SocialMediaMetadata } from "../../../components/atoms/SocialMediaMetada
 import { ConditionAllowanceDialog } from "../../../components/organisms/Gate/ConditionAllowanceDialog";
 import logtail from "../../../modules/api/logging";
 
+const PLATFORM_FEE = 0.05;
+
 export const getServerSideProps: GetServerSideProps<{
   link: DisplayableLink;
   seller: SellerAccount | null;
@@ -120,7 +122,7 @@ function ToPay({
               {
                 amount: {
                   currency_code: "EUR",
-                  value: (0.1 * link.price).toFixed(2),
+                  value: (PLATFORM_FEE * link.price).toFixed(2),
                 },
               },
             ],
