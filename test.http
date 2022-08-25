@@ -48,6 +48,13 @@ GET {{Paypal}}/v2/checkout/orders/83S214797E125715K
 Authorization: Bearer {{PaypalAccessToken}}
 Content-Type: application/json
 
+### captures 
+
+GET {{Paypal}}/v2/payments/captures/49W670071R792962T
+Authorization: Bearer {{PaypalAccessToken}}
+Content-Type: application/json
+
+
 ### start partner onboarding:
 POST {{Paypal}}/v2/customer/partner-referrals
 Authorization: Bearer {{PaypalAccessToken}}

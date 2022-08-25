@@ -26,13 +26,19 @@ export const ConditionAllowanceDialog = (props: { link: XLink }) => {
 
   useEffect(() => {
     if (!sessionData?.user) return;
+    if (!sessionData.user.eth) return;
     if (!link.chainConditions) return;
 
     (async () => {
-      const matches = await checkChainConditions(link.chainConditions, {
-        user: sessionData.user!,
-      });
-      setMatchesConditions(matches);
+      try {
+        const matches = await checkChainConditions(link.chainConditions, {
+          user: sessionData.user!,
+        });
+        setMatchesConditions(matches);
+      } catch (e: any) {
+        console.error("checking conditions failed", e);
+        setMatchesConditions(false);
+      }
     })();
   }, [sessionData, link.chainConditions]);
 
