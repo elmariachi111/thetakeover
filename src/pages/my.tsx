@@ -11,6 +11,7 @@ import { PrismaClient } from "@prisma/client";
 import axios from "axios";
 import type { InferGetServerSidePropsType } from "next";
 import { getSession } from "next-auth/react";
+import Head from "next/head";
 import { default as NextLink } from "next/link";
 import { useState } from "react";
 import { TakeoverCard } from "../components/molecules/TakeoverCard";
@@ -119,6 +120,9 @@ function MyTakeOvers({
 
   return (
     <Flex direction="column" h="full" align="flex-start">
+      <Head>
+        <title>Your Takeovers</title>
+      </Head>
       <Flex justify="space-between" align="center" width="100%">
         <Heading my={5}>Your Takeovers</Heading>
         <Spacer />

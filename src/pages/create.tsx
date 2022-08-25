@@ -11,6 +11,7 @@ import axios from "axios";
 import { toBase64 } from "b64-lite";
 import type { NextPage } from "next";
 import { signIn, useSession } from "next-auth/react";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { ToLoadingOverlay } from "../components/atoms/ToOverlay";
@@ -96,6 +97,9 @@ const CreateLink: NextPage = () => {
 
   return (
     <Flex direction="column" h="full">
+      <Head>
+        <title>Create a Takeover</title>
+      </Head>
       {buzy && (
         <ToLoadingOverlay>
           hang on, we&apos;re creating your Takeover

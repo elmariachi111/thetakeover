@@ -28,6 +28,7 @@ import { adapterClient } from "../modules/api/adapter";
 import { default as NextLink } from "next/link";
 import { Identicon } from "../components/atoms/Identicon";
 import { SellerAccountDialog } from "../components/molecules/SellerAccountDialog";
+import Head from "next/head";
 
 type XUser = Omit<User, "emailVerified"> & {
   emailVerified: string | null;
@@ -205,6 +206,9 @@ const Profile = ({
 
   return (
     <Flex direction="column">
+      <Head>
+        <title>{user.name} - Profile</title>
+      </Head>
       <Flex align="flex-end" my={6}>
         <Heading title={user.id}>Your Profile</Heading>
         <Spacer />
